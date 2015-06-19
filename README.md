@@ -21,6 +21,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
 
 ```
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
+  
   <teiHeader>
     <fileDesc>
       <titleStmt>
@@ -36,6 +37,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
       </sourceDesc>
     </fileDesc>
   </teiHeader>
+  
   <text xml:lang="sa-Latn">
     <body>
       <div>
@@ -47,6 +49,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
       </div>
     </body>
   </text>
+
 </TEI>
 ```
 
