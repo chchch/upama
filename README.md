@@ -50,7 +50,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
 </TEI>
 ```
 
-See the template file for more fields.
+See the "template.xml" file for more details. The text should be transcribed in IAST in order for Upama to work properly.
 
 In order to compare a text with more than two witnesses, use the "collate" function:
 
