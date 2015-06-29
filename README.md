@@ -21,6 +21,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
 
 ```
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
+  
   <teiHeader>
     <fileDesc>
       <titleStmt>
@@ -36,6 +37,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
       </sourceDesc>
     </fileDesc>
   </teiHeader>
+  
   <text xml:lang="sa-Latn">
     <body>
       <div>
@@ -47,10 +49,11 @@ This will render the file named "file1.xml" with an apparatus containing variant
       </div>
     </body>
   </text>
+
 </TEI>
 ```
 
-See the template file for more fields.
+See the "template.xml" file for more details. The text should be transcribed in IAST in order for Upama to work properly.
 
 In order to compare a text with more than two witnesses, use the "collate" function:
 
