@@ -1,0 +1,7 @@
+base     saktumiva
+author   Charles Li
+email    
+date     2015-06-01
+name     Saktumiva Template
+desc     Based on the codowik template
+url      http://saktumiva.org

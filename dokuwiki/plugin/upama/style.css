@@ -1,0 +1,181 @@
+@font-face {
+    font-family: IndUni;
+    src: url(fonts/IndUni-H-Regular.otf);
+}
+
+@font-face {
+    font-family: Brill;
+    src: url(fonts/Brill-Roman.ttf);
+}
+
+@font-face {
+    font-family: Roboto;
+    src: url(fonts/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: NagariShree;
+    src: url(fonts/NagariShree.ttf);
+}
+
+@font-face {
+    font-family: Surekh;
+    src: url(fonts/Surekh.ttf);
+}
+
+body {line-height: 1;}
+
+tr.para {width:100%;
+}
+
+tr.milestone {width: 100%;
+              margin-bottom: 10px;
+            
+}
+td.devanagari {font-size: 1.5em !important;
+}
+span.devanagari {font-size: 1.3em !important;
+}
+
+td.maintext {width:67%;
+            font-family: Brill, NagariShree, sans-serif;
+            border: 0;
+            padding: 0 4% 1em 2%;
+            vertical-align:top;
+            text-align: justify;
+            font-size: 1.1em;
+            line-height:130%;
+}
+
+
+td.apparatus {width:33%;
+             border: 0;
+             font-family: Brill, NagariShree, sans-serif;
+             text-align: left;
+             vertical-align:top;
+             font-size: 1em;
+             white-space: normal;
+}
+
+td.verse {font-size: 1.3em;
+          padding: 0;
+          border: 0;
+          text-align: left;
+          line-height: 130%;
+}
+
+td.quotedverse {width:70%;
+                border: 0;
+                padding: 0 4% 0 2%;
+                vertical-align:top;
+                font-size: 1.1em;
+}
+
+td.versebottompadding {padding-bottom: 1em;
+                       border:0;
+}
+
+a.msid:link, a.msid:visited {font-variant: small-caps;
+          color: #000000;
+          font-family: Roboto;
+          font-size: 0.7em;
+          font-weight:bold;
+}
+
+a.mshover:link, a.mshover:visited {text-decoration: underline;
+              text-decoration-style: dotted;
+              -webkit-text-decoration-style: dotted;
+              text-decoration-color: #990000;
+}
+a.mshover:hover {text-decoration-style: solid;
+                -webkit-text-decoration-style: solid;
+}
+
+span.varreading {background-color: #F0F0FF;
+}
+table.section {width:100%;
+               border:0;
+               table-layout:fixed;
+               margin-left: auto;
+               margin-right: auto;
+}
+
+span.unclear {font-style: italic;
+}
+
+span.lb {color:#FF9900;
+        letter-spacing:-0.2em;
+        font-size:130%;
+        line-height:100%;
+        font-family: Roboto, NagariShree, sans-serif;
+        font-weight:normal;
+        vertical-align: bottom;
+}
+    
+span.pb {color:#FF9900;
+        letter-spacing:-0.2em;
+        font-size:130%;
+        line-height:100%;
+        font-weight:normal;
+        font-family: Roboto, NagariShree, monospace;
+        vertical-align:bottom;
+}
+
+span.gap {background-color: #CCCCB2; 
+         color: #CCCCB2;
+}
+
+span.editor {font-size:80%;
+}
+
+span.note {font-size:80%;
+          margin-left: 0.5em;
+}
+
+span.inline {margin-left: 0.5em;
+}
+
+span.super {vertical-align: super;
+            margin-left: 0.1em;
+}
+
+span.varcontainer {padding-right: 1em;
+                  white-space: nowrap;
+}
+
+span.varbracket {color: #9933FF;
+                 font-size: 1.2em;
+                 line-height: 100%;
+                 font-weight: bold;
+}
+
+span.variant {white-space: normal;
+}
+span.variant:hover {background-color: #FFFF99;
+}
+
+span.reading {display: none;
+}
+
+span.highlight {background-color: #FFFF99;
+}
+
+span.sidebar-siglum {font-variant: small-caps;
+}
+
+span.spacer {display: none;
+}
+
+ins.add {//border: 1px dashed grey;
+        text-decoration: none;
+        color: #CC0000;
+}
+
+ins.corr {//border:1px dashed #0099FF;
+         text-decoration: none;
+         color: #0000CC;
+}
+
+del {color: grey;
+     text-decoration-color: #CC0000;
+}

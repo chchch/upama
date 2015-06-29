@@ -1,0 +1,192 @@
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:x="http://www.tei-c.org/ns/1.0"
+                exclude-result-prefixes="x">
+<xsl:output omit-xml-declaration="yes" />
+
+<xsl:template match="x:msIdentifier">
+    <ul>
+        <xsl:for-each select="*">
+            <li><xsl:value-of select="."/></li>
+        </xsl:for-each>
+    </ul>
+</xsl:template>
+
+<xsl:template match="x:text/x:body">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="x:p">
+        <tr class="para">
+        <xsl:apply-templates />
+        </tr>
+</xsl:template>
+
+<xsl:template match="x:maintext">
+    <td class="maintext hyphenate" lang="sa">
+        <xsl:apply-templates />
+    </td>
+</xsl:template>
+<xsl:template match="x:apparatus">
+    <td class="apparatus hyphenate">
+        <xsl:apply-templates />
+    </td>
+</xsl:template>
+<xsl:template name="split">
+    <xsl:param name="mss" select="@mss"/>
+        <xsl:if test="string-length($mss)">
+            <xsl:if test="not($mss=@mss)">, </xsl:if>
+            <span class="msid">
+             <xsl:value-of select="substring-before(concat($mss,';'),';')"/>
+            </span>
+            <xsl:call-template name="split">
+                <xsl:with-param name="mss" select=
+                    "substring-after($mss, ';')"/>
+            </xsl:call-template>
+        </xsl:if>
+ </xsl:template>
+
+<xsl:template match="x:variant">
+    <xsl:element name="span">
+        <xsl:attribute name="data-loc">
+            <xsl:value-of select="@location"/>
+        </xsl:attribute>
+        <xsl:attribute name="class">varcontainer</xsl:attribute>
+        <xsl:call-template name="split"/>: <span class="variant" lang="sa"><xsl:apply-templates /></span>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:reading">
+    <xsl:element name="span"><xsl:attribute name="data-ms"><xsl:value-of select="@ms"/></xsl:attribute><xsl:attribute name="class">reading</xsl:attribute><xsl:apply-templates /></xsl:element>
+</xsl:template>
+<!--<xsl:template match="x:variant">
+    <span class="variant" lang="sa">
+        <xsl:apply-templates />
+    </span>
+</xsl:template> -->
+<xsl:template match="x:lg[@type='verse']/l/maintext">
+    <td class="verse maintext" lang="sa">
+        <xsl:apply-templates />
+    </td>
+</xsl:template>
+
+<xsl:template match="x:lg[@type='quote']/l/maintext">
+    <td class="quotedverse maintext" lang="sa">
+        <xsl:apply-templates />
+    </td>
+</xsl:template>
+
+<xsl:template match="x:lg">
+    <xsl:for-each select = "l">
+    <xsl:choose>
+        <xsl:when test="position() = last()">
+            <tr>
+                <xsl:apply-templates />
+            </tr>
+            <tr><td class="versebottompadding"><xsl:text> </xsl:text></td></tr>
+        </xsl:when>
+        <xsl:otherwise>
+        <tr>
+            <xsl:apply-templates />
+        </tr>
+        </xsl:otherwise>
+    </xsl:choose>
+    </xsl:for-each>
+</xsl:template>
+
+<xsl:template match="x:msid">
+    <span class="msid">
+        <xsl:apply-templates />
+    </span>
+</xsl:template>
+
+<xsl:template match="x:editor">
+    <span class="editor"><xsl:apply-templates /></span>
+</xsl:template>
+<xsl:template match="x:div1">
+    <table class="section">
+        <xsl:apply-templates />
+    </table>
+</xsl:template>
+
+<xsl:template match="x:unclear">
+    <span class="unclear" title="unclear"><xsl:apply-templates/></span>
+</xsl:template>
+<xsl:template match="x:unclear[@ignored='TRUE']">
+    <span class="unclear ignored" title="unclear"><xsl:apply-templates/></span>
+</xsl:template>
+
+<xsl:template match="x:del">
+    <del title="deleted"><xsl:apply-templates /></del>
+</xsl:template>
+<xsl:template match="x:del[@ignored='TRUE']">
+    <del class="ignored" title="deleted"><xsl:apply-templates/></del>
+</xsl:template>
+
+<xsl:template match="x:sic">
+    <del class="sic" title="sic"><xsl:apply-templates /></del>
+</xsl:template>
+<xsl:template match="x:sic[@ignored='TRUE']">
+    <del class="sic ignored" title="sic"><xsl:apply-templates/></del>
+</xsl:template>
+
+<xsl:template match="x:orig">
+    <del class="orig"><xsl:apply-templates /></del>
+</xsl:template>
+<xsl:template match="x:orig[@ignored='TRUE']">
+    <del class="orig ignored"><xsl:apply-templates /></del>
+</xsl:template>
+
+<xsl:template match="x:add">
+    <ins class="add" title="inserted"><xsl:apply-templates /></ins>
+</xsl:template>
+<xsl:template match="x:add[@ignored='TRUE']">
+    <ins class="add ignored" title="inserted"><xsl:apply-templates/></ins>
+</xsl:template>
+
+<xsl:template match="x:corr">
+    <ins class="corr" title="editor's correction"><xsl:apply-templates /></ins>
+</xsl:template>
+<xsl:template match="x:corr[@ignored='TRUE']">
+    <ins class="corr ignored" title="editor's correction"><xsl:apply-templates/></ins>
+</xsl:template>
+
+<xsl:template match="x:lb">
+    <xsl:element name="span"><xsl:attribute name="title">line <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">lb</xsl:attribute><xsl:text disable-output-escaping="yes">⌊</xsl:text></xsl:element>
+</xsl:template>
+<xsl:template match="x:lb[@ignored='TRUE']">
+    <xsl:element name="span"><xsl:attribute name="title">line <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">lb ignored</xsl:attribute><xsl:text disable-output-escaping="yes">⌊</xsl:text></xsl:element>
+</xsl:template> 
+ 
+<xsl:template match="x:pb">
+    <xsl:element name="span"><xsl:attribute name="title">page <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">pb</xsl:attribute>⌊</xsl:element>
+</xsl:template>
+<xsl:template match="x:pb[@ignored='TRUE']">
+    <xsl:element name="span"><xsl:attribute name="title">page <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">pb ignored</xsl:attribute>⌊</xsl:element>
+</xsl:template>
+
+
+<xsl:template match="x:gap">
+    <xsl:element name="span"><xsl:attribute name="class">gap</xsl:attribute><xsl:attribute name="title">gap of <xsl:value-of select="@extent"/></xsl:attribute><xsl:text>_</xsl:text></xsl:element>
+</xsl:template>
+<xsl:template match="x:gap[@ignored='TRUE']">
+    <xsl:element name="span"><xsl:attribute name="class">gap ignored</xsl:attribute><xsl:attribute name="title">gap of <xsl:value-of select="@extent"/></xsl:attribute><xsl:text>_</xsl:text></xsl:element>
+</xsl:template>
+
+<xsl:template match="x:note">
+    <span class="note inline"><xsl:apply-templates /></span>
+</xsl:template>
+<xsl:template match="x:note[@place='above']">
+    <span class="note super"><xsl:apply-templates /></span>
+</xsl:template>
+<xsl:template match="x:note[@ignored='TRUE']">
+    <span class="note inline ignored"><xsl:apply-templates /></span>
+</xsl:template>
+<xsl:template match="x:note[@ignored='TRUE' and @place='above']">
+    <span class="note super ignored"><xsl:apply-templates /></span>
+</xsl:template>
+
+<xsl:template match="x:@*|node()">
+    <xsl:copy><xsl:apply-templates select="@* | node()"/></xsl:copy>
+</xsl:template>
+
+</xsl:stylesheet>
