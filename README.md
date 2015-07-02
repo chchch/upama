@@ -67,7 +67,7 @@ $compared2 = $upama->compare('file1.xml','file2.xml');
 
 $collated = $upama->collate($compared1,$compared2);
 
-echo $upama->tramsform($collated);
+echo $upama->transform($collated);
 
 ?>
 ```
