@@ -1,28 +1,28 @@
-/*@font-face {
+@font-face {
     font-family: IndUni;
     src: url(fonts/IndUni-H-Regular.otf);
 }
-*/
+
 @font-face {
     font-family: Brill;
     src: url(fonts/Brill-Roman.ttf);
 }
-/*
+
 @font-face {
     font-family: Roboto;
     src: url(fonts/Roboto-Light.ttf);
 }
-*/
+
 @font-face {
     font-family: NagariShree;
     src: url(fonts/NagariShree.ttf);
 }
-/*
+
 @font-face {
     font-family: Surekh;
     src: url(fonts/Surekh.ttf);
 }
-*/
+
 body {line-height: 1;}
 
 tr.para {width:100%;
@@ -64,11 +64,13 @@ td.verse {font-size: 1.3em;
           line-height: 130%;
 }
 
-td.quotedverse {width:70%;
-                border: 0;
-                padding: 0 4% 0 2%;
+div.quotedverse {
+                padding: 2% 0 2% 2%;
                 vertical-align:top;
-                font-size: 1.1em;
+                //background-color: inherit;
+}
+
+div.verseline {
 }
 
 td.versebottompadding {padding-bottom: 1em;
@@ -106,18 +108,18 @@ span.unclear {font-style: italic;
 span.lb {color:#FF9900;
         letter-spacing:-0.2em;
         font-size:130%;
-        line-height:100%;
-        font-family: sans-serif;
+        line-height:0.76;
+        font-family: Roboto, NagariShree, sans-serif;
         font-weight:normal;
-        vertical-align: bottom;
+        vertical-align: baseline;
 }
     
 span.pb {color:#FF9900;
-        letter-spacing:-0.2em;
+        letter-spacing:-0.35em;
         font-size:130%;
-        line-height:100%;
+        line-height:0.76;
         font-weight:normal;
-        font-family: monospace;
+        font-family: Roboto, NagariShree, monospace;
         vertical-align:bottom;
 }
 
@@ -141,6 +143,7 @@ span.inline {margin-left: 0.5em;
 
 span.super {vertical-align: super;
             margin-left: 0.1em;
+            line-height: normal;
 }
 
 span.varcontainer {padding-right: 1em;

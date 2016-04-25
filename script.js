@@ -10,66 +10,173 @@ highlight: function(id,node) {
     var startnode, endnode;
     var startpos = -1;
     var endpos = -1;
+    var kid;
+    var spaceAtEndOfContainer = false;
+
     if(pos[0] == 0) {
         var startpos = 0;
         var startnode = node.childNodes[0];
     }
 
-    function recurseElements(node) {
+    function countSpaces(node) {
         var kids=node.childNodes;
+
         for(var i=0;i<kids.length;i++) {
-            var kid = kids[i];
+            kid = kids[i];
             if(kid.nodeType == 3) { // text node
                 var kidtext = kid.data;
+                if(!kidtext.charAt(0).match(/\s/)) spaceAtEndOfContainer = false;
                // var space = kidtext.indexOf(" "); // doesn't work with non-breaking spaces
-                var space = upama.regexIndexOf(kidtext,/\s/);
-                while(space >= 0) {
-                    spaces++;
-                    if(spaces == pos[0] && startpos == -1) {
-                        startpos = space+1;
+                
+                //var space = upama.regexIndexOf(kidtext,/\s+/);
+                // var re = /\s+/g;
+                var re = /\s+/g;
+                var space = re.exec(kidtext);
+                while(space && space.index >= 0) {
+                    
+                    if(spaceAtEndOfContainer == true && space.index == 0) {
+                        space = re.exec(kidtext);
+                        continue;
+                    }
+                    else { 
+                        spaces++;
+                        spaceAtEndOfContainer = false;
+                    } 
+
+                    if(startpos == -1 && spaces == pos[0]) {
+                        //startpos = space+1;
+                        startpos = re.lastIndex;
                         startnode = kid;
                     }
                     else if(spaces == pos[1]) {
-                        endpos = space;
+                        //endpos = space;
+                        endpos = space.index;
                         endnode = kid;
                         return 1;
                     }
                     //space = kidtext.indexOf(" ",space+1);
-                    space = upama.regexIndexOf(kidtext,/\s/,space+1);
+                    //space = upama.regexIndexOf(kidtext,/\s+/,space+1);
+                    
+                    // we don't want to count as separate spaces that are divided by tags
+                    if(re.lastIndex == kid.length)
+                        spaceAtEndOfContainer = true;
+                    
+                    space = re.exec(kidtext);
                 }
             } 
             else {
                 if(!kid.classList.contains('ignored'))
-                    if(recurseElements(kid)) return 1;
+                    if(countSpaces(kid)) return 1;
             }
         }
         return 0;
     }
     
-    recurseElements(node);
+    function getNextNode(node) {
+        if(node.firstChild)
+            return node.firstChild;
+        while(node) {
+            if(node.nextSibling) return node.nextSibling;
+            node = node.parentNode;
+        }
+    }
+    
+    function highlightNode(range) {
+        var highlightNode = document.createElement('span');
+        highlightNode.className = "highlight";
+        highlightNode.appendChild(range.extractContents());
+        range.insertNode(highlightNode);
+        //range.surroundContents(highlightNode);
+    }
 
-    var newNode = document.createElement('span');
-    newNode.className = "highlight";
-    var doc = node.ownerDocument;
+    function findDivs(range) {
+        
+        var container = range.cloneContents();
+        node = container.firstChild;
+        while(node) {
+//        for(node = container.firstChild;node != container;node = getNextNode(node)) {
+            if(node.nodeName == 'DIV') {
+                return 1;
+            }
+            node = getNextNode(node);
+        }
+        return 0;
+    }
+
+    function lightTextNodes(range) {
+
+        var start = range.startContainer;
+        var end = range.endContainer;
+        
+//        if((start.parentNode == end.parentNode) && !findDivs(range)) {
+        if(!findDivs(range)) {
+            // beginning and end of range are in the same container
+            // can't surround divs with a span (well, it's ugly)
+                highlightNode(range);
+        }
+        
+        else {
+
+            if(start.nodeType == 3 && range.startOffset != start.length) {
+                var textRange = start.ownerDocument.createRange();
+                textRange.setStart(start,range.startOffset);
+                textRange.setEnd(start,start.length);
+                highlightNode(textRange);
+            }
+
+            for(node = getNextNode(start); node != end; node = getNextNode(node)) {
+                if(node.nodeType == 3) {
+                    var textRange = node.ownerDocument.createRange();
+                    textRange.selectNode(node);
+                    highlightNode(textRange);
+                }
+            }
+            
+            if(end.nodeType == 3 && range.endOffset > 0) {
+                var textRange = end.ownerDocument.createRange();
+                textRange.setStart(end,0);
+                textRange.setEnd(end,range.endOffset);
+                highlightNode(textRange);
+            }
+
+        }
     
-    if(startnode.parentNode.classList.contains("spacer")) 
-        startnode.parentNode.style.display = 'inline';
-    if(endnode.parentNode.classList.contains("spacer"))
-        endnode.parentNode.style.display = 'inline';
+    }
     
-    var middleRange = doc.createRange();
+    countSpaces(node);
+    if(endnode == null) {
+        //endnode = kid;
+        //endpos = kid.length;
+        if(kid.parentNode.lastChild.nodeType != 3) {
+            
+            // this means that there are some extra bits at the end of the node
+            endnode = kid.parentNode.lastChild;
+            endpos = 1;
+        }
+        else {
+            endnode = kid;
+            endpos = kid.length;
+        }
+    }
+
+//    var newNode = document.createElement('span');
+//    newNode.className = "highlight";
+    var middleRange = node.ownerDocument.createRange();
     middleRange.setStart(startnode,startpos);
     middleRange.setEnd(endnode,endpos);
-    var middlebit = middleRange.extractContents();
-    newNode.appendChild(middlebit);
-    middleRange.insertNode(newNode);
+//    var middlebit = middleRange.extractContents();
+//    newNode.appendChild(middlebit);
+//    middleRange.insertNode(newNode);
+
+//    middleRange.surroundContents(newNode);
+
+    lightTextNodes(middleRange);
 },
 
-regexIndexOf: function(str,regex,startpos) {
+/*regexIndexOf: function(str,regex,startpos) {
     var i = str.substring(startpos || 0).search(regex);
     return (i >= 0) ? (i + (startpos || 0)) : i;
-},
-
+},*/
 
 initialize: function() {
     var san = jQuery("[lang=sa]");

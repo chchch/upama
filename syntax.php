@@ -31,7 +31,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
     function getSort() { return 1242; }
     function connectTo($mode) { $this->Lexer->addSpecialPattern('<TEI\b.*?>.*</TEI>',$mode,'plugin_upama'); }
 
-    function handle($match, $state, $pos, Doku_Handler $handler)
+    function handle($match, $state, $pos, &$handler)
     { 
         switch ($state) {
           case DOKU_LEXER_SPECIAL :
@@ -193,7 +193,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
         return array();
     }
     
-    function render($mode, Doku_Renderer $renderer, $data) {
+    function render($mode, &$renderer, $data) {
          if($mode == 'xhtml'){
             list($state, $match, $meta) = $data;
             switch ($state) {

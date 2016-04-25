@@ -56,6 +56,18 @@
 </xsl:template>
 
 <xsl:template match="x:lg[@type='quote']">
+    <div class="quotedverse" lang="sa">
+        <xsl:apply-templates />
+    </div>
+</xsl:template>
+
+<xsl:template match="x:lg[@type='quote']/x:l">
+    <div class="verseline" lang="sa">
+        <xsl:apply-templates />
+    </div>
+</xsl:template>
+
+<!--xsl:template match="x:lg[@type='quote']">
     <xsl:for-each select = "x:l">
     <xsl:choose>
         <xsl:when test="position() = last()">
@@ -75,7 +87,7 @@
         </xsl:otherwise>
     </xsl:choose>
     </xsl:for-each>
-</xsl:template>
+</xsl:template-->
 
 <xsl:template match="x:unclear">
     <span class="unclear" title="unclear"><xsl:apply-templates/></span>
@@ -85,7 +97,7 @@
      <xsl:element name="span"><xsl:attribute name="title">line <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">lb</xsl:attribute><xsl:text>⸤</xsl:text></xsl:element>
 </xsl:template>
 <xsl:template match="x:pb">
-    <xsl:element name="span"><xsl:attribute name="title">page <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">pb</xsl:attribute>⌊</xsl:element>
+    <xsl:element name="span"><xsl:attribute name="title">page <xsl:value-of select="@n"/></xsl:attribute><xsl:attribute name="class">pb</xsl:attribute>L</xsl:element>
 </xsl:template>
 
 <xsl:template match="x:g">
