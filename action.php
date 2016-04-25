@@ -19,7 +19,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
     public function _stop_cache(&$event, $param) {
         global $ID;
         if(p_get_metadata($ID,'plugin_upama',false)) {
-            global $INPUT;
+/*            global $INPUT;
             $INFO = pageinfo();
             $meta = p_get_metadata($ID,'plugin_upama',false);
             $newwitnesses = $INPUT->post->arr('upama_witnesses');
@@ -42,11 +42,11 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 unset($witness);
                 $event->data->depends['files'] = array_merge($event->data->depends['files'],$newwitnesses);
             }
-            if($stopcache) {
+            if($stopcache) { */
                 $event->preventDefault();
                 $event->stopPropagation();
                 $event->result = false;
-            }
+           // }
         }
     }
 

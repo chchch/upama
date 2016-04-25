@@ -26,17 +26,23 @@
 
 body {line-height: 1;}
 
-tr.para {width:100%;
+div.para {width:100%;
+          display: table;
+          text-align: justify;
+          padding: 1% 0 2% 0;
 }
 
-tr.milestone {width: 100%;
+.milestone {width: 100%;
               margin-bottom: 10px;
             
 }
-td.devanagari {font-size: 1.5em !important;
+div.devanagari {font-size: 1.5em !important;
 }
 
 span.devanagari {font-size: 1.2em !important;
+}
+
+p.devanagari {font-size: 1.5em !important;
 }
 
 span.spacer {display: none;
@@ -45,18 +51,32 @@ span.spacer {display: none;
 span.deva-removed {display: none;
 }
 
-td.maintext {width:67%;
-            font-family: Brill, NagariShree, sans-serif;
+:lang(sa) {
+    font-family: Brill, NagariShree, sans-serif;
+}
+
+p:lang(sa) {
+    font-size: 1.1em;    
+}
+
+div.maintext {width:63%;
+            display: table-cell;
+            /*font-family: Brill, NagariShree, sans-serif; */
             border: 0;
-            padding: 0 4% 1em 2%;
+            padding: 0 4% 0 2%;
             vertical-align:top;
-            text-align: justify;
             font-size: 1.1em;
             line-height:130%;
 }
 
-td.apparatus {width:33%;
+div.apparatus {
+             //width:33%;
+            // float: left;
+            // overflow: auto;
+             display: table-cell;
+             width: auto;
              border: 0;
+             padding: 0;
              font-family: Brill, NagariShree, sans-serif;
              text-align: left;
              vertical-align:top;
@@ -64,11 +84,14 @@ td.apparatus {width:33%;
              white-space: normal;
 }
 
-td.verse {font-size: 1.3em;
-          padding: 0;
-          border: 0;
-          text-align: left;
-          line-height: 130%;
+div.verse { display: table;
+            width: 100%;
+            padding: 1em 0 0.5em 0;
+}
+
+div.verse div.verseline {
+                        margin-left: -0.8em;
+                        font-size: 1.2em;
 }
 
 div.quotedverse {
@@ -80,7 +103,7 @@ div.quotedverse {
 div.verseline {
 }
 
-td.versebottompadding {padding-bottom: 1em;
+div.versebottompadding {padding-bottom: 1em;
                        border:0;
 }
 
@@ -102,10 +125,11 @@ a.mshover:hover {text-decoration-style: solid;
 
 span.varreading {background-color: #F0F0FF;
 }
-table.section {width:100%;
+
+div.section {width:100%;
                border:0;
-               table-layout:fixed;
-               margin-left: auto;
+               clear: both;
+               margin-left: 0.5em;
                margin-right: auto;
 }
 
@@ -113,36 +137,56 @@ span.unclear {font-style: italic;
 }
 
 span.lb {color:#FF9900;
-        letter-spacing:-0.2em;
+        letter-spacing:-0.15em;
         font-size:130%;
         line-height:0.76;
-        font-family: Roboto, NagariShree, sans-serif;
+        font-family: Roboto, sans-serif;
         font-weight:normal;
-        vertical-align: baseline;
+        vertical-align: -0.1em;
+        cursor: default;
 }
 .devanagari span.lb {
         font-size: 100%;
 }
 
-span.pb {color:#FF9900;
-        letter-spacing:-0.35em;
+.pb {color:#FF9900;
+        letter-spacing:-0.3em;
         font-size:130%;
         line-height:0.76;
         font-weight:normal;
-        font-family: Roboto, NagariShree, monospace;
+        font-family: Roboto, monospace;
+        text-decoration: none;
         vertical-align:bottom;
 }
-.devanagari span.pb {
+.devanagari .pb {
                      font-size: 100%;
                      vertical-align: text-bottom;
 }
 
-span.gap {background-color: #CCCCB2; 
-         color: #CCCCB2;
+span.pb {
+         cursor: default;
 }
 
-span.space {background-color: #FFFFCC;
-            color: #FFFFCC;
+a.pb:link, a.pb:visited {
+      color: #FF9900;
+
+}
+
+a.pb:link:hover {
+      color: #2B73B7;
+      text-decoration: none;
+}
+
+span.gap {background-color: rgba(132,132,10,0.3);
+          font-size: 85%;
+          color: rgb(84,84,84);
+         /*color: #CCCCB2; */
+}
+
+span.space {background-color: rgba(132,132,10,0.3);
+            font-size: 85%;
+            color: rgb(84,84,84);
+           /* color: #FFFFCC; */
 }
 
 span.editor {font-size:80%;

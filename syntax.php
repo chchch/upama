@@ -36,68 +36,88 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
         switch ($state) {
           case DOKU_LEXER_SPECIAL :
                 $data = '';
-                $meta = array();
-                $meta['plugin_upama'] = array();
                 global $INPUT;
                 $INFO = pageinfo();
                 global $conf;
+                $upama = new Upama();
+
+                $oldmeta = p_get_metadata($INFO['id'],'plugin_upama',false);
+                $meta = array();
+                $meta['plugin_upama'] = array();
                 $cachedir = $conf['cachedir']."/upama";
                 if(!file_exists($cachedir)) mkdir($cachedir);
                 $witnesses = $INPUT->post->arr('upama_witnesses');
                 $tagfilters = $INPUT->post->arr('upama_tagfilters');
                 $hidefilters = $INPUT->post->arr('upama_hidefilters');
                 $subfilters = $INPUT->post->arr('upama_subfilters');
+                $tagfiltersdiff = array();
+                $hidefiltersoff = array();
+                $subfiltersoff = array();
 
+
+                $versions = isset($oldmeta['versions']) ? $oldmeta['versions'] : array();
+                $version = false;
+
+                if(!$witnesses) { // no POST data, check GET data
+                    $version = $INPUT->get->str('upama_ver');
+                    if($version && isset($versions[$version])) {
+                        $witnesses = $versions[$version]['witnesses'];
+                        $tagfiltersdiff = $versions[$version]['tagfilters'];
+                        $hidefiltersoff = $versions[$version]['hidefilters'];
+                        $subfiltersoff = $versions[$version]['subfilters'];
+                    }
+                }
+                else {
+                    $tagfiltersall = $upama->getTagFilters();
+                    $hidefiltersall = $upama->getHideFilters();
+                    $subfiltersall = $upama->getSubFilters();
+
+                    foreach($tagfilters as $tag => $status) {
+                        if($tagfiltersall[$tag] != $status)
+                            $tagfiltersdiff[$tag] = $status;
+                    }
+                    $hidefiltersoff = array_diff(array_keys($hidefiltersall),$hidefilters);
+                    $subfiltersoff = array_diff(array_keys($subfiltersall),$subfilters);
+
+                }
+
+                $settings = 
+                    array( 'witnesses' => $witnesses,
+                          'tagfilters' => $tagfiltersdiff,
+                          'hidefilters' => $hidefiltersoff,
+                          'subfilters' => $subfiltersoff,
+                        );
+
+                $cached_comparisons = isset($oldmeta['cached']) ? $oldmeta['cached'] : array();
+
+                 
+                // Set metadata to be rendered later
+                $meta['plugin_upama']['versions'] = $versions;
+                $meta['plugin_upama']['cached'] = $cached_comparisons;
+                $meta['plugin_upama']['current'] = false;  
+
+                $loaded = $upama->loadText($match);
+                if(!is_array($loaded)) {
+                    $data = $loaded;
+                    return array($state, $data, $meta);
+                }
+
+                list($xml,$xpath) = $loaded;
+                $meta['shorttitle'] = $upama->DOMinnerXML($upama->getSiglum($xpath)) ?: NULL;
+                $meta['title'] = $upama->getTitle($xpath) ?: NULL;
+ 
                 $xsltproc = new XsltProcessor();
                 $xsltproc->registerPHPFunctions();
                 $xsl = new DomDocument;
-                $upama = new Upama();
-                list($xml,$xpath) = $upama->loadText($match);
                 
                 // render the TEI header
                 $xsl->load(DOKU_PLUGIN. 'upama/xslt/teiheader.xsl');
                 $xsltproc->importStyleSheet($xsl);
                 $data = $xsltproc->transformToXML($xml);
 
-                // Set metadata to be rendered later
-                $meta['shorttitle'] = $upama->getSiglum($xpath) ?: NULL;
-                $meta['title'] = $upama->getTitle($xpath) ?: NULL;
-                //$meta['plugin_upama']['witnesses'] = $witnesses ? $witnesses : array();
-                $cached_comparisons = p_get_metadata($INFO['id'],'plugin_upama',false)['cached'] ?: array();
-                $meta['plugin_upama']['cached'] = $cached_comparisons;
-                $meta['plugin_upama']['current'] = 
-                    array( 'witnesses' => $witnesses,
-                          'tagfilters' => $tagfilters,
-                          'hidefilters' => $hidefilters,
-                          'subfilters' => $subfilters,
-                        );
-
                 if($witnesses) {
-                    if(!checkSecurityToken()) die();
+                    if($INPUT->post->arr('upama_witnesses') && !checkSecurityToken()) die();
                     
-                    $tagfiltersall = $upama->getTagFilters();
-                    $hidefiltersall = $upama->getHideFilters();
-                    $subfiltersall = $upama->getSubFilters();
-
-                    $tagfiltersdiff = array();
-                    foreach($tagfilters as $tag => $status) {
-                        if($tagfiltersall[$tag] != $status)
-                            $tagfiltersdiff[$tag] = $status;
-                    }
-                    /*$hidefiltersoff = array();
-                    foreach($hidefiltersall as $name => $regex) {
-                        if(!in_array($name,$hidefilters))
-                            $hidefiltersoff[] = $name;
-                    }
-                    $subfiltersoff = array();
-                    foreach($subfiltersall as $name => $regex) {
-                        if(!in_array($name,$subfilters))
-                            $subfiltersoff[] = $name;
-                    }
-                    */
-                    $hidefiltersoff = array_diff(array_keys($hidefiltersall),$hidefilters);
-                    $subfiltersoff = array_diff(array_keys($subfiltersall),$subfilters);
-
                    $compared = array();
                    
                    foreach($witnesses as $witness) {
@@ -116,7 +136,10 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                   4) the file is newer than the witness text file
                             **/
                             foreach($cached_comparisons[$witness] as $index => $file) {
-                                if($file['tagfilters'] == $tagfiltersdiff &&
+                                if(!file_exists($file['filename'])) {
+                                    unset($meta['plugin_upama']['cached'][$witness][$cachefileindex]); 
+                                }
+                                else if($file['tagfilters'] == $tagfiltersdiff &&
                                    $file['hidefilters'] == $hidefiltersoff &&
                                    $file['subfilters'] == $subfiltersoff) {
                                         
@@ -124,15 +147,16 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                         $cachefileindex = $index;
                                 }
                             }
-                            
-                            if(file_exists($cachefilename)) {
+                           if($cachefilename) {
                                $cachetime = filemtime($cachefilename);
-                               if($cachetime > filemtime($thisfile) && $cachetime > filemtime($thatfile)) $usecache = TRUE;
+                               if($cachetime > filemtime($thisfile) && 
+                                  $cachetime > filemtime($thatfile)) 
+                                    $usecache = TRUE;
                                else {
-                                   unlink($cachefilename);
-                                   unset($meta['plugin_upama']['cached'][$witness][$cachefileindex]); 
+                                    unlink($cachefilename);
+                                    unset($meta['plugin_upama']['cached'][$witness][$cachefileindex]); 
                                }
-                            }
+                           }
                        }
 
                        if($usecache) {
@@ -148,9 +172,15 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                             foreach($subfiltersoff as $tag)
                                 $upama->removeFilter("subtext",$tag);
 
-                            $comparison = $upama->compare($thisfile,$thatfile);
+                            try {
+                                $comparison = $upama->compare($thisfile,$thatfile);
+                            } catch (Exception $e) {
+                                $data .= $e->getMessage();
+                                return array($state, $data, $meta);
+                            }
+
                             $compared[] = $comparison;
-                            $newcachefilename = $cachedir."/".uniqid().".xml";
+                            $newcachefilename = $cachedir."/".base_convert(uniqid(''),16,36).".xml";
                             $cachefile = fopen($newcachefilename, "w");
                             fwrite($cachefile,$comparison);
                             fclose($cachefile);
@@ -171,10 +201,24 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                         $upama = new Upama();
                         $data .= $upama->transform($compared[0],DOKU_PLUGIN.'upama/xslt/with_apparatus.xsl');
                    }
-               } else { // if there are no witnesses to compare
+                    
+                   if(!$version) {
+                       // save the metadata for this version
+                       $version = array_search($settings,$versions);
+                       if($version == false) {
+                           $version = base_convert(uniqid(''),16,36);
+                           $meta['plugin_upama']['versions'][$version] = $settings;
+                       }
+                   }
+                   $meta['plugin_upama']['current'] = $version;
+
+               } // end if($witnesses) 
+               
+               else { // if there are no witnesses to compare
                    $xsl->load(DOKU_PLUGIN. 'upama/xslt/no_apparatus.xsl');
                    $xsltproc->importStyleSheet($xsl);
                    $data .= $xsltproc->transformToXML($xml);
+                   $meta['plugin_upama']['current'] = 0;
                }
 
                 if (!$data) {
@@ -213,6 +257,8 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                 foreach($meta as $key => $value)
                     $renderer->meta[$key] = $value;
             }
+            global $JSINFO;
+            $JSINFO['_upama_current'] = $meta['plugin_upama']['current'];
 
             return true;
         }

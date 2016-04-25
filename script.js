@@ -7,10 +7,39 @@ var upama = {
 mains: [],
 //highlit: [],
 permalit: [],
-script: [],
+script: '',
 hyphen: String.fromCodePoint("0xAD"),
 
 initialize: function() {
+    
+    var getvars = upama.getUrlVars();
+    if(getvars['do'] == 'edit') return;
+    
+    if(typeof JSINFO !== 'undefined') {
+        var current = JSINFO['_upama_current'];
+        if(current === 'undefined')
+            return;
+    }
+    else 
+        var current = false;
+
+    if(current) { // if current is 0, it means there's no apparatus
+        var newurl = window.location.href;
+        if(Object.keys(getvars).length == 0)
+            newurl = newurl + '?upama_ver='+current;
+        else {
+            getvars['upama_ver'] = current;
+            newurl = newurl.split('?')[0] + '?';
+            var varkeys = Object.keys(getvars);
+            for(var v=0;v<varkeys.length;v++) {
+                newurl = newurl + varkeys[v] + '=' + getvars[varkeys[v]];
+                if(v<varkeys.length-1) 
+                    newurl = newurl + '&';
+            }
+        }
+        window.history.replaceState('','Text with Apparatus',newurl);
+    }
+
     var san = jQuery("[lang=sa]");
     upama.script = jQuery('#__upama_script_selector').val();
 //    upama.script = 'deva';
@@ -48,17 +77,16 @@ initialize: function() {
      var sigla = new Object();
      
      for(var ss=0;ss<sidebar_sigla.length;ss++) {
-         sigla[sidebar_sigla[ss].innerHTML] = sidebar_sigla[ss].getAttribute('data-pageid'); 
+         sigla[sidebar_sigla[ss].textContent] = sidebar_sigla[ss].getAttribute('data-pageid'); 
     } 
-        
      for(var n=0;n<apparati.length;n++) {
 
         var allmsids = apparati[n].getElementsByClassName("msid");
         var mainId = apparati[n].parentElement.id;
         for(var am = 0;am<allmsids.length;am++) {
             allmsids[am].href = rewrite ? 
-                "/" + sigla[allmsids[am].innerHTML] + "?upama_scroll="+mainId :
-                "?id="+sigla[allmsids[am].innerHTML] + "&upama_scroll="+mainId;
+                "/" + sigla[allmsids[am].textContent] + "?upama_scroll="+mainId :
+                "?id="+sigla[allmsids[am].textContent] + "&upama_scroll="+mainId;
         }  
 
         upama.mains[n].myOldContent = upama.mains[n].innerHTML;
@@ -78,7 +106,7 @@ initialize: function() {
                 var msarray = new Object();
                 var msids = variants[i].parentNode.getElementsByClassName("msid");
                 for(var p=0;p<msids.length;p++) {
-                    msarray[msids[p].innerHTML] = msids[p];
+                    msarray[msids[p].textContent] = msids[p];
                 }
                 variants[i].myOldText = variants[i].innerHTML;
 
@@ -107,11 +135,11 @@ initialize: function() {
     var scrolltoN = getvars["upama_scroll"];
     if(scrolltoN) {
 //        upama.mains[scrolltoN].scrollIntoView({behavior: "smooth"});
-        $(document).ready(function() {
-        jQuery("html, body").animate({
+        jQuery(document).ready(function() {
+        jQuery("html, body, .ui-layout-pane-center").animate({
             scrollTop: jQuery("[id='"+scrolltoN+"']").offset().top
-       //     scrollTop: 1000   
-        }, 2000); 
+        //    scrollTop: 1000   
+        }, 2000);
         });
     }
 },
@@ -287,6 +315,7 @@ toDevanagari: function(text) {
 },
 
 changeScript: function(node,lang,level = 0) {
+/* it seems to be faster to change the innerHTML of a node than to create a DocumentFragment and then replace the node */
     if(lang == 'deva') func = upama.toDevanagari;
     var kids = node.childNodes;
     var i = 0;
@@ -305,10 +334,12 @@ changeScript: function(node,lang,level = 0) {
             //    kid.parentNode.replaceChild(frag,kid);
                 htmlstr += func(kid.data);
             }
-            else if(kid.getAttribute('lang') != 'en')
+            else if(kid.hasChildNodes() &&
+                    kid.getAttribute('lang') != 'en')
                 htmlstr += upama.changeScript(kid,lang,level+1);
-            else
+            else {
                 htmlstr += kid.outerHTML;
+            }
     }
     if(level > 0)
         return htmlstr+tags[1];
@@ -338,133 +369,194 @@ highlight: function(id,node) {
     var startpos = -1;
     var endpos = -1;
     var kid;
-    //var spaceAtEndOfContainer = false;
-
-/* // can't use this in case thare are multiple empty text nodes at the beginning
-    if(pos[0] == 0) {
-        var startpos = 0;
-        var startnode = node.childNodes[0];
-    } */
+    var spaceAtEndOfContainer = false;
+    var prevnode;
 
     function countSpaces(node) {
-        var re = /\s/g;
-/*        
-        if(pos[0] == 0) { // find first non-empty node
-            var kid = node.firstChild;
-            while(startpos == -1) {
-                if(kid.nodeType == 3) {
-                    if(kid.data.trim() == '') {
-                        kid = upama.getNextNode(kid);
-                    }
-                    else {
-                        re.exec(kid.data);
-                        startnode = kid;
-                        startpos = re.lastIndex;
-                        break;
-                    }
-                }
-                else {
-                    kid = upama.getNextNode(kid);
-                }
-            }
-        }
-*/
-        if(pos[0] == 0) {
-            startnode = node.firstChild;
-            startpos = 0;
-        }
+        var re = /\s+/g;
+        var skipKids = false;
+        var preIgnored = false;
+        var spaces = 0;
 
-        var kids=node.childNodes;
-
-        for(var i=0;i<kids.length;i++) {
-            kid = kids[i];
-
+        for(kid = node.firstChild;kid != node.nextSibling;kid = upama.getNextNode(kid,skipKids)) {
+            skipKids = false;
             if(kid.nodeType != 3) {
-                if(!kid.classList.contains('ignored'))
-                    if(countSpaces(kid)) return 1;
+                if(kid.classList.contains('ignored')) {
+                    if(!preIgnored) preIgnored = kid;
+                    skipKids = true;
+                }
+                else if(kid.classList.contains('upama-show'))
+                    spaceAtEndOfContainer = false;
+                continue;
             }
-
-            else { // text node
-                var kidtext = kid.data;
-                
-                var space = re.exec(kidtext);
-                
-      /*          if(spaceAtEndOfContainer) {
-                    if(space) {
-                        if(space.index == 0) {
-                            // don't count the starting space
-                            space = re.exec(kidtext);
-                            if(kidtext.trim() != '')
-                                // if the container has text, we want to start counting spaces again
-                                spaceAtEndOfContainer = false;
-                        }
-                    }
-                    else spaceAtEndOfContainer = false;
-                } */
-
-                while(space && space.index >= 0) {
+            else if(kid.data.length != 0 && kid.data.trim() == '') {
+            // encountered a space node
+                if(!spaceAtEndOfContainer) {
                     spaces++;
-                    
-                    if(startpos == -1 && spaces == pos[0]) {
-             
-                            startnode = kid;
-                            startpos = re.lastIndex;
-             /*           if(kidtext.trim() == '') {
-                            var tempstart = upama.getNextNode(kid);
-                            while(startnode === undefined) {
-                                if(tempstart.nodeType == 3 &&
-                                   tempstart.data.trim() != '') {
-                                    startnode = tempstart;
-                                    startpos = 0;
-                                }
-                                else
-                                    tempstart = upama.getNextNode(tempstart);
-                            }
+                    spaceAtEndOfContainer = true;
+                }
+                preIgnored = false;
+                continue;
+            }
+            else {
+                var kidtext = kid.data;
+                space = re.exec(kidtext);
+                
+                if(startpos == -1 && pos[0] == 0) {
+                  
+                  if(!space || space.index > 0) {
+                        if(preIgnored) {
+                            startnode = preIgnored;
+                            startpos = -2;
                         }
                         else {
+                            startpos = 0;
                             startnode = kid;
-                            startpos = re.lastIndex;
-                        } */
-                            
+                        }
                     }
-                    else if(spaces == pos[1]) {
+                    else {
+                        startpos = re.lastIndex;
+                        startnode = kid;
+                    }
+                   
+                }
+
+                if(!space || space.index > 0) {
+
+                    if(spaceAtEndOfContainer) {
+                        if(startpos == -1 && spaces == pos[0]) {
+                            if(preIgnored) {
+                                startnode = preIgnored;
+                                startpos = -2;
+                            }
+                            else {
+                                startpos = 0;
+                                startnode = kid;
+                            }
+                        }
+            
+                        spaceAtEndOfContainer = false;
+                    }
+
+                    if(pos[1] == spaces) {
+                        if(kid.parentNode.classList.contains('deva-changed')) {
+                            endnode = kid.parentNode;
+                            endpos = -2;
+                        }
+                        else if(kid.parentNode.classList.contains('deva-removed')) {
+                            if(kid.parentNode.nextSibling.nodeType == 1 &&
+                               kid.parentNode.nextSibling.classList.contains('spacer')) {
+                                endnode = kid.parentNode;
+                                endpos = -2;
+                            }
+                            else {
+                                endnode = prevnode.parentNode;
+                                endpos = -2;
+                            }
+                        }
+                        else if (kid.parentNode.classList.contains('deva-added')) {
+                            endnode = prevnode.parentNode;
+                            endpos = -2;
+                        }
+                        else {
+                            endnode = prevnode;
+                            endpos = prevnode.length;
+                        }
+                        return true;
+                    }
+                }
+                
+                while(space) {
+                    
+                    preIgnored = false;
+
+                    if(space.index > 0)
+                        spaces++;
+                    else if(!spaceAtEndOfContainer)
+                        spaces++;
+
+                    if(re.lastIndex == kidtext.length) {
+                        spaceAtEndOfContainer = true;
+                    }
+                    else
+                        spaceAtEndOfContainer = false;
+
+                    if(startpos == -1 &&
+                       spaces == pos[0] &&
+                       !spaceAtEndOfContainer) {
+
+                        startpos = re.lastIndex;
+                        startnode = kid;
+
+                    }
+                    if(startpos != -1 &&
+                       endpos == -1 &&
+                       spaces == pos[1]) {
+
                         endpos = space.index;
                         endnode = kid;
-                        return 1;
+                        return true;
+                    
                     }
-                   /* 
-                    // we don't want to count as separate spaces that are divided by tags
-                    if(re.lastIndex == kid.length) 
-                        spaceAtEndOfContainer = true;
-                    */
+                    
                     space = re.exec(kidtext);
+                
                 }
-            } 
+            prevnode = kid;
+            } // end for(kid = node.firstChild...
         }
-        return 0; // endpos not found
-    } // end countSpaces();
-     
-
-    if(!countSpaces(node)) { // no endnode found; the endpos is right at the end of the node
-        if(kid.parentNode.lastChild.nodeType != 3) {
+        
+        // cycled till end of section, no endnode found
+        if(prevnode) {
+            if(prevnode.parentNode.lastChild.nodeType != 3) {
             
-            // this means that there are some extra bits at the end of the node
-            endnode = kid.parentNode.lastChild;
-            endpos = 1;
+            // this means that there are some extra bits at the end of the section
+            endnode = prevnode.parentNode.lastChild;
+            endpos = -2;
+            }
+            else { // otherwise just set it to the end of the section
+                endnode = prevnode;
+                endpos = prevnode.length;
+            }
         }
-        else {
-            endnode = kid;
-            endpos = kid.length;
+        else { // as a last resort; maybe maintext is empty
+            if(startnode) {
+                endnode = startnode;
+                endpos = startnode.length;
+            }
+            else {
+                startnode = node.firstChild;
+                startpos = 0;
+                endnode = node.firstChild;
+                endpos = endnode.length;
+            }
         }
+
+        // no endnode found
+        return false;
     }
     
-
+    countSpaces(node);
     var middleRange = node.ownerDocument.createRange();
-    middleRange.setStart(startnode,startpos);
-    middleRange.setEnd(endnode,endpos);
+    if(startpos == -2) 
+        middleRange.setStartBefore(startnode);
+    else
+        middleRange.setStart(startnode,startpos);
+    if(endpos == -2) 
+        middleRange.setEndAfter(endnode);
+    else
+        middleRange.setEnd(endnode,endpos);
+
     if(upama.script == 'deva') {
-        upama.addSpaces(startnode);
-        upama.addSpaces(endnode);
+        if(startpos == 0)
+            if(startnode.previousSibling)
+                upama.addSpaces(startnode.previousSibling);
+            else
+                upama.addSpaces(startnode.parentNode.previousSibling);
+        if(endpos == -2 || endpos == endnode.length)
+            upama.addSpaces(endnode.nextSibling);
+        else
+            upama.addSpaces(endnode);
     }
     
     if(pos.length > 2) {
@@ -477,27 +569,34 @@ highlight: function(id,node) {
                 innernode = upama.getNextNode(innernode);
             }
         }
-
         if(pos[2] > 0) middleRange = upama.countCharsPrefix(middleRange,pos[2]);
         else if(pos.length == 4) middleRange = upama.countCharsSuffix(middleRange,pos[3]);
-    }
+    }  
     upama.lightTextNodes(middleRange);
     
 },
 
 countCharsSuffix: function(range,pos) {
-   var start = range.startContainer;
-   var startpos = range.startOffset;
-   var end = range.endContainer;
-   var endpos = range.endOFfset;
-    if(startpos == 0 && start.data.trim() != '') {
-       var re = /^\s+/g;
-       var spaces = re.exec(start.data);
-       if(spaces)
-            pos += spaces[0].length;
+
+    if(range.startContainer.nodeType == 3) {
+        var start = range.startContainer;
+        var startpos = range.startOffset;
+    }
+    else {
+        var start = range.startContainer.childNodes[range.startOffset];
+        var startpos = 0;
+    }
+   
+   if(range.endContainer.nodeType == 3) {
+        var end = range.endContainer;
+        var endpos = range.endOffset;
+    }
+    else {
+        var end = range.endContainer.childNodes[range.endOffset-1];
+        var endpos = 0;
     }
 
-   if(start == end) {
+  if(start == end) {
        if(upama.script == 'deva') {
             var testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
             var strArr = Array.from(testStr);
@@ -527,19 +626,19 @@ countCharsSuffix: function(range,pos) {
    } // end if(start == end)
    
    var skipKids = false;
-   for(var node = range.startContainer;node != upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
+   for(var node = start;node != upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
         skipKids = false;
         if(node.nodeType != 3) {
             if(node.classList.contains('ignored') ||
-                node.getAttribute('data-added'))
+                node.getAttribute('deva-added'))
                 skipKids = true;
             continue;
         }
         if(node.data.length != 0 && node.data.trim() == '') {
             // encountered a space node
             if(startpos)
-                startpos -= node.data.length;
-            else pos--;
+                startpos--;
+            else pos -= node.data.length;
             continue;
         }
         if(upama.script == 'deva') {
@@ -584,20 +683,26 @@ countCharsSuffix: function(range,pos) {
 },
 
 countCharsPrefix: function(range,pos) {
-   
-   var start = range.startContainer;
-   var startpos = range.startOffset;
-   var end = range.endContainer;
-   var endpos = range.endOFfset;
-   
-   if(startpos == 0 && start.data.trim() != '') {
-       var re = /^\s+/g;
-       var spaces = re.exec(start.data);
-       if(spaces)
-            pos += spaces[0].length;
-    }
 
-   if(start == end) {
+    if(range.startContainer.nodeType == 3) {
+        var start = range.startContainer;
+        var startpos = range.startOffset;
+    }
+    else {
+        var start = range.startContainer.childNodes[range.startOffset];
+        var startpos = 0;
+    }
+   
+    if(range.endContainer.nodeType == 3) {
+        var end = range.endContainer;
+        var endpos = range.endOffset;
+    }
+    else {
+        var end = range.endContainer.childNodes[range.endOffset-1];
+        var endpos = 0;
+    }
+    if(start == end) {
+
        if(upama.script == 'deva') {
             var testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
             var strArr = Array.from(testStr);
@@ -626,7 +731,7 @@ countCharsPrefix: function(range,pos) {
         return range;
    } // end if(start == end)
    var skipKids = false;
-   for(var node = range.startContainer;node != upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
+    for(var node = start;upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
         skipKids = false;
         if(node.nodeType != 3) {
             if(node.classList.contains('ignored') ||
@@ -637,7 +742,9 @@ countCharsPrefix: function(range,pos) {
         if(node.data.length != 0 && node.data.trim() == '') {
             // encountered a space node
             if(startpos)
-                startpos -= node.data.length;
+                startpos--;
+            else
+                pos -= node.data.length;
             continue;
         }
         if(upama.script == 'deva') {
@@ -708,7 +815,7 @@ getNextNode: function(node,skipKids = false) {
     }
 },
 
-// highlightNode(node): highlights a range by surrounding it with a span; this works as long as there are no divs in the range
+/***** highlightNode(node): highlights a range by surrounding it with a span; this works as long as there are no divs in the range *****/
 
 highlightNode: function(range) {
     var highlightNode = document.createElement('span');
@@ -719,7 +826,7 @@ highlightNode: function(range) {
 //    upama.highlit.push(highlightNode);
 },
 
-// findDivs(range): checks if there are div elements in a range
+/***** findDivs(range): checks if there are div elements in a range *****/
 
 findDivs: function(range) {
     var container = range.cloneContents();
@@ -735,11 +842,27 @@ findDivs: function(range) {
 
 lightTextNodes: function(range) {
 
-    var start = range.startContainer;
-    var end = range.endContainer;
+    if(range.startContainer.nodeType == 3) {
+        var start = range.startContainer;
+        var startpos = range.startOffset;
+    }
+    else {
+        var start = range.startContainer.childNodes[range.startOffset];
+        var startpos = 0;
+    }
+   
+    if(range.endContainer.nodeType == 3) {
+        var end = range.endContainer;
+        var endpos = range.endOffset;
+    }
+    else {
+        var end = range.endContainer.childNodes[range.endOffset-1];
+        var endpos = 0;
+    }
+
 //        if((start.parentNode == end.parentNode) && !findDivs(range)) {
     if(!upama.findDivs(range)) {
-        // can't surround divs with a span (well, it's ugly, and also the highlightNode function would automatically close open divs, which would generate an extra div)
+/* can't surround divs with a span (well, it's ugly, and also the highlightNode function would automatically close open divs, which would generate an extra div) */
             upama.highlightNode(range);
     }
     
@@ -769,7 +892,7 @@ lightTextNodes: function(range) {
             toHighlight.push(textRange);
         }
         for(var k=0;k<toHighlight.length;k++) {
-            // do highlighting at end so as not to add nodes during the tree traversal
+// do highlighting at end so as not to add nodes during the tree traversal
             upama.highlightNode(toHighlight[k]);
         }
     }
@@ -777,6 +900,7 @@ lightTextNodes: function(range) {
 },
 
 addSpaces: function(node) {
+    if(!node) return false;
     if(node.nodeType == 1 && node.classList.contains('spacer'))
         var spacer = node;
     else if(node.parentNode.classList.contains('spacer'))
@@ -790,7 +914,7 @@ addSpaces: function(node) {
     var prev = spacer.previousSibling;
     if(prev.nodeType != 3) {
         if(prev.classList.contains('highlight'))
-            // highlightNode will create an empty spacer element inside the highlight span
+// highlightNode might create an empty spacer element inside the highlight span
             prev = prev.lastChild.previousSibling;
         if(prev.nodeType != 3)
             inodes.push(prev);

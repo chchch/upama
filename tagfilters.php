@@ -8,6 +8,7 @@
 return array( 
             "unclear" => "-2",
             "gap" => "-1",
+            "lacuna" => "-2",
             "pb" => "-1",
             "lb" => "-1",
             "note" => "-1",
