@@ -9,15 +9,10 @@
         <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="x:milestone[@unit]">
-    <tr class="milestone">
-        <td class="maintext">(From <xsl:value-of select="@unit"/><xsl:text> </xsl:text><xsl:value-of select="@n"/>)</td>
-    </tr>
-</xsl:template>
-<xsl:template match="x:milestone[not(@unit)]">
-    <tr class="milestone">
-        <td class="maintext">(From folio <xsl:value-of select="@n"/>)</td>
-    </tr>
+<xsl:template match="x:milestone">
+    <span class="milestone">
+    (From <xsl:choose><xsl:when test="@unit"><xsl:value-of select="@unit"/></xsl:when><xsl:otherwise>folio</xsl:otherwise></xsl:choose><xsl:text> </xsl:text><xsl:value-of select="@n"/>)
+    </span>
 </xsl:template>
 
 <xsl:template match="x:div1">
@@ -25,7 +20,29 @@
         <xsl:apply-templates />
     </table>
 </xsl:template>
+<xsl:template match="x:div">
+    <table class="section">
+        <xsl:apply-templates />
+    </table>
+</xsl:template>
+
+<xsl:template match="x:text//x:title">
+    <h2>
+        <xsl:apply-templates />
+    </h2>
+</xsl:template>
+<xsl:template match="x:text//x:subtitle">
+    <h3>
+        <xsl:apply-templates />
+    </h3>
+</xsl:template>
+
 <xsl:template match="x:p">
+    <p>
+        <xsl:apply-templates/>
+    </p>
+</xsl:template>
+<xsl:template match="x:p[@xml:id]">
     <tr class="para">
         <td class="maintext" lang="sa">
         <xsl:apply-templates />
@@ -153,7 +170,19 @@
     <span class="note super"><xsl:apply-templates /></span>
 </xsl:template>
 
+<xsl:template match="x:note[@place='foot']">
+    <xsl:element name="span">
+        <xsl:attribute name="class">hiddennote</xsl:attribute>
+        <xsl:attribute name="title">
+            <xsl:value-of select="text()"/>
+        </xsl:attribute>
+        <xsl:text>*</xsl:text>
+    </xsl:element>
+</xsl:template>
 
+<xsl:template match="x:caesura">
+    <br/>
+</xsl:template>
 
 <xsl:template match="x:hi"> 
     <xsl:element name="span"> 

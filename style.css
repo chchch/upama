@@ -1,9 +1,4 @@
 @font-face {
-    font-family: IndUni;
-    src: url(fonts/IndUni-H-Regular.otf);
-}
-
-@font-face {
     font-family: Brill;
     src: url(fonts/Brill-Roman.ttf);
 }
@@ -17,11 +12,17 @@
     font-family: NagariShree;
     src: url(fonts/NagariShree.ttf);
 }
-
+/*
 @font-face {
     font-family: Surekh;
     src: url(fonts/Surekh.ttf);
 }
+
+@font-face {
+    font-family: IndUni;
+    src: url(fonts/IndUni-H-Regular.otf);
+}
+*/
 
 body {line-height: 1;}
 
@@ -34,7 +35,14 @@ tr.milestone {width: 100%;
 }
 td.devanagari {font-size: 1.5em !important;
 }
-span.devanagari {font-size: 1.3em !important;
+
+span.devanagari {font-size: 1.2em !important;
+}
+
+span.spacer {display: none;
+}
+
+span.deva-removed {display: none;
 }
 
 td.maintext {width:67%;
@@ -46,7 +54,6 @@ td.maintext {width:67%;
             font-size: 1.1em;
             line-height:130%;
 }
-
 
 td.apparatus {width:33%;
              border: 0;
@@ -67,6 +74,10 @@ td.verse {font-size: 1.3em;
 div.quotedverse {
                 padding: 2% 0 2% 2%;
                 vertical-align:top;
+                //background-color: inherit;
+}
+
+div.verseline {
 }
 
 td.versebottompadding {padding-bottom: 1em;
@@ -104,19 +115,26 @@ span.unclear {font-style: italic;
 span.lb {color:#FF9900;
         letter-spacing:-0.2em;
         font-size:130%;
-        line-height:100%;
+        line-height:0.76;
         font-family: Roboto, NagariShree, sans-serif;
         font-weight:normal;
         vertical-align: baseline;
 }
-    
+.devanagari span.lb {
+        font-size: 100%;
+}
+
 span.pb {color:#FF9900;
         letter-spacing:-0.35em;
         font-size:130%;
-        line-height:100%;
+        line-height:0.76;
         font-weight:normal;
         font-family: Roboto, NagariShree, monospace;
         vertical-align:bottom;
+}
+.devanagari span.pb {
+                     font-size: 100%;
+                     vertical-align: text-bottom;
 }
 
 span.gap {background-color: #CCCCB2; 
@@ -129,6 +147,8 @@ span.space {background-color: #FFFFCC;
 
 span.editor {font-size:80%;
 }
+.devanagari span.editor {font-size: 70%;
+}
 
 span.note {font-size:80%;
           margin-left: 0.5em;
@@ -139,6 +159,7 @@ span.inline {margin-left: 0.5em;
 
 span.super {vertical-align: super;
             margin-left: 0.1em;
+            line-height: normal;
 }
 
 span.varcontainer {padding-right: 1em;
@@ -153,20 +174,21 @@ span.varbracket {color: #9933FF;
 
 span.variant {white-space: normal;
 }
-span.variant:hover {background-color: #FFFF99;
+
+
+span.variant:hover {background-color: rgba(255,250,0,0.5);
+}
+
+span.permahighlight {background-color: rgba(255,250,0,0.5);
+}
+
+span.highlight {background-color: rgba(255,250,0,0.5);
 }
 
 span.reading {display: none;
 }
 
-span.highlight {background-color: #FFFF99;
-                line-height: 100%;
-}
-
 span.sidebar-siglum {font-variant: small-caps;
-}
-
-span.spacer {display: none;
 }
 
 ins.add {//border: 1px dashed grey;

@@ -1,5 +1,6 @@
 <?php
 ini_set('display_errors','On');
+ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -25,12 +26,15 @@ class Upama
     protected $whitespaceFILTERS = array(
                     "ltrim" => array('^\s+', "replace_with" => ''),
                     "rtrim" => array('\s+$', "replace_with" => ''),
-                    "middle" => array('\s\s+', "replace_with" => ' '),
+                    "middle" => array('\s\s+|[\n\t\f]', "replace_with" => ' '),
                                     );
   
-    protected $blockLevelNames = array('text','body','group','div','div1','div2','div3','div4','div5','div6','div7','p','l','lg','head');
+    protected $unicodeReplacements = array();
     
+    protected $blockLevelNames = array();
     protected $blockLevelElements = '';
+
+    protected $affixlemmata = 15;
 
     function __construct() {
         mb_internal_encoding('UTF-8');
@@ -41,17 +45,10 @@ class Upama
         foreach(include('hidefilters.php') as $k => $v) $this->origHideFILTERS[$k] = $v;
         foreach(include('subfilters.php') as $k => $v) $this->origSubFILTERS[$k] = $v;
         
-        // Xpaths need prefix
-        foreach($this->blockLevelNames as $name) {
-            $this->blockLevelElements .= './x:'.$name;
-            if($name !== end($this->blockLevelNames))
-                $this->blockLevelElements .= '|';
-        }
     }
 
     public function compare($file1,$file2) {
         
-
         $this->implodeSubFilters();
         $this->optimizeHideFilters();
 
@@ -66,15 +63,7 @@ class Upama
        
         if($elements1->length == 0 || $elements2->length == 0) {
             // no xml:id's, revert to stepping through all elements
-
-            $return = '';
-            $xpathpath = "/x:TEI/x:text";
-            $elements1 = $xpath1->query($xpathpath)->item(0);
-            $elements2 = $xpath2->query($xpathpath)->item(0);
-                    
-            $this->recurse_elements($elements1,$elements2,$xpath1,$xpath2,$msid,$return);
-            
-            return $return;
+            return $this->oldcompare($text1,$xpath1,$text2,$xpath2,$msid);
     
         }
 
@@ -86,26 +75,27 @@ class Upama
 
         foreach ($elements1 as $el1) {
             $elname = $el1->getAttribute("xml:id");
-            //$el2 = $xpath2->query("/x:TEI/x:text//*[@xml:id='".$elname."']")->item(0);
             $el2 = isset($el2indexed[$elname]) ? $el2indexed[$elname] : FALSE;
             if(!$el2) {
                $newel = $text1->createElement('maintext');
              /*  if($el1->firstChild->nodeType == 3)
                     $el1->firstChild->nodeValue = ltrim($el1->firstChild->nodeValue);
                */
-               while($el1->childNodes->length > 0) {
+               while($el1->hasChildNodes()) {
                    $newel->appendChild($el1->childNodes->item(0));
                }
+
+               $this->prefilterNode($newel);
                $el1->appendChild($newel);
                $emptyapp = $text1->createElement('apparatus');
                $el1->appendChild($emptyapp);   
             }
             else {
                 list($dom1text,$ignored1) = $this->filterNode($el1);
-                list($dom2text,$ignored2) = $this->filterNode($el2,1);
+                list($dom2text,$ignored2) = $this->filterNode($el2);
                 $dmp = new DiffMatchPatch();
                 $diffs = $dmp->diff_main($dom1text,$dom2text,false);
-                $diffstring = $this->prettyXml($diffs,$ignored1,$ignored2,$msid);
+                $diffstring = $this->diffToXml($diffs,$ignored1,$ignored2,$msid);
                 $frag = $text1->createDocumentFragment();
                 $frag->appendXML($diffstring);
                 $el1->nodeValue = '';
@@ -114,8 +104,33 @@ class Upama
             }
         }
         return $text1->saveXML();
+        // outputting as text fixes namespace issues
 
-        }
+    }
+
+    public function oldcompare($text1,$xpath1,$text2,$xpath2,$msid) {
+
+            $this->blockLevelNames = array('text','body','group','div','div1','div2','div3','div4','div5','div6','div7','p','l','lg','head');
+    
+            // Xpaths need prefix
+            foreach($this->blockLevelNames as $name) {
+            $this->blockLevelElements .= './x:'.$name;
+            if($name !== end($this->blockLevelNames))
+                $this->blockLevelElements .= '|';
+            }
+            $return = '';
+            $xpathpath = "/x:TEI/x:text";
+            $elements1 = $xpath1->query($xpathpath)->item(0);
+            $elements2 = $xpath2->query($xpathpath)->item(0);
+                    
+            $this->recurse_elements($elements1,$elements2,$xpath1,$xpath2,$msid,$return);
+            
+            $elements1->nodeValue = '';
+            $frag = $text1->createDocumentFragment();
+            $frag->appendXML($return);
+            $elements1->appendChild($frag);
+            return $text1->saveXML();
+    }
 
     public function getSiglum($xpath) {
         $msidpath = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']")->item(0);
@@ -190,7 +205,7 @@ class Upama
     
     private function implodeSubFilters($reset = FALSE) {
         if(!$reset && !empty($this->subFILTERS)) return 0;
-        $unival = 57344; // starting at range 3 as defined in unicodeReplace
+        //$unival = 57344; // starting at range 3 as defined in unicodeReplace
         $allfilters = array_merge($this->origSubFILTERS, $this->whitespaceFILTERS);
         foreach($allfilters as $key => $value) {
             if(is_array($value)) {
@@ -200,13 +215,14 @@ class Upama
                     unset($value["replace_with"]);
                 }
                 else {
-                    $replacechar = $this->unicodeChar($unival);
-                    $unival++;
+                    // these don't get unset; fix this?
+                    $replacechar = $this->unicodeReplace(false);
+                    //$unival++;
                 }
                 $value = implode("|",$value);
             } else {
-                $replacechar = $this->unicodeChar($unival);
-                $unival++;
+                $replacechar = $this->unicodeReplace(false);
+                //$unival++;
             }
             $this->subFILTERS[] = array('/'.$value.'/u',$replacechar);
         }
@@ -249,22 +265,33 @@ class Upama
         $edition = $witnesses[0];
         
         $mainapparati = $edition[1]->query("//x:apparatus");
+        $apparati = array();
+        foreach($witnesses as $witness) {
+            $apparati[] = $witness[1]->query("//x:apparatus");
+        }
+
         $length = $mainapparati->length;
         for($n=0;$n < $length;$n++) {
             $collated = array();
             $parentnode = $mainapparati->item($n);
-            foreach($witnesses as $witness) {
-                $apparatus = $witness[1]->query("//x:apparatus")->item($n);
-                $variants = $witness[1]->query("*",$apparatus);
+            foreach($witnesses as $m => $witness) {
+                $apparatus = $apparati[$m][$n];
+                //$variants = $witness[1]->query("*",$apparatus);
+                //$variants = $apparatus->getElementsByTagName('variant');
+                $variants = $apparatus->childNodes;
                 foreach($variants as $variant) {
-                    $arrkey = $variant->getAttribute("location");
+                    $loc = $variant->getAttribute("location");
+                    $arrkey = implode("x",
+                        array_slice(explode("x",$loc),0,2)
+                        );
                     $newcontent = $this->DOMinnerXML($variant->firstChild);
                     $ms = $variant->getAttribute("mss");
                     //if(!array_key_exists($arrkey,$collated)) {
                     if(!isset($collated[$arrkey])) {
                         $collated[$arrkey] = 
                             array( 
-                                array( 'mss' => array($ms), 
+                                array( 'mss' => array($ms),
+                                       'location' => $loc,
                                        'content' => $newcontent
                                 )   
                             );
@@ -290,9 +317,11 @@ class Upama
                         }
                         unset($entry);
                         if(!$done)
-                            $collated[$arrkey][] = array( 'mss' => array($ms), 
-                                                          'content' => $newcontent
-                                                        );
+                            $collated[$arrkey][] = 
+                                array( 'mss' => array($ms), 
+                                       'location' => $loc,
+                                       'content' => $newcontent
+                                    );
                     }
                 }
             }
@@ -305,11 +334,12 @@ class Upama
                     return $n1 < $n2 ? -1 : 1;
                 }
             });
-            while($parentnode->hasChildNodes()) {
+            /*while($parentnode->hasChildNodes()) {
                 $parentnode->removeChild($parentnode->firstChild);
-            }
+            }*/
+            $parentnode->nodeValue = '';
             $fragment = $edition[0]->createDocumentFragment();
-            foreach($collated as $location => $entries) {
+            foreach($collated as $entries) {
                 $newstr = '';
                 if(count($entries) > 1) $newstr .= '<varGroup>';
                 foreach($entries as $entry) {
@@ -321,8 +351,8 @@ class Upama
                         }
                     }
                     $allmss = implode(";",$entry['mss']);
-                    $newstr .= "<variant location='".$location.
-                    "' mss='".$allmss."'><mainreading>".$entry['content']."</mainreading>".$readings."</variant> ";
+                    $newstr .= "<variant location='".$entry['location'].
+                    "' mss='".$allmss."'><mainreading>".$entry['content']."</mainreading>".$readings."</variant>";
                 }
                 if(count($entries) > 1) $newstr .= '</varGroup>';
                 $newstr .= ' ';
@@ -393,18 +423,20 @@ class Upama
         return $element->ownerDocument->saveXML($element);
     }
 
-    private function checkTagFilters(DOMNode $element) {
+    private function oldcheckTagFilters(DOMNode $element) {
         $XMLstring = $this->DOMouterXML($element);
         if($element->nodeType == 3) { // textNode, no tags
                 return array($XMLstring);
         }
         else {
-            $tagName = $element->nodeName;
+
+            $tagName = $element->localName;
             if(isset($this->tagFILTERS[$tagName])) {
                 $status = $this->tagFILTERS[$tagName];
             }
             else
                 $status = self::SHOW;
+
             if($status == self::IGNORE) {
                 $ignoreattr = $element->ownerDocument->createAttribute('ignored');
                 $ignoreattr->value = 'TRUE';
@@ -417,17 +449,17 @@ class Upama
                 return array( array($status,$XMLstring) );
             }
             elseif($status != self::HIDE) { // SHOW or IGNORETAG
-                $opentag = "<".$element->nodeName . $this->DOMAttributes($element).">";
+                $opentag = "<".$element->localName . $this->DOMAttributes($element).">";
                 $allels = array( array($status,$opentag) );
                 foreach($element->childNodes as $ell) {
-                    $others = $this->checkTagFilters($ell);
+                    $others = $this->oldcheckTagFilters($ell);
                     $allels = array_merge($allels,$others);
                 }
-                $closetag = "</".$element->nodeName.">";
+                $closetag = "</".$element->localName.">";
                 $allels[] = array($status, $closetag);
                 return $allels;
             } 
-            else {
+            else { // HIDE on a non-empty tag
                 return array( array( $status, $XMLstring ) );
             }
         }
@@ -471,12 +503,17 @@ class Upama
             
             preg_match_all($regex,$text,$matches,PREG_OFFSET_CAPTURE);
             
-            foreach($matches[0] as $match) {
+            foreach($matches[0] as $n => $match) {
                 $matchlen = strlen($match[0]);
-                $results[$match[1]] = array($match[0],$matchlen,$subchar);
+                if(isset($matches[1])) { // there is a backreference
+                    $backref = $matches[1][$n][0];
+                    $newsubchar = str_replace('\1',$backref,$subchar);
+                    $results[$match[1]] = array($match[0],$matchlen,$newsubchar);
+                }
+                else
+                    $results[$match[1]] = array($match[0],$matchlen,$subchar);
                 $text = substr_replace($text,str_repeat("*",$matchlen),$match[1],$matchlen);
             }
-        
         }
 
         ksort($results);
@@ -507,8 +544,174 @@ class Upama
         $startpos += $ignorelen;
 
     }
+    
+    private function prefilterNode(DOMNode $node) {
+        
+        $children = $node->childNodes;
+        $hidelist = array();
 
-    private function filterNode(DOMNode $element,$range = 0) {
+        if(!$children) return;
+
+        foreach($children as $child) {
+            
+            if($child->nodeType == 3)
+                continue;
+
+            $tagName = $child->localName;
+            if(isset($this->tagFILTERS[$tagName])) {
+                $status = $this->tagFILTERS[$tagName];
+            }
+            else $status = self::SHOW;
+
+            if($status == self::HIDE) {
+                $hidelist[] = $child;
+            }
+            elseif($status == self::IGNORE) {
+                $ignoreattr = $child->ownerDocument->createAttribute('ignored');
+                $ignoreattr->value = 'TRUE';
+                $child->appendChild($ignoreattr);
+                if($child->hasChildNodes()) $this->checkHideTags($child);
+                //$this->prefilterNode($child);
+            }
+            elseif($status == self::SHOW || $status == self::IGNORETAG) {
+                $this->prefilterNode($child);
+            }
+        }
+        foreach($hidelist as $el) $el->parentNode->removeChild($el);
+    }
+
+    private function filterNode(DOMNode $node) {
+        
+        $xmlStr = '';
+        $subarray = array();
+        $ignoredTags = array();
+        $ignoredText = array();
+
+        list($xmlStr,$ignoredTags,$subarray) = $this->checkTagFilters($node);
+
+        list($xmlStr,$ignoredText) = $this->filterText($xmlStr);
+        
+        $ignored = array( "tags" => $ignoredTags,
+                          "text" => $ignoredText,
+                          "subs" => $subarray,
+                          );
+        return array($xmlStr,$ignored);
+
+    }
+    
+    private function checkTagFilters(DOMNode $node,&$startpos = 0,$ignoredTags = array(),$subarray = array()) {
+    
+        $returnstr = '';
+        $hidelist = array();
+
+        $children = $node->childNodes;
+
+        foreach($children as $child) {
+            
+            if($child->nodeType == 3) { // text node
+                $returnstr .= $child->nodeValue;
+                $startpos += strlen($child->nodeValue);
+                continue;
+            }
+
+            $tagName = $child->localName;
+            if(isset($this->tagFILTERS[$tagName])) {
+                $status = $this->tagFILTERS[$tagName];
+            }
+            else $status = self::SHOW;
+
+            if($status == self::HIDE) {
+                $hidelist[] = $child;
+            }
+
+            elseif($status == self::IGNORE) {
+                $ignoreattr = $child->ownerDocument->createAttribute('ignored');
+                $ignoreattr->value = 'TRUE';
+                $child->appendChild($ignoreattr);
+                if($child->hasChildNodes()) {
+                    $this->checkHideTags($child);
+                }
+                $this->ignoreTag($startpos,$this->DOMouterXML($child),$ignoredTags);
+            }
+
+            elseif($status == self::IGNORETAG) {
+                
+                if(!$child->hasChildNodes()) {
+                    $this->ignoreTag($startpos,$this->DOMouterXML($child),$ignoredTags);
+                    continue;
+                }
+
+                $opentag = "<".$child->localName . $this->DOMAttributes($child).">";
+                $this->ignoreTag($startpos,$opentag,$ignoredTags);
+
+                list($middlestr,$ignoredTags,$subarray) = $this->checkTagFilters($child,$startpos,$ignoredTags,$subarray);
+
+                $closetag = "</".$child->localName.">";
+                $this->ignoreTag($startpos,$closetag,$ignoredTags);
+
+                $returnstr .= $middlestr;
+
+            }
+            elseif($status == self::SHOW) {
+
+               if(!$child->hasChildNodes()) {
+                    $replacestr = $this->DOMouterXML($child);
+                    $subchar = $this->unicodeReplace($replacestr);
+                    $subarray[$subchar] = $replacestr;
+                    $returnstr .= $subchar;
+                    $startpos += strlen($subchar);
+                    continue;
+                }
+                           
+                $opentag = "<".$child->localName . $this->DOMAttributes($child).">";
+                $subchar = $this->unicodeReplace($opentag);
+                $subarray[$subchar] = $opentag;
+                $returnstr .= $subchar;
+                $startpos += strlen($subchar);
+
+                list($middlestr,$ignoredTags,$subarray) = $this->checkTagFilters($child,$startpos,$ignoredTags,$subarray);
+                $returnstr .= $middlestr;
+                
+                $closetag = "</".$child->localName.">";
+                $subchar = $this->unicodeReplace($closetag);
+                $subarray[$subchar] = $closetag;
+                $returnstr .= $subchar;
+                $startpos += strlen($subchar);
+            }
+        }
+        foreach($hidelist as $hideel) $hideel->parentNode->removeChild($hideel);
+        return [$returnstr,$ignoredTags,$subarray];
+
+    }    
+  
+    private function checkHideTags(DOMNode $node) {
+    
+        $children = $node->childNodes;
+        $hidelist = array();
+
+        foreach($children as $child) {
+
+            if($child->nodeType == 3) { // text node
+                continue;
+            }
+
+            $tagName = $child->localName;
+            
+            $status = self::SHOW;
+            if(isset($this->tagFILTERS[$tagName])) {
+                $status = $this->tagFILTERS[$tagName];
+            }
+
+            if($status == self::HIDE)
+                $hidelist[] = $child;
+            
+            else
+                if($child->hasChildNodes()) $this->checkHideTags($child);
+        }
+        foreach($hidelist as $el) $el->parentNode->removeChild($el);
+    }
+
+    private function oldfilterNode(DOMNode $element) {
         $finalXML = "";
         $subarray = array();
         $ignoredTags = array();
@@ -525,17 +728,19 @@ class Upama
         } */
         $startpos = 0;
         foreach($children as $child) { // check each node, whether tag or text, within the element
-            $filter = $this->checkTagFilters($child);
+            $filter = $this->oldcheckTagFilters($child);
             foreach($filter as $el) {
                 if(is_string($el)) {
                     $finalXML .= $el;
                     $startpos += strlen($el);
                 }
                 elseif($el[0] == self::IGNORETAG || $el[0] == self::IGNORE) {
+                    // in the case of IGNORETAG, $el[1] is just the tag; but in the case if IGNORE, $el[1] is the outerXML including tags and content
                     $this->ignoreTag($startpos,$el[1],$ignoredTags);
                 }
                 elseif($el[0] == self::SHOW) {
-                    $subchar = $this->unicodeReplace($el[1],$subarray,$range);
+                    $subchar = $this->unicodeReplace($el[1]);
+                    $subarray[$subchar] = $el[1];
                     $finalXML .= $subchar;
                     $startpos += strlen($subchar);
                 }
@@ -557,31 +762,51 @@ class Upama
         return $key;
     }
 
-    private function unicodeReplace($original, &$subarray, $range = 0, $samelength = FALSE) {
-        $startval = 57344 + (800*$range);      // 57344 - 63743 is the Unicode Private Use
-        $endval = 57344 + (800 + 800*$range);  // Area; this is split into 4 ranges of 800
-        $code = sizeof($subarray) + $startval; // characters each
+    private function unicodeReplace($original) {
+        //$startval = 57344 + (800*$range);
+        //$endval = 57344 + (800 + 800*$range); 
+        // 57344 - 63743 is the Unicode Private Use Area; this is split into 4 ranges of 800 characters each
+        
+        $startval = 57344;
+        $endval = 63743;
+        $code = false;
+
+        //$code = sizeof($subarray) + $startval; 
+        $testval = $startval;
+        while(!$code) {
+            if(isset($this->unicodeReplacements[$testval])) {
+                $testval++;
+            }
+            else {
+                $code = $testval;
+            }
+        }
+        
+        //$code = count($this->unicodeReplacements) + $startval;
+        
         if($code > $endval)
             trigger_error("Too many replacements");
+
         $key = $this->unicodeChar($code);
-        if($samelength == TRUE) {
-            if(is_array($original)) 
-                $length = mb_strlen($original[0]);
-            else $length = mb_strlen($original);
-            $key = str_repeat($key,$length);
-        }
-        $subarray[$key] = $original;
+        
+        $this->unicodeReplacements[$key] = $original;
+        
         return $key;
-    } 
+    }
+    
     private function restoreSubs($text, $subs) {
-        return str_replace(array_keys($subs), array_values($subs), $text);
+        $keys = array_keys($subs);
+        foreach($keys as $key) {
+            unset($this->unicodeReplacements[$key]);
+        }
+        return str_replace($keys, array_values($subs), $text);
     }
 
     public function DOMAttributes(DOMNode $element) {
         if($element->hasAttributes()) {
             $retstr = "";
             foreach($element->attributes as $attr) {
-                $retstr .= " ".$attr->nodeName ."=\"".$attr->nodeValue."\"";
+                $retstr .= " ".$attr->name ."=\"".$attr->value."\"";
             }
             return $retstr;
         }
@@ -597,13 +822,10 @@ class Upama
         return array($text,$xpath);
     }
     public function loadFile($filename) {
-        $text = new DomDocument();
-        $text->load($filename);
-        $xpath = new DomXpath($text);
-        $rootNS = $text->lookupNamespaceUri($text->namespaceURI);
-        $xpath->registerNamespace("x", $rootNS);
-        return array($text,$xpath);
+        $text = file_get_contents($filename);
+        return $this->loadText($text);
     }
+
     public function fixSpecialChars($data) {
         $text = str_replace(array(
         '&', '<', '>', '"', "'",
@@ -613,11 +835,13 @@ class Upama
         return $text;
     }
 
-    private function replaceIgnored(&$count,$text,&$posArray) {
+    private function replaceIgnored(&$count,$text,&$posArray,$atlast = false) {
         if(empty($posArray)) return $text;
 
         $startpos = $count;
         $count += strlen($text); // + 1 if missing a space after split
+        if($atlast) $count++; // there might be ignored bits at the end
+
         $pos = key($posArray);
         while(($startpos <= $pos) && ($pos < $count)) {
             $ins = current($posArray);
@@ -657,106 +881,465 @@ class Upama
  //       }
     }
     
-    private function prettyXml($diffs,$ignored1,$ignored2,$msid)   {
-        $xmlstring = '';
-        $text1counta = 0;
-        $text1countb = 0;
-        $tags1count = 0;
-        $text2counta = 0;
-        $text2countb = 0;
-        $tags2count = 0;
-        $spacecount = 0;
-        foreach ($diffs as $change) {
+    private function splitDiffs(array $diffs) {
+        
+        $start = '';
+        $sections = array();
+        $possibleOmission = false;
+        $lastdiff = count($diffs) - 1;
+       
+        foreach ($diffs as $key => $change) {
             $op = $change[0];
             $text = $change[1];
-            $spacer = $this->unicodeChar(63743);
+
             if ($op == 1) { // text that is in text2 only
-              $xmlstring .= '<ins>' . str_replace(" ",$spacer,$text) . '</ins>';
+              $start .= '<i>' . $text . '</i>';
+              $possibleOmission = false;
 
             } elseif ($op == -1) { // text that is in text1 only
-               $xmlstring .= '<del>' . str_replace(" ",$spacer,$text) . '</del>';
+               if($start == '' && $text[strlen($text)-1] == ' ') {
+                    // splits the deleted text so it shows up as [om.]
+                    $sections[] = '<d>' . $text . '</d>';
+                    $start = '';
+               }
+               else {
+                   if($start != '' && $text[0] == ' ') {
+                        // if the next block starts with a space, split the deleted text so it shows up as [om.]
+                        $possibleOmission = array($start,'<d>'.ltrim($text).'</d>');      
+                   }
 
+                   $start .= '<d>' . $text . '</d>';
+               }
             } else { // text common to both
-                $xmlstring .= $text;
-            }
-        }
+                
+                if($text == ' ') { // text is a single space
+                    $sections[] = $start . ' ';
+                    $start = '';
+                    continue;
+                }
 
-        $spaceSplit = explode(" ",$xmlstring);
+                $t1 = $text[0];
+                $t2 = $text[strlen($text)-1];
+                $texts = explode(' ',$text);
+                
+                if($t1 != ' ' && $t2 != ' ') { // no spaces on either side
+                    if(count($texts) == 1) {
+                        $start .= $text;
+                    }
+                    elseif($key == 0) {
+                        $start = array_pop($texts);
+                        $sections[] = implode(' ',$texts) . ' ';
+                    }
+                    else {
+                        $start .= array_shift($texts) . ' ';
+                        $sections[] = $start;
+
+                        if($key == $lastdiff) {
+                            $sections[] = implode(' ',$texts);
+                            $start = '';
+                        }
+                        else {
+                            $last = array_pop($texts);
+                            if(!empty($texts))
+                                $sections[] = implode(' ',$texts) . ' ';
+                            $start = $last;
+                        }
+                    }
+                }
+
+                elseif($t1 == ' ' && $t2 == ' ') { // spaces both sides
+                    if($possibleOmission) {
+                        $sections[] = $possibleOmission[0];
+                        $sections[] = '<d> </d>';
+                        $start = $possibleOmission[1];
+                        //$possibleOmission = false;
+                    }
+                    $sections[] = $start . ' ';
+                    $sections[] = ltrim($text);
+                    $start = '';
+                }
+
+                elseif($t1 == ' ' && $t2 != ' ') { // space at start
+                    if($possibleOmission) {
+                        $sections[] = $possibleOmission[0];
+                        $sections[] = '<d> </d>';
+                        $start = $possibleOmission[1];
+                        //$possibleOmission = false;
+                    }
+                    $sections[] = $start . ' ';
+                    array_shift($texts);
+                    if($key == $lastdiff) {
+                        $sections[] = implode(' ',$texts);
+                        $start = '';
+                    }
+                    else {
+                        $last = array_pop($texts);
+                        if(!empty($texts))
+                            $sections[] = implode(' ',$texts) . ' ';
+                        $start = $last;
+                    }
+                }
+
+                elseif($t1 != ' ' && $t2 == ' ') { // space at end
+                    if($key == 0) { // first element
+                        $sections[] = $text;
+                    }
+                    else {
+                        array_pop($texts);
+                        $sections[] = $start . array_shift($texts) . ' ';
+                        if(!empty($texts)) 
+                            $sections[] = implode(' ',$texts) . ' ';
+                        $start = '';
+                    }
+                }
+
+                $possibleOmission = false;
+            }
+            // add leftover text to the array
+            if($key == $lastdiff && $start != '') $sections[] = $start;       
+        }
+        return $sections;
+    }
+
+    private function diffToXml($diffs,$ignored1,$ignored2,$msid)   {
+        $xmlstring = '';
+        $counters1 = array(
+                           "text" => array(0,0),
+                           "tags" => 0,
+                           "startspace" => 0,
+                           "endspace" => 0,
+                           );
+        $counters2 = array(
+                           "text" => array(0,0),
+                           "tags" => 0,
+                           );
+        $postcount = false;
+        $precount = false;
+
+        $spaceSplit = $this->splitDiffs($diffs);
+        $lastsection = count($spaceSplit) - 1;
+
         $finalXml = "<maintext>";
         $apparatus = "<apparatus>";
-        foreach ($spaceSplit as $section) {
-            $section .= " "; // replacing space after explode
-            if(preg_match('/<(ins|del)>/',$section)) {
-                $section = str_replace($spacer," ",$section);
-                
-                $maintext = preg_replace("/<ins>.*?<\/ins>|<\/{0,1}del>/",'',$section);
-                #$maintext = mb_ereg_replace("<ins>.*?</ins>|<del>|</del>",'',$section);
-                $maintext = $this->replaceIgnored($text1counta,$maintext,$ignored1["text"][1]);
-                $maintext = $this->replaceIgnored($text1countb,$maintext,$ignored1["text"][0]);
-                $oldspacecount = $spacecount;
-                //$spacecount += substr_count($maintext,' ');
-                $spacecount += preg_match_all('/\s+/',$maintext);
-                $maintext = $this->replaceIgnored($tags1count,$maintext,$ignored1["tags"]);
-                $maintext = $this->restoreSubs($maintext,$ignored1["subs"]);
-                if($maintext == " ") $maintext = "<editor>[om.]</editor> "; // this currently never happens unless the whole block is empty
-                
-                $vartext = preg_replace("/<del>.*?<\/del>|<\/{0,1}ins>/",'',$section);
-                #$vartext = mb_ereg_replace("<del>.*?</del>|<ins>|</ins>",'',$section);
-                $vartext = $this->replaceIgnored($text2counta,$vartext,$ignored2["text"][1]);
-                $vartext = $this->replaceIgnored($text2countb,$vartext,$ignored2["text"][0]);
-                $vartext = $this->replaceIgnored($tags2count,$vartext,$ignored2["tags"]);
-                $vartext = $this->restoreSubs($vartext,$ignored2["subs"]);
-                if($vartext == " ") $vartext = "<editor>[om.]</editor>";
-                $vartext = trim($vartext);
-                $vartext = $this->closeTags($vartext);
+        $atlast = false;
 
+        foreach ($spaceSplit as $key => $section) {
+           $charpos = '';
+           $startspace = -1;
+
+           if($key == $lastsection) $atlast = true;
+
+            if(preg_match('/<[id]>/',$section)) {
+                
+                $maintext = preg_replace("/<(?:i>.+?<\/i|\/{0,1}d)>/",'',$section);
+                $vartext = preg_replace("/<(?:d>.+?<\/d|\/{0,1}i)>/",'',$section);
+                $vartexts = false;
+                if($this->affixlemmata && strlen($vartext) > $this->affixlemmata) {
+                    $vartexts = $this->mb_findAffixes($maintext,$vartext);
+                }
+                if(isset($vartexts["prefix"])) {
+                    $precount = "ltrim";
+                    $main1 = $this->unfilterText($vartexts["prefix"],$counters1,$ignored1,false,$precount);
+                    $startspace = $counters1["startspace"];
+                    $main2 = $this->unfilterText($vartexts["main"],$counters1,$ignored1,$atlast);
+                    $maintext = $main1.$main2;
+                    $charpos = "x".$precount;
+                }
+                elseif(isset($vartexts["suffix"])) {
+                    $postcount = true;
+                    $main1 = $this->unfilterText($vartexts["main"],$counters1,$ignored1,false,$postcount);
+                    $startspace = $counters1["startspace"];
+                    $main2 = $this->unfilterText($vartexts["suffix"],$counters1,$ignored1,$atlast);
+                    $maintext = $main1.$main2;
+                    $charpos = "x0x".$postcount;
+                }
+                else {
+                    $maintext = $this->unfilterText($maintext,$counters1,$ignored1,$atlast);
+                }
+                
                 $finalXml .= $maintext;
-                $apparatus .= "<variant location='".$oldspacecount."x".$spacecount."' mss='".$msid."'><mainreading>" . $vartext . "</mainreading></variant> ";
-     
+
+                if($section != '<d> </d>') {
+
+                    if(trim($vartext) == '') {
+                        $this->unfilterText($vartext,$counters2,$ignored2,$atlast);
+                        $vartext = "<editor>[om.]</editor>";
+                    }
+                    else {
+                        if($vartexts) {
+                            if(isset($vartexts["prefix"])) {
+                                $prefix = $vartexts["prefix"];           
+                                if($prefix[strlen($prefix)-1] == ' ') {
+                                // this shouldn't happen, but the diff algorithm isn't perfect
+                                    $startspace++;
+                                    $charpos = '';
+                                }
+
+                                $prefix = $this->unfilterText($vartexts["prefix"],$counters2,$ignored2);
+                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
+                                if(trim($vartext) == '') 
+                                    $vartext = "<editor>[om.]</editor>";
+                                else {
+                                    //$vartext = "$prefix  *$vartext";
+                                    $vartext = "°".$vartext;
+                                    $vartext = trim($vartext);
+                                    $vartext = $this->closeTags($vartext);
+                                }
+                            }
+                            else {
+                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
+                                $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
+                                if(trim($vartext) == '') 
+                                    $vartext = "<editor>[om.]</editor>";
+                                else {
+                                    //$vartext = "$vartext*  $suffix";
+                                    $vartext = $vartext."°";
+                                    $vartext = trim($vartext);
+                                    $vartext = $this->closeTags($vartext);
+                                }
+                            }
+                        }
+                        else {
+                            $vartext = $this->unfilterText($vartext,$counters2,$ignored2,$atlast);
+                            $vartext = trim($vartext);
+                            $vartext = $this->closeTags($vartext);
+                        }
+                    }  
+                    if($startspace < 0) {
+                        $startspace = $counters1["startspace"];
+                    }
+
+                    $apparatus .= "<variant location='".
+                    $startspace."x$counters1[endspace]$charpos' mss='$msid'>".
+                    "<mainreading>$vartext</mainreading>".
+                    "</variant>";
+                } 
+
             }
             else {
-                $section1 = $this->replaceIgnored($text1counta,$section,$ignored1["text"][1]);
-                $section1 = $this->replaceIgnored($text1countb,$section1,$ignored1["text"][0]);
-                //$spacecount += substr_count($section1,' ');
-                $spacecount += preg_match_all('/\s+/',$section1);
+                
+                $maintext = $this->unfilterText($section,$counters1,$ignored1,$atlast);
+                $finalXml .= $maintext;
 
-                $section1 = $this->replaceIgnored($tags1count,$section1,$ignored1["tags"]);
-                $section1 = $this->restoreSubs($section1,$ignored1["subs"]);
-                
-                $section2 = $this->replaceIgnored($text2counta,$section,$ignored2["text"][1]);
-                $section2 = $this->replaceIgnored($text2countb,$section2,$ignored2["text"][0]);
-                $this->replaceIgnored($tags2count,$section2,$ignored2["tags"]);
-                
-                $finalXml .= $section1;
+                if($key < $lastsection) {
+                    $this->unfilterText($section,$counters2,$ignored2);
+                } // if it's the last section, no need to continue processing the apparatus
+
             }
         }
-        $finalXml .= "</maintext>\n";
-        $apparatus .= " </apparatus>"; // whitespace so xslt doesn't self-close the tag
+        
+        $finalXml .= "</maintext>";
+        $apparatus .= "</apparatus>"; // whitespace so xslt doesn't self-close the tag
         $finalXml .= $apparatus;
+
         return $finalXml;
     }
 
+    private function unfilterText($text,&$counters,&$ignored,$atlast = false,&$charcount = false) {
+        $text = $this->replaceIgnored($counters["text"][1],$text,$ignored["text"][1],$atlast);
+       
+        $text = $this->replaceIgnored($counters["text"][0],$text,$ignored["text"][0],$atlast);
+        
+        if($charcount) {
+            if($charcount == 'ltrim')
+                $charcount = mb_strlen(ltrim($text));
+            else
+                $charcount = mb_strlen($text);
+        }
+        if(isset($counters["startspace"])) {
+            $counters["startspace"] = $counters["endspace"];
+            $counters["endspace"] += preg_match_all('/\s/',$text);
+                    if($atlast && !preg_match('/\s/',$text[strlen($text)-1]) )
+                        $counters["endspace"]++;
+        }
+
+        $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast);
+        $text = $this->restoreSubs($text,$ignored["subs"]);
+
+        return $text;
+    }
+    
+    private function mb_findAffixes($text1,$text2) {
+        
+        $arr1 = preg_split('//u',$text1,-1,PREG_SPLIT_NO_EMPTY);
+        $arr2 = preg_split('//u',$text2,-1,PREG_SPLIT_NO_EMPTY);
+        $len1 = count($arr1);
+        $len2 = count($arr2);
+        $pre_end = 0;
+        $post_start = 0;
+
+        foreach($arr1 as $r => $pre1) {
+            $pre_end = $r;
+            $pre2 = isset($arr2[$r]) ? $arr2[$r] : false;
+            if($pre1 != $pre2) {
+                break;
+            }
+        }
+        $vowels = '/[aāiīeuūoṛṝḷṃḥ\s]/u';
+        $consonants = '/[kgcjṭḍtdpbṅñṇnmyrlḻvśṣsh]/u';
+        // first half should end in vowel, second half should start with consonant
+        if($len1 - $pre_end == 0) $pre_end--;
+        elseif($len1 - $pre_end == 1 && $arr1[$pre_end] == ' ') 
+            $pre_end--;
+
+        while(isset($arr2[$pre_end-1]) && $arr2[$pre_end-1] != ' ') {
+            if(!preg_match($vowels,$arr2[$pre_end-1]))
+                $pre_end--;
+            elseif(isset($arr2[$pre_end]) && $arr2[$pre_end] != ' ' &&
+                   !preg_match($consonants,$arr2[$pre_end]))
+                $pre_end--;
+            else break;
+        }
+        while(isset($arr1[$pre_end-1]) && $arr2[$pre_end-1] != ' ') {
+            if(!preg_match($vowels,$arr1[$pre_end-1]))
+                $pre_end--;
+            elseif(isset($arr1[$pre_end]) && $arr1[$pre_end] != ' ' &&
+               !preg_match($consonants,$arr1[$pre_end]))
+                $pre_end--;
+            else break;
+        }
+
+        //if($pre_end == $len2-1) return false;
+        
+        if($pre_end < $len2/2 - 1) { // prefix is less than half the length of the variant text; check if suffix is longer
+
+            $rev1 = array_reverse($arr1);
+            $rev2 = array_reverse($arr2);
+            foreach($rev1 as $o => $post1) {
+                $post_start = $o;
+
+                $post2 = isset($rev2[$o]) ? $rev2[$o] : false;
+                if($post1 != $post2) {
+                    break;
+                }
+            }
+            if($len1 - $post_start == 0) $post_start--;
+
+            if(isset($rev2[$post_start]) && $rev2[$post_start] != ' ') {
+                while(isset($rev2[$post_start-1])) {
+                    if(!preg_match($vowels,$rev2[$post_start]) ||
+                       !preg_match($consonants,$rev2[$post_start-1]))
+                        $post_start--;
+                    else break;
+                }
+            }
+            if(isset($rev1[$post_start]) && $rev1[$post_start] != ' ') {
+                while(isset($rev1[$post_start-1])) {
+                    if(!preg_match($vowels,$rev1[$post_start]) ||
+                       !preg_match($consonants,$rev1[$post_start-1]))
+                        $post_start--;
+                    else break;
+                }
+            }
+            //if($post_start == $len2) return false;
+        } 
+        if($post_start > 5 && $post_start >= $pre_end) {
+            $var = implode('',array_slice($arr2,0,$len2-$post_start));
+            $suffix = implode('',array_slice($arr2,$len2-$post_start));
+            $main = implode('',array_slice($arr1,0,$len1-$post_start));
+
+            return array("var" => $var,
+                         "suffix" => $suffix,
+                         "main" => $main,
+                         );
+        } 
+        if($pre_end > 5) {
+            $prefix = implode('',array_slice($arr2,0,$pre_end));
+            $var = implode('',array_slice($arr2,$pre_end));
+            $main = implode('',array_slice($arr1,$pre_end));
+            
+            return array("var" => $var,
+                         "prefix" => $prefix,
+                         "main" => $main,
+                         );
+        } 
+        else return false;
+        
+    }  
+    
+    private function findAffixes($text1,$text2) {
+        $n = 0;
+        $char1 = $text1[$n];
+        $char2 = $text2[$n];
+        while(!empty($char1) && !empty($char2)) {
+            if($char1 == $char2) {
+                $n++;
+                $char1 = $text1[$n];
+                $char2 = $text2[$n];
+            }
+            else break;
+        }
+
+        $n--; // we want the last matching character
+        
+        if($n > 5) {
+            $n = $this->fixMultibyte($text2,$n);
+            $prefix = substr($text2,0,$n+1);
+            $var = substr($text2,$n+1);
+            return array("prefix" => $prefix,
+                         "vartext" => $var
+                         );
+        }
+        else return false;
+        
+    } 
+   
+    private function fixMultibyte($str,$n) {
+        
+        $bin = decbin(ord($str[$n]));
+        
+        if(strlen($bin) == 7) // not multibyte
+            return $n;
+
+        if($bin[1] == 1) { // first byte of the string
+            if ($bin[2] == 0) { // two-byte string
+                return $n++;
+            }
+            elseif($bin[3] == 0) { // three-byte string
+                return $n + 2;
+            }
+            else { // four-byte string
+                return $n + 3;
+            }
+        }
+        else { // this is byte 2, 3, or 4 of the string
+            $n++;
+            while(!empty($str[$n])) {
+
+                $bin = decbin(ord($str[$n]));
+                
+                if(strlen($bin) == 7) // next character not multibyte
+                    return $n-1;
+                if($bin[1] == 1) // first byte of next character
+                    return $n-1;
+                
+                $n++;
+            }
+            return $n-1;
+        }
+    } 
+   
     private function recurse_elements($dom1,$dom2,$xpath1,$xpath2,$msid,&$return) {
         $kids1 = $xpath1->query($this->blockLevelElements,$dom1);
         $kids1length = $kids1->length;
         if($kids1length == 0) {// if the current element has no block-level children
             list($dom1text,$ignored1) = $this->filterNode($dom1);
-            list($dom2text,$ignored2) = $this->filterNode($dom2,1);
+            list($dom2text,$ignored2) = $this->filterNode($dom2);
             $dmp = new DiffMatchPatch();
             $diffs = $dmp->diff_main($dom1text, $dom2text,false);
-            $diffstring = $this->prettyXml($diffs,$ignored1,$ignored2,$msid);
+            $diffstring = $this->diffToXml($diffs,$ignored1,$ignored2,$msid);
             return $diffstring;
         }
         else {
             $kids2 = $xpath2->query($this->blockLevelElements,$dom2);
             if($kids1length != $kids2->length) {
-                trigger_error("unequal number of text blocks (".$kids1length." vs ".$kids2->length.") in ".$dom1->nodeName);
+                trigger_error("unequal number of text blocks (".$kids1length." vs ".$kids2->length.") in ".$dom1->localName);
             }
             $dom1 = $dom1->firstChild;
             $dom2 = $kids2->item(0);
             $nn = 0;
             do {
-                $dom1name = $dom1->nodeName;
+                $dom1name = $dom1->localName;
                 if(!in_array($dom1name,$this->blockLevelNames)) {
                     $return .= $this->DOMouterXML($dom1);
                 }

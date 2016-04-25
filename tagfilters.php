@@ -23,6 +23,7 @@ return array(
             "space" => "-1",
             "lg" => "-2",
             "l" => "-2",
+            "caesura" => "-1",
             "#comment" => "-1",
             );
 ?>

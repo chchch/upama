@@ -168,6 +168,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                        $data .= $upama->transform($final,DOKU_PLUGIN.'upama/xslt/with_apparatus.xsl');
                    }
                    else {
+                        $upama = new Upama();
                         $data .= $upama->transform($compared[0],DOKU_PLUGIN.'upama/xslt/with_apparatus.xsl');
                    }
                } else { // if there are no witnesses to compare
@@ -193,7 +194,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
         return array();
     }
     
-    function render($mode, Doku_Renderer $renderer, $data) {
+    function render($mode, Doku_renderer $renderer, $data) {
          if($mode == 'xhtml'){
             list($state, $match, $meta) = $data;
             switch ($state) {
