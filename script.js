@@ -10,26 +10,20 @@ highlight: function(id,node) {
     var startnode, endnode;
     var startpos = -1;
     var endpos = -1;
-    var kid;
-    var spaceAtEndOfContainer = false;
-
     if(pos[0] == 0) {
         var startpos = 0;
         var startnode = node.childNodes[0];
     }
 
-    function countSpaces(node) {
+    function recurseElements(node) {
         var kids=node.childNodes;
-
         for(var i=0;i<kids.length;i++) {
-            kid = kids[i];
+            var kid = kids[i];
             if(kid.nodeType == 3) { // text node
                 var kidtext = kid.data;
-                if(!kidtext.charAt(0).match(/\s/)) spaceAtEndOfContainer = false;
                // var space = kidtext.indexOf(" "); // doesn't work with non-breaking spaces
                 
                 //var space = upama.regexIndexOf(kidtext,/\s+/);
-                // var re = /\s+/g;
                 var re = /\s+/g;
                 var space = re.exec(kidtext);
                 while(space && space.index >= 0) {
@@ -38,12 +32,12 @@ highlight: function(id,node) {
                         space = re.exec(kidtext);
                         continue;
                     }
-                    else { 
+                    else {
                         spaces++;
                         spaceAtEndOfContainer = false;
-                    } 
+                    }
 
-                    if(startpos == -1 && spaces == pos[0]) {
+                    if(spaces == pos[0] && startpos == -1) {
                         //startpos = space+1;
                         startpos = re.lastIndex;
                         startnode = kid;
@@ -66,7 +60,7 @@ highlight: function(id,node) {
             } 
             else {
                 if(!kid.classList.contains('ignored'))
-                    if(countSpaces(kid)) return 1;
+                    if(recurseElements(kid)) return 1;
             }
         }
         return 0;
@@ -84,40 +78,22 @@ highlight: function(id,node) {
     function highlightNode(range) {
         var highlightNode = document.createElement('span');
         highlightNode.className = "highlight";
-        highlightNode.appendChild(range.extractContents());
-        range.insertNode(highlightNode);
-        //range.surroundContents(highlightNode);
-    }
-
-    function findDivs(range) {
-        
-        var container = range.cloneContents();
-        node = container.firstChild;
-        while(node) {
-//        for(node = container.firstChild;node != container;node = getNextNode(node)) {
-            if(node.nodeName == 'DIV') {
-                return 1;
-            }
-            node = getNextNode(node);
-        }
-        return 0;
+        range.surroundContents(highlightNode);
     }
 
     function lightTextNodes(range) {
-
-        var start = range.startContainer;
-        var end = range.endContainer;
         
-//        if((start.parentNode == end.parentNode) && !findDivs(range)) {
-        if(!findDivs(range)) {
+        if(range.startContainer == range.endContainer) {
             // beginning and end of range are in the same container
-            // can't surround divs with a span (well, it's ugly)
-                highlightNode(range);
+            highlightNode(range);
         }
         
         else {
 
-            if(start.nodeType == 3 && range.startOffset != start.length) {
+            var start = range.startContainer;
+            var end = range.endContainer;
+
+            if(start.nodeType == 3) {
                 var textRange = start.ownerDocument.createRange();
                 textRange.setStart(start,range.startOffset);
                 textRange.setEnd(start,start.length);
@@ -132,7 +108,7 @@ highlight: function(id,node) {
                 }
             }
             
-            if(end.nodeType == 3 && range.endOffset > 0) {
+            if(end.nodeType == 3) {
                 var textRange = end.ownerDocument.createRange();
                 textRange.setStart(end,0);
                 textRange.setEnd(end,range.endOffset);
@@ -143,21 +119,8 @@ highlight: function(id,node) {
     
     }
     
-    countSpaces(node);
-    if(endnode == null) {
-        //endnode = kid;
-        //endpos = kid.length;
-        if(kid.parentNode.lastChild.nodeType != 3) {
-            
-            // this means that there are some extra bits at the end of the node
-            endnode = kid.parentNode.lastChild;
-            endpos = 1;
-        }
-        else {
-            endnode = kid;
-            endpos = kid.length;
-        }
-    }
+    var spaceAtEndOfContainer = false;
+    recurseElements(node);
 
 //    var newNode = document.createElement('span');
 //    newNode.className = "highlight";

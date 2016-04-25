@@ -67,10 +67,6 @@ td.verse {font-size: 1.3em;
 div.quotedverse {
                 padding: 2% 0 2% 2%;
                 vertical-align:top;
-                //background-color: inherit;
-}
-
-div.verseline {
 }
 
 td.versebottompadding {padding-bottom: 1em;
@@ -108,7 +104,7 @@ span.unclear {font-style: italic;
 span.lb {color:#FF9900;
         letter-spacing:-0.2em;
         font-size:130%;
-        line-height:0.76;
+        line-height:100%;
         font-family: Roboto, NagariShree, sans-serif;
         font-weight:normal;
         vertical-align: baseline;
@@ -117,7 +113,7 @@ span.lb {color:#FF9900;
 span.pb {color:#FF9900;
         letter-spacing:-0.35em;
         font-size:130%;
-        line-height:0.76;
+        line-height:100%;
         font-weight:normal;
         font-family: Roboto, NagariShree, monospace;
         vertical-align:bottom;
@@ -143,7 +139,6 @@ span.inline {margin-left: 0.5em;
 
 span.super {vertical-align: super;
             margin-left: 0.1em;
-            line-height: normal;
 }
 
 span.varcontainer {padding-right: 1em;
@@ -165,6 +160,7 @@ span.reading {display: none;
 }
 
 span.highlight {background-color: #FFFF99;
+                line-height: 100%;
 }
 
 span.sidebar-siglum {font-variant: small-caps;
