@@ -1,7 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
                 xmlns:x="http://www.tei-c.org/ns/1.0"
                 exclude-result-prefixes="x">
-
+<xsl:output method="html" omit-xml-declaration="yes"/>
 
 <!--xsl:template match="x:titleStmt">
     <h1>
@@ -45,6 +45,8 @@
     <xsl:text>.</xsl:text>
     </li>
     </xsl:if>
+    <xsl:text>
+    </xsl:text>
     </ul>
 </xsl:template>
 

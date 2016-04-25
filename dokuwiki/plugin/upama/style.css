@@ -1,9 +1,4 @@
 @font-face {
-    font-family: IndUni;
-    src: url(fonts/IndUni-H-Regular.otf);
-}
-
-@font-face {
     font-family: Brill;
     src: url(fonts/Brill-Roman.ttf);
 }
@@ -17,39 +12,71 @@
     font-family: NagariShree;
     src: url(fonts/NagariShree.ttf);
 }
-
+/*
 @font-face {
     font-family: Surekh;
     src: url(fonts/Surekh.ttf);
 }
 
+@font-face {
+    font-family: IndUni;
+    src: url(fonts/IndUni-H-Regular.otf);
+}
+*/
+
 body {line-height: 1;}
 
-tr.para {width:100%;
+div.para {width:100%;
+          display: table;
+          text-align: justify;
+          padding: 1% 0 2% 0;
 }
 
-tr.milestone {width: 100%;
+.milestone {width: 100%;
               margin-bottom: 10px;
             
 }
-td.devanagari {font-size: 1.5em !important;
-}
-span.devanagari {font-size: 1.3em !important;
+div.devanagari {font-size: 1.5em !important;
 }
 
-td.maintext {width:67%;
-            font-family: Brill, NagariShree, sans-serif;
+span.devanagari {font-size: 1.2em !important;
+}
+
+p.devanagari {font-size: 1.5em !important;
+}
+
+span.spacer {display: none;
+}
+
+span.deva-removed {display: none;
+}
+
+:lang(sa) {
+    font-family: Brill, NagariShree, sans-serif;
+}
+
+p:lang(sa) {
+    font-size: 1.1em;    
+}
+
+div.maintext {width:63%;
+            display: table-cell;
+            /*font-family: Brill, NagariShree, sans-serif; */
             border: 0;
-            padding: 0 4% 1em 2%;
+            padding: 0 4% 0 2%;
             vertical-align:top;
-            text-align: justify;
             font-size: 1.1em;
             line-height:130%;
 }
 
-
-td.apparatus {width:33%;
+div.apparatus {
+             //width:33%;
+            // float: left;
+            // overflow: auto;
+             display: table-cell;
+             width: auto;
              border: 0;
+             padding: 0;
              font-family: Brill, NagariShree, sans-serif;
              text-align: left;
              vertical-align:top;
@@ -57,21 +84,26 @@ td.apparatus {width:33%;
              white-space: normal;
 }
 
-td.verse {font-size: 1.3em;
-          padding: 0;
-          border: 0;
-          text-align: left;
-          line-height: 130%;
+div.verse { display: table;
+            width: 100%;
+            padding: 1em 0 0.5em 0;
 }
 
-td.quotedverse {width:70%;
-                border: 0;
-                padding: 0 4% 0 2%;
+div.verse div.verseline {
+                        margin-left: -0.8em;
+                        font-size: 1.2em;
+}
+
+div.quotedverse {
+                padding: 2% 0 2% 2%;
                 vertical-align:top;
-                font-size: 1.1em;
+                //background-color: inherit;
 }
 
-td.versebottompadding {padding-bottom: 1em;
+div.verseline {
+}
+
+div.versebottompadding {padding-bottom: 1em;
                        border:0;
 }
 
@@ -93,10 +125,11 @@ a.mshover:hover {text-decoration-style: solid;
 
 span.varreading {background-color: #F0F0FF;
 }
-table.section {width:100%;
+
+div.section {width:100%;
                border:0;
-               table-layout:fixed;
-               margin-left: auto;
+               clear: both;
+               margin-left: 0.5em;
                margin-right: auto;
 }
 
@@ -104,28 +137,61 @@ span.unclear {font-style: italic;
 }
 
 span.lb {color:#FF9900;
-        letter-spacing:-0.2em;
+        letter-spacing:-0.15em;
         font-size:130%;
-        line-height:100%;
-        font-family: Roboto, NagariShree, sans-serif;
+        line-height:0.76;
+        font-family: Roboto, sans-serif;
         font-weight:normal;
-        vertical-align: bottom;
+        vertical-align: -0.1em;
+        cursor: default;
 }
-    
-span.pb {color:#FF9900;
-        letter-spacing:-0.2em;
-        font-size:130%;
-        line-height:100%;
-        font-weight:normal;
-        font-family: Roboto, NagariShree, monospace;
-        vertical-align:bottom;
+.devanagari span.lb {
+        font-size: 100%;
 }
 
-span.gap {background-color: #CCCCB2; 
-         color: #CCCCB2;
+.pb {color:#FF9900;
+        letter-spacing:-0.3em;
+        font-size:130%;
+        line-height:0.76;
+        font-weight:normal;
+        font-family: Roboto, monospace;
+        text-decoration: none;
+        vertical-align:bottom;
+}
+.devanagari .pb {
+                     font-size: 100%;
+                     vertical-align: text-bottom;
+}
+
+span.pb {
+         cursor: default;
+}
+
+a.pb:link, a.pb:visited {
+      color: #FF9900;
+
+}
+
+a.pb:link:hover {
+      color: #2B73B7;
+      text-decoration: none;
+}
+
+span.gap {background-color: rgba(132,132,10,0.3);
+          font-size: 85%;
+          color: rgb(84,84,84);
+         /*color: #CCCCB2; */
+}
+
+span.space {background-color: rgba(132,132,10,0.3);
+            font-size: 85%;
+            color: rgb(84,84,84);
+           /* color: #FFFFCC; */
 }
 
 span.editor {font-size:80%;
+}
+.devanagari span.editor {font-size: 70%;
 }
 
 span.note {font-size:80%;
@@ -137,6 +203,7 @@ span.inline {margin-left: 0.5em;
 
 span.super {vertical-align: super;
             margin-left: 0.1em;
+            line-height: normal;
 }
 
 span.varcontainer {padding-right: 1em;
@@ -151,19 +218,21 @@ span.varbracket {color: #9933FF;
 
 span.variant {white-space: normal;
 }
-span.variant:hover {background-color: #FFFF99;
+
+
+span.variant:hover {background-color: rgba(255,250,0,0.5);
+}
+
+span.permahighlight {background-color: rgba(255,250,0,0.5);
+}
+
+span.highlight {background-color: rgba(255,250,0,0.5);
 }
 
 span.reading {display: none;
 }
 
-span.highlight {background-color: #FFFF99;
-}
-
 span.sidebar-siglum {font-variant: small-caps;
-}
-
-span.spacer {display: none;
 }
 
 ins.add {//border: 1px dashed grey;
@@ -178,4 +247,10 @@ ins.corr {//border:1px dashed #0099FF;
 
 del {color: grey;
      text-decoration-color: #CC0000;
+}
+
+span.sic {background-color: yellow;
+}
+
+span.hi {font-weight: bold;
 }
