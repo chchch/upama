@@ -1,4 +1,3 @@
-
 <?php
 ini_set('display_errors','On');
 require_once("DiffMatchPatch/DiffMatchPatch.php");
@@ -18,67 +17,31 @@ class Upama
     const IGNORETAG = -2;
     const SHOW = 0;
 
-    protected $tagFILTERS = array( "unclear" => SELF::IGNORETAG,
-                                "gap" => SELF::IGNORE,
-                                "pb" => SELF::IGNORE,
-                                "lb" => SELF::IGNORE,
-                                "note" => SELF::IGNORE,
-                                "g" => SELF::IGNORETAG,
-                                "subst" => SELF::IGNORETAG,
-                                "add" => SELF::IGNORETAG,
-                                "del" => SELF::IGNORE,
-                                "choice" => SELF::IGNORETAG,
-                                "corr" => SELF::IGNORETAG,
-                                "sic" => SELF::IGNORE,
-                                "orig" => SELF::IGNORE,
-                                "space" => SELF::IGNORE,
-                                "#comment" => SELF::IGNORE,
-                                );
-    
-    protected $origHideFILTERS = array( 
-                                    "explicit hiatus (_)" => '_',
-                                    //"dandas with numbers" => '\s*\|+\s*[\d-]+\s*\|+\s*',
-                                    "dandas" => '\s+\|+|\|+\s*',
-                                    "line fillers (¦)" => '¦',
-                                    "numbers" => '\s+[\d-]+|[\d-]+\s*',
-                                    "hyphens and dashes" => array('\-', '—'),
-                                    "avagrahas" => '\'',
-                                    "commas" => ',',
-                                    "periods/elipsises" => ".",
-                                    "quotation marks" => array('"','“','”','‘','’'),
-                                    );
+    protected $tagFILTERS = array();
+    protected $origHideFILTERS = array();
     protected $hideFILTERS = array();
-
-
-    protected $origSubFILTERS = array(
-        "final d/t" => array('d\b', "replace_with" => 't'),
-        "visarga aḥ" => array('a[ḥsśrṣ](?!\S)', "replace_with" => 'o'),
-        "other visargas" => array('[rsśṣ](?!\S)', "replace_with" => 'ḥ'),
-        "final au/āv" => array('āv(?!\S)', "replace_with" => 'au'),
-        "final anusvāra" => array('ṃ?m(?!\S)', "replace_with" => 'ṃ'),
-        "kcch/kś" => 'k(?:[ c]ch| ?ś)',
-        "cch/ch" => array('\Bc(?:c| c|)h\B','\Bt ś\B'),
-        "nasals" => array('[ñṅṇ]\B','m(?=[db])','n(?=[tdn])', "replace_with" => 'ṃ'),
-        "ddh/dh" => array('\Bddh\B', "replace_with" => 'dh'),
-        "sya,tra,ma before iti" => '(?<=sy|tr|m)a i|e(?=t[iy])',
-        // most of these iti rules can be applied only to printed editions
-        "e/a + iti" => array('e(?= it[iy])',"replace_with" => 'a'),
-        "i iti/īti" => array('i i(?=t[iy])', "replace_with" => 'ī'),
-        "iti + vowel" => array('y(?= [āauūeo])', "replace_with" => "i"),
-        // replacing i with y fails in some cases,
-        // as in "abhyupaiti | etad"
-        // or in "ity bhāvaḥ" compared to "iti āśaṇkyaḥ"
-        "tt/t" => array('(?<=[rṛi]|pa)tt\B','\Btt(?=v\B)', "replace_with" =>"t"),
-                                    );
-
+    protected $origSubFILTERS = array();
     protected $subFILTERS = array();
-
-
+    protected $whitespaceFILTERS = array(
+                    "ltrim" => array('^\s+', "replace_with" => ''),
+                    "rtrim" => array('\s+$', "replace_with" => ''),
+                    "middle" => array('\s\s+', "replace_with" => ' '),
+                                    );
+  
     protected $blockLevelNames = array('text','body','group','div','div1','div2','div3','div4','div5','div6','div7','p','l','lg','head');
     
     protected $blockLevelElements = '';
 
     function __construct() {
+        mb_internal_encoding('UTF-8');
+        mb_regex_encoding('UTF-8');
+
+        // load filters from config files
+        foreach(include('tagfilters.php') as $k => $v) $this->tagFILTERS[$k] = $v;
+        foreach(include('hidefilters.php') as $k => $v) $this->origHideFILTERS[$k] = $v;
+        foreach(include('subfilters.php') as $k => $v) $this->origSubFILTERS[$k] = $v;
+        
+        // Xpaths need prefix
         foreach($this->blockLevelNames as $name) {
             $this->blockLevelElements .= './x:'.$name;
             if($name !== end($this->blockLevelNames))
@@ -88,6 +51,7 @@ class Upama
 
     public function compare($file1,$file2) {
         
+
         $this->implodeSubFilters();
         $this->optimizeHideFilters();
 
@@ -103,7 +67,7 @@ class Upama
                 
         $this->recurse_elements($elements1,$elements2,$xpath1,$xpath2,$msid,$return);
     return $return;
-            }
+        }
 
     public function getSiglum($xpath) {
         $msidpath = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']")->item(0);
@@ -114,7 +78,7 @@ class Upama
         return $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:titleStmt/x:title")->item(0)->nodeValue;
     }
     
-    public function transform($str,$xsl="styles.xsl") {
+    public function transform($str,$xsl) {
         $xmlDoc = new DOMDocument();
         $xmlDoc->loadXML($str);
         $xslDoc = new DOMDocument();
@@ -131,22 +95,23 @@ class Upama
     public function getHideFilters() {
         return $this->origHideFILTERS;
     }
-    public function getSubFIlters() {
+    public function getSubFilters() {
         return $this->origSubFILTERS;
     }
 
     public function setFilter($type,$name,$value) {
         if($type == 'tag') {
-            $settings = array("ignore" => SELF::IGNORE,
-                              "ignore tag" => SELF::IGNORETAG,
-                              "hide" => SELF::HIDE,
-                              "show" => SELF::SHOW
+            $settings = array("ignore" => self::IGNORE,
+                              "ignore tag" => self::IGNORETAG,
+                              "hide" => self::HIDE,
+                              "show" => self::SHOW
                               );
 
-            $setting = SELF::SHOW;
+            $setting = self::SHOW;
             if(is_numeric($value))
                 $setting = $value;
-            elseif(array_key_exists($value,$settings))
+            //elseif(array_key_exists($value,$settings))
+            elseif(isset($settings[$value]))
                 $setting = $settings[$value];
             else
                 trigger_error("Invalid filter status for ".$name.", setting to SHOW", E_WARNING);
@@ -178,9 +143,11 @@ class Upama
     private function implodeSubFilters($reset = FALSE) {
         if(!$reset && !empty($this->subFILTERS)) return 0;
         $unival = 57344; // starting at range 3 as defined in unicodeReplace
-        foreach($this->origSubFILTERS as $key => $value) {
+        $allfilters = array_merge($this->origSubFILTERS, $this->whitespaceFILTERS);
+        foreach($allfilters as $key => $value) {
             if(is_array($value)) {
-                if(array_key_exists("replace_with",$value)) {
+                //if(array_key_exists("replace_with",$value)) {
+                if(isset($value["replace_with"])) {
                     $replacechar = $value["replace_with"];
                     unset($value["replace_with"]);
                 }
@@ -193,13 +160,14 @@ class Upama
                 $replacechar = $this->unicodeChar($unival);
                 $unival++;
             }
-            $this->subFILTERS[] = array($value,$replacechar);
+            $this->subFILTERS[] = array('/'.$value.'/u',$replacechar);
         }
         return 1; 
     }
 
     private function optimizeHideFilters($reset=FALSE) {
-        if(!$reset && array_key_exists("_optimized",$this->hideFILTERS)) {
+        //if(!$reset && array_key_exists("_optimized",$this->hideFILTERS)) {
+        if(!$reset && isset($this->hideFILTERS["_optimized"])) {
             return 0;
         }
         $newfilter = "";
@@ -210,10 +178,13 @@ class Upama
             elseif(mb_strlen($value) == 1) {
                 $newfilter .= $value;
             }
-            else $this->hideFILTERS[$key] = $value;
+            elseif(mb_strlen($value) == 2 && substr($value,0,1) == "\\") {
+                $newfilter .= $value;
+            }
+            else $this->hideFILTERS[$key] = '/'.$value.'/u';
         }
         if($newfilter) {
-                $this->hideFILTERS["_optimized"] = "[".$newfilter."]";
+                $this->hideFILTERS["_optimized"] = "/[".$newfilter."]/u";
         }
         return 1;
     }
@@ -241,7 +212,8 @@ class Upama
                     $arrkey = $variant->getAttribute("location");
                     $newcontent = $this->DOMinnerXML($variant->firstChild);
                     $ms = $variant->getAttribute("mss");
-                    if(!array_key_exists($arrkey,$collated)) {
+                    //if(!array_key_exists($arrkey,$collated)) {
+                    if(!isset($collated[$arrkey])) {
                         $collated[$arrkey] = 
                             array( 
                                 array( 'mss' => array($ms), 
@@ -302,7 +274,7 @@ class Upama
                     }
                     $allmss = implode(";",$entry['mss']);
                     $newstr .= "<variant location='".$location.
-                    "' mss='".$allmss."'><mainreading>".$entry['content']."</mainreading>".$readings."</variant>";
+                    "' mss='".$allmss."'><mainreading>".$entry['content']."</mainreading>".$readings."</variant> ";
                 }
                 if(count($entries) > 1) $newstr .= '</varGroup>';
                 $newstr .= ' ';
@@ -320,18 +292,23 @@ class Upama
             $cleanstr = "";
             list($str1,$cleanstr) = $this->filterVariant($str1);
             $str2 = $this->filterVariant($str2)[0];
-            if($str1 == $str2) return $cleanstr;
+            if($str1 == $str2) {
+               // normalize whitespace characters
+                $cleanstr = trim($cleanstr);
+                $cleanstr = preg_replace("/\s\s+/u"," ",$cleanstr);
+                return $cleanstr;
+            }
             else return 0;
         }
     }
 
     private function filterVariant($str) {
         foreach($this->tagFILTERS as $tag => $status) {
-            if($status == SELF::IGNORE || $status == SELF::HIDE) {
+            if($status == self::IGNORE || $status == self::HIDE) {
                 $str = preg_replace('/<'.$tag.'\b(?>"[^"]*"|\'[^\']*\'|[^\'">])*>.*?<\/'.$tag.'>/','',$str);
                 $str = preg_replace('/<'.$tag.'\b(?>"[^"]*"|\'[^\']*\'|[^\'">])*\/>/','',$str);
             }
-            elseif($status == SELF::IGNORETAG) {
+            elseif($status == self::IGNORETAG) {
                 $str = preg_replace('/<\/?'.$tag.'\b(?:"[^"]*"|\'[^\']*\'|[^\'">])*?>/','',$str);
             }
         }
@@ -339,11 +316,13 @@ class Upama
         $subfilters = array();
         $cleanstr = "";
         foreach($this->hideFILTERS as $regex) {
-            $str = mb_ereg_replace($regex,'',$str);
+            $str = preg_replace($regex,'',$str);
         }
+
         $cleanstr = $str;
+        
         foreach($this->subFILTERS as $subfilter) {
-            $str = mb_ereg_replace($subfilter[0],$subfilter[1],$str);
+            $str = preg_replace($subfilter[0],$subfilter[1],$str);
         }  
         return array($str,$cleanstr);
     }
@@ -377,8 +356,8 @@ class Upama
                 $status = $this->tagFILTERS[$tagName];
             }
             else
-                $status = SELF::SHOW;
-            if($status == SELF::IGNORE) {
+                $status = self::SHOW;
+            if($status == self::IGNORE) {
                 $ignoreattr = $element->ownerDocument->createAttribute('ignored');
                 $ignoreattr->value = 'TRUE';
                 $element->appendChild($ignoreattr);
@@ -389,7 +368,7 @@ class Upama
             elseif(!$element->hasChildNodes()) { // SHOW or HIDE, empty tag
                 return array( array($status,$XMLstring) );
             }
-            elseif($status != SELF::HIDE) { // SHOW or IGNORETAG
+            elseif($status != self::HIDE) { // SHOW or IGNORETAG
                 $opentag = "<".$element->nodeName . $this->DOMAttributes($element).">";
                 $allels = array( array($status,$opentag) );
                 foreach($element->childNodes as $ell) {
@@ -406,63 +385,78 @@ class Upama
         }
     } 
 
-    private function filterText($text,&$ignored) {
-        $origlength = mb_strlen($text);
-        $subarray = array();
-
-        foreach ($this->hideFILTERS as $regex) {
-            $text = mb_ereg_replace_callback($regex,
-                    function($matches) use(&$subarray) {
-                        return $this->unicodeReplace($matches[0],$subarray,2,TRUE);
-                    }       
-                    ,$text);
-        }
-        $hidePos = array();
-        if(!empty($subarray)) {
-            foreach($subarray as $placeholder => $value) {
-                $place = mb_strpos($text,$placeholder);
-                $hidePos[$place] = $value;
-            }
-            ksort($hidePos);
-            $text = str_replace(array_keys($subarray),"",$text);
-            $subarray = array();
-        }
+    private function filterTextLoop($text, $filters) {
+        $results = array();
         
-        foreach ($this->subFILTERS as list($regex,$subchar)) {
-            $text = mb_ereg_replace_callback($regex,
-                    function($matches) use(&$subarray,$subchar) {
-                        $save = array($matches[0],$subchar);
-                        return $this->unicodeReplace($save,$subarray,2,TRUE);
-                    }       
-                    ,$text);
-        }
-        // normalize whitespace characters
-        $text = preg_replace_callback("/\s{2,}|\n+|\r+|\t+/",
-                    function($matches) use(&$subarray) {
-                        $save = array($matches[0]," ");
-                        return $this->unicodeReplace($save,$subarray,2,TRUE);
-                    }       
-                    ,$text);
+        if(sizeof($filters) == 1) {
+            if(is_array(current($filters)))
+                list($regex, $subchar) = current($filters);
+            else
+                list($regex, $subchar) = [current($filters), ''];
 
-        $subPos = array();
-        if(!empty($subarray)) {
-            foreach($subarray as $key => $value) {
-                $place = mb_strpos($text,$key);
-                $subPos[$place] = array($value[0],mb_strlen($value[1]));
-                $subarray[$key] = $value[1];
+            $matches = array();
+            
+            preg_match_all($regex,$text,$matches,PREG_OFFSET_CAPTURE);
+           
+            $n = sizeof($matches[0]) -1;
+            while ($n >= 0) {
+                $match = $matches[0][$n];
+                $matchlen = strlen($match[0]);
+                $results[$match[1]] = array($match[0],$matchlen,$subchar);
+                $text = substr_replace($text,$subchar,$match[1],$matchlen);
+                $n--;
             }
-            ksort($subPos);
+
+            ksort($results);
+        
+            return [$text, $results];
         }
+
+        // else if there is more than one regex filter:
+
+        foreach ($filters as $item) {
+            if(is_array($item))
+                list($regex, $subchar) = $item;
+            else list($regex, $subchar) = [$item, ''];
+
+            $matches = array();
+            
+            preg_match_all($regex,$text,$matches,PREG_OFFSET_CAPTURE);
+            
+            foreach($matches[0] as $match) {
+                $matchlen = strlen($match[0]);
+                $results[$match[1]] = array($match[0],$matchlen,$subchar);
+                $text = substr_replace($text,str_repeat("*",$matchlen),$match[1],$matchlen);
+            }
+        
+        }
+
+        ksort($results);
+
+        foreach(array_reverse($results,true) as $pos => $el) {
+            $text = substr_replace($text,$el[2],$pos,$el[1]);
+        }
+
+        return [$text,$results];
+    }
+
+    private function filterText($text,&$ignored) {
+        $hidePos = array();
+        $subPos = array();
+        
+        list($text,$hidePos) = $this->filterTextLoop($text,$this->hideFILTERS);
+        list($text,$subPos) = $this->filterTextLoop($text,$this->subFILTERS);
 
         $ignored = array($hidePos,$subPos);
-        $text = str_replace(array_keys($subarray),array_values($subarray),$text);
+        
         return $text;
     }
-    
+  
     private function ignoreTag(&$startpos,$ignorestr,&$ignored) {
         $ignoreIndex = $startpos;
-        $ignored[$ignoreIndex] = $ignorestr;
-        $startpos += mb_strlen($ignorestr);
+        $ignorelen = strlen($ignorestr);
+        $ignored[$ignoreIndex] = array($ignorestr,$ignorelen,'');
+        $startpos += $ignorelen;
 
     }
 
@@ -487,14 +481,15 @@ class Upama
             foreach($filter as $el) {
                 if(is_string($el)) {
                     $finalXML .= $el;
-                    $startpos += mb_strlen($el);
+                    $startpos += strlen($el);
                 }
-                elseif($el[0] == SELF::IGNORETAG || $el[0] == SELF::IGNORE) {
+                elseif($el[0] == self::IGNORETAG || $el[0] == self::IGNORE) {
                     $this->ignoreTag($startpos,$el[1],$ignoredTags);
                 }
-                elseif($el[0] == SELF::SHOW) {
-                    $finalXML .= $this->unicodeReplace($el[1],$subarray,$range);
-                    $startpos++;
+                elseif($el[0] == self::SHOW) {
+                    $subchar = $this->unicodeReplace($el[1],$subarray,$range);
+                    $finalXML .= $subchar;
+                    $startpos += strlen($subchar);
                 }
                         // else hide
             }
@@ -572,23 +567,22 @@ class Upama
 
     private function replaceIgnored(&$count,$text,&$posArray) {
         if(empty($posArray)) return $text;
+
         $startpos = $count;
-        $count += mb_strlen($text); // + 1 if missing a space after split
+        $count += strlen($text); // + 1 if missing a space after split
         $pos = key($posArray);
         while(($startpos <= $pos) && ($pos < $count)) {
             $ins = current($posArray);
+            if($ins[2] == '')
+                $inslength = 0;
+            else
+                $inslength = strlen($ins[2]);
+             
+            $text = substr_replace($text,$ins[0],$pos-$startpos,$inslength);
+            $count += $ins[1] - $inslength;
             
-            if(is_array($ins)) {
-                $inslength = $ins[1];
-                $ins = $ins[0];
-            } else $inslength = 0;
-            
-            $strbegin = mb_substr($text,0,$pos-$startpos);
-            $strend = mb_substr($text,$pos-$startpos+$inslength);
-            $text = $strbegin . $ins . $strend;
-            $count += mb_strlen($ins) - $inslength;
-            
-            if(next($posArray) === FALSE) { // if there are no more replacements
+            if(next($posArray) === FALSE) { 
+                // if there are no more replacements
                 $posArray = array();
                 break;
             }
@@ -596,8 +590,10 @@ class Upama
                 $pos = key($posArray);
             }
         }
+
         return $text;
     }
+
     private function closeTags($str) {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true);

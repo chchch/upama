@@ -171,17 +171,17 @@
 </xsl:template>
 
 <xsl:template match="sic">
-    <del class="sic" title="sic"><xsl:apply-templates /></del>
+    <span class="sic" title="sic"><xsl:apply-templates /></span>
 </xsl:template>
 <xsl:template match="sic[@ignored='TRUE']">
-    <del class="sic ignored" title="sic"><xsl:apply-templates/></del>
+    <span class="sic ignored" title="sic"><xsl:apply-templates/></span>
 </xsl:template>
 
 <xsl:template match="orig">
-    <del class="orig"><xsl:apply-templates /></del>
+    <del class="orig" title="original text"><xsl:apply-templates /></del>
 </xsl:template>
 <xsl:template match="orig[@ignored='TRUE']">
-    <del class="orig ignored"><xsl:apply-templates /></del>
+    <del class="orig ignored" title="original text"><xsl:apply-templates /></del>
 </xsl:template>
 
 <xsl:template match="add">
@@ -225,6 +225,21 @@
     <xsl:element name="span"><xsl:attribute name="class">gap ignored</xsl:attribute><xsl:attribute name="title">gap of <xsl:value-of select="@extent"/></xsl:attribute><xsl:text>_</xsl:text></xsl:element>
 </xsl:template>
 
+<xsl:template match="space">
+    <xsl:element name="span">
+        <xsl:attribute name="class">space</xsl:attribute>
+        <xsl:attribute name="title">space of <xsl:value-of select="@quantity"/><xsl:text> </xsl:text> <xsl:value-of select="@unit"/>s</xsl:attribute>
+    <xsl:text>_</xsl:text>
+    </xsl:element>
+</xsl:template>
+<xsl:template match="space[@ignored='TRUE']">
+    <xsl:element name="span">
+        <xsl:attribute name="class">space ignored</xsl:attribute>
+        <xsl:attribute name="title">space of <xsl:value-of select="@quantity"/><xsl:text> </xsl:text> <xsl:value-of select="@unit"/>s</xsl:attribute>
+    <xsl:text>_</xsl:text>
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="note">
     <span class="note inline"><xsl:apply-templates /></span>
 </xsl:template>
@@ -236,6 +251,22 @@
 </xsl:template>
 <xsl:template match="note[@ignored='TRUE' and @place='above']">
     <span class="note super ignored"><xsl:apply-templates /></span>
+</xsl:template>
+
+<xsl:template match="hi">
+    <xsl:element name="span">
+        <xsl:attribute name="class">hi</xsl:attribute>
+        <xsl:attribute name="title">marked by <xsl:value-of select="@rend"/></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="hi[@ignored='TRUE']">
+    <xsl:element name="span">
+        <xsl:attribute name="class">hi ignored</xsl:attribute>
+        <xsl:attribute name="title">marked by <xsl:value-of select="@rend"/></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="@*|node()">
