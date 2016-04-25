@@ -1,7 +1,30 @@
+body {
+    font-family: sans-serif;
+}
+
 table.options { width: 100%; padding 0; margin: 0; font-size: 80%;
 }
 table.options td {border-width: 1px 0 1px 0;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: sans-serif;
+}
+
 h3.upama_menu { font-size: 80% !important;
+}
+
+.sidebar-witness:link,
+.sidebar-witness:visited {
+    text-decoration: none;
+    color: black;
+}
+
+.sidebar-witness:link:hover {
+    text-decoration: underline;
 }

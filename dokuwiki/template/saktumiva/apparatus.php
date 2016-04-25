@@ -2,13 +2,51 @@
 require_once(DOKU_PLUGIN . 'upama/upama.php');
 $INFO = pageinfo();
 global $INPUT;
+global $conf;
 $curdir = dirname($INFO['filepath']);
 $curfile = basename($INFO['filepath']);
 $dirfiles = array_diff(scandir($curdir),array('..','.',$curfile));
 $meta = p_get_metadata($INFO['id'],'plugin_upama',false);
 
-if($meta && sizeof($dirfiles) > 1) {
+if($meta && sizeof($dirfiles) > 0) {
+
     $active = $INPUT->post->arr('upama_witnesses');
+    $upama = new Upama();
+
+    $allhidefilters = $upama->getHideFilters();
+    $allsubfilters = $upama->getSubFilters();
+
+    if($active) { // check POST data
+        
+        $tagfilters = $INPUT->post->arr('upama_tagfilters');
+        $hidefilters = $INPUT->post->arr('upama_hidefilters');
+        $subfilters = $INPUT->post->arr('upama_subfilters');
+    
+    }
+    else { // no POST data
+
+        $version = $meta['current'];
+        if($INPUT->get->str('upama_ver') && $version) { // check GET data
+            $active = $meta['versions'][$version]['witnesses'];
+            $tagfiltersdiff = $meta['versions'][$version]['tagfilters'];
+            $hidefiltersoff = $meta['versions'][$version]['hidefilters'];
+            $subfiltersoff = $meta['versions'][$version]['subfilters'];
+            foreach($tagfiltersdiff as $key => $value) {
+                $tagfilters[$key] = $value;
+            }
+            $hidefilters = array_diff(array_keys($allhidefilters),$hidefiltersoff);
+            $subfilters = array_diff(array_keys($allsubfilters),$subfiltersoff);
+        
+        }
+        else { // use defaults
+    
+            $tagfilters = $upama->getTagFilters();
+            $hidefilters = array_keys($allhidefilters);
+            $subfilters = array_keys($allsubfilters);
+
+        }
+    }
+    
     $script = $INPUT->post->str('_upama_script') ?: "iast";
     echo '<form id="__upama_form" method="post">';
     echo '<input name="_upama_script" type="hidden" id="__upama_hidden_script_selector" value="'.$script.'">';
@@ -20,6 +58,10 @@ if($meta && sizeof($dirfiles) > 1) {
     foreach($dirfiles as $file) {
         $pagebase = explode(".",$file)[0];
         $pageid = $INFO['namespace'].":".$pagebase;
+
+        if($conf['userewrite'] == 0) $url = "doku.php?id=".$pageid;
+        else $url = "/$pageid";
+        
         if(p_get_metadata($pageid,"plugin_upama",false)) {
             $shorttitle = p_get_metadata($pageid,"shorttitle",false);
             if(!$shorttitle) $shorttitle = $pagebase;
@@ -30,24 +72,15 @@ if($meta && sizeof($dirfiles) > 1) {
                 echo ' checked';
             
             echo ' value="'.$file . '"></td>'.
-            '<td><span class="sidebar-siglum" data-pageid="'.$pageid.'">'.$shorttitle.'</span><br>'.
+            '<td><a class="sidebar-witness" href="'.$url.'"><span class="sidebar-siglum" data-pageid="'.$pageid.'">'.$shorttitle.'</span><br>'.
             //'<div style="padding-bottom:0.5em">('.$longtitle.')</div>';
-            '<span>('.$longtitle.')</span></td></tr>';
+            '<span>('.$longtitle.')</span></a></td></tr>';
         }
     }
 ?>
 </table></div></div>
 <div id="__upama_options_button">Options</div>
 <div id="__upama_options">
-<?php
-    $upama = new Upama();
-    $tagfilters = $INPUT->post->arr('upama_tagfilters') ?: $upama->getTagFilters();
-    //$tagfilters = $meta['tagfilters'];
-    $allhidefilters = $upama->getHideFilters();
-    $hidefilters = $INPUT->post->arr('upama_hidefilters') ?: array_keys($allhidefilters);
-    $allsubfilters = $upama->getSubFilters();
-    $subfilters = $INPUT->post->arr('upama_subfilters') ?: array_keys($allsubfilters);
-?>
 <h3 class="upama_menu">XML tags</h3>
 <div style="padding: 0">
 <table class="options">
@@ -67,6 +100,9 @@ if($meta && sizeof($dirfiles) > 1) {
         echo '<option value="-2"';
         if($status == -2) echo ' selected';
         echo '>ignore tags only</option>';
+        echo '<option value="0"';
+        if($status == 0) echo ' selected';
+        echo '>include</option>';
         echo '</select></td></tr>';
     }
 ?>
@@ -108,6 +144,6 @@ jQuery("#__upama_witnesses").accordion({ collapsible: true, heightStyle: "conten
 </script>
 <?php
 
-}
+} // end if($meta)
 else echo ""; // What to write when it's not a TEI file
 ?>
