@@ -1164,27 +1164,31 @@ class Upama
                             }
 
                             $prefix = $this->unfilterText($vartexts["prefix"],$counters2,$ignored2);
-                            $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
-                            if(trim($vartext) == '') 
+                            if(trim($vartexts["var"]) == '') {
                                 $vartext = "<editor>[om.]</editor>";
+                                $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
+                            }
                             else {
                                 //$vartext = "$prefix  *$vartext";
+                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
                                 $vartext = "°".$vartext;
                                 $vartext = trim($vartext);
                                 $vartext = $this->closeTags($vartext);
                             }
                         }
                         else {
-                            $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
-                            $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
-                            if(trim($vartext) == '') 
+                            if(trim($vartexts["var"]) == '') {
                                 $vartext = "<editor>[om.]</editor>";
+                                $this->unfilterText($vartexts["var"],$counters2,$ignored2);
+                            }
                             else {
                                 //$vartext = "$vartext*  $suffix";
+                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
                                 $vartext = $vartext."°";
                                 $vartext = trim($vartext);
                                 $vartext = $this->closeTags($vartext);
                             }
+                            $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
                         }
                     }
                     else {

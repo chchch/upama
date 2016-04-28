@@ -1,7 +1,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
                 xmlns:x="http://www.tei-c.org/ns/1.0"
                 exclude-result-prefixes="x">
-<xsl:output method="html" omit-xml-declaration="yes"/>
+<xsl:output method="html" indent="no" omit-xml-declaration="yes"/>
 
 <xsl:template match="x:teiHeader"/>
 
@@ -40,14 +40,14 @@
     </div>
 </xsl:template>
 
-<xsl:template match="x:text//x:title">
+<xsl:template match="x:text//x:head">
     <xsl:element name="h2">
         <xsl:call-template name="lang"/>
         <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:text//x:subtitle">
+<xsl:template match="x:text//x:head[@type='sub']">
     <xsl:element name="h3">
         <xsl:call-template name="lang"/>
         <xsl:apply-templates />
