@@ -7,7 +7,8 @@ var upama = {
 mains: [],
 //highlit: [],
 permalit: [],
-script: '',
+script: 'iast',
+iastHyphenated: false,
 hyphen: String.fromCodePoint("0xAD"),
 
 initialize: function() {
@@ -24,14 +25,14 @@ initialize: function() {
         var current = false;
 
     if(current) { // if current is 0, it means there's no apparatus
-        var newurl = window.location.href;
+        let newurl = window.location.href;
         if(Object.keys(getvars).length == 0)
             newurl = newurl + '?upama_ver='+current;
         else {
             getvars['upama_ver'] = current;
             newurl = newurl.split('?')[0] + '?';
-            var varkeys = Object.keys(getvars);
-            for(var v=0;v<varkeys.length;v++) {
+            let varkeys = Object.keys(getvars);
+            for(let v=0;v<varkeys.length;v++) {
                 newurl = newurl + varkeys[v] + '=' + getvars[varkeys[v]];
                 if(v<varkeys.length-1) 
                     newurl = newurl + '&';
@@ -43,7 +44,6 @@ initialize: function() {
     var san = jQuery("[lang=sa]");
     upama.script = jQuery('#__upama_script_selector').val();
 //    upama.script = 'deva';
-    var rewrite = ( document.location.href.indexOf("id=") == -1 ) ? true : false;
     san.each(function(index) {
         if(!this.myCleaned) {
             /// don't break before a daṇḍa
@@ -54,75 +54,78 @@ initialize: function() {
         if(upama.script == 'deva') {
             if(!this.myIAST) this.myIAST = this.innerHTML;
             this.innerHTML = upama.changeScript(this,'deva');
-            //this.innerHTML = upama.toDevanagari(this.innerHTML);
+            jQuery(this).hyphenate('sa');
+            jQuery(this).find('*').hyphenate('sa');
             this.classList.add("devanagari");
         }
         else if(upama.script == 'iast') {
-            if(this.myIAST) { 
+            if(this.myIAST) {
                 this.innerHTML = this.myIAST;
                 this.classList.remove("devanagari");
+            }
+            if(!upama.iastHyphenated) {
+                jQuery(this).hyphenate('sa');
+                jQuery(this).find('*').hyphenate('sa');
+                upama.iastHyphenated = true;
             }
         }
 
     });
 
-    san.hyphenate('sa');
-    san.find('*').hyphenate('sa'); // also hyphenates childnodes
     document.addEventListener('copy',upama.removeHyphens);
-    //Hyphenator.run();
 
      var apparati = document.getElementsByClassName("apparatus");
      upama.mains = document.getElementsByClassName("maintext");
      var sidebar_sigla = document.getElementsByClassName("sidebar-siglum");
      var sigla = new Object();
      
-     for(var ss=0;ss<sidebar_sigla.length;ss++) {
-         sigla[sidebar_sigla[ss].textContent] = sidebar_sigla[ss].getAttribute('data-pageid'); 
+     for(let siglum of sidebar_sigla) {
+         sigla[siglum.textContent] = siglum.getAttribute('data-pageid'); 
     } 
-     for(var n=0;n<apparati.length;n++) {
+     for(let n=0;n<apparati.length;n++) {
 
-        var allmsids = apparati[n].getElementsByClassName("msid");
-        var mainId = apparati[n].parentElement.id;
-        for(var am = 0;am<allmsids.length;am++) {
-            allmsids[am].href = rewrite ? 
-                "/" + sigla[allmsids[am].textContent] + "?upama_scroll="+mainId :
-                "?id="+sigla[allmsids[am].textContent] + "&upama_scroll="+mainId;
+        let allmsids = apparati[n].getElementsByClassName("msid");
+        let mainId = apparati[n].parentElement.id;
+        var rewrite = ( document.location.href.indexOf("id=") == -1 ) ? true : false;
+        for(let msid of allmsids) {
+            msid.href = rewrite ? 
+                "/" + sigla[msid.textContent] + "?upama_scroll="+mainId :
+                "?id="+sigla[msid.textContent] + "&upama_scroll="+mainId;
         }  
 
         upama.mains[n].myOldContent = upama.mains[n].innerHTML;
 
-        var variants = apparati[n].getElementsByClassName("variant");
+        let variants = apparati[n].getElementsByClassName("variant");
         
-        for(var i=0;i<variants.length;i++) {
+        for(let variant of variants) {
             
-            variants[i].myMainText = n;
-            variants[i].addEventListener('mouseover',upama.varMouseOver);
-            variants[i].addEventListener('mouseout',upama.varMouseOut);
-            variants[i].addEventListener('click',upama.varOnClick);
+            variant.myMainText = n;
+            variant.addEventListener('mouseover',upama.varMouseOver);
+            variant.addEventListener('mouseout',upama.varMouseOut);
+            variant.addEventListener('click',upama.varOnClick);
 
-            var readings = variants[i].parentNode.getElementsByClassName("reading");
-            var readlength = readings.length;
-            if(readlength > 0) {
-                var msarray = new Object();
-                var msids = variants[i].parentNode.getElementsByClassName("msid");
-                for(var p=0;p<msids.length;p++) {
-                    msarray[msids[p].textContent] = msids[p];
+            let readings = variant.parentNode.getElementsByClassName("reading");
+            if(readings.length > 0) {
+                let msarray = new Object();
+                let msids = variant.parentNode.getElementsByClassName("msid");
+                for(let msid of msids) {
+                    msarray[msid.textContent] = msid;
                 }
-                variants[i].myOldText = variants[i].innerHTML;
+                variant.myOldText = variant.innerHTML;
 
-                for(var q=0;q<readlength;q++) {
+                for(let reading of readings) {
 
-                    var ms = readings[q].getAttribute("data-ms");
-                    var msNode = msarray[ms];
-                    msNode.myNewText = readings[q].innerHTML;
+                    let ms = reading.getAttribute("data-ms");
+                    let msNode = msarray[ms];
+                    msNode.myNewText = reading.innerHTML;
                     msNode.classList.add("mshover");
                     msNode.onmouseover = function() {
-                        var varNode = this.parentNode.getElementsByClassName("variant")[0];
+                        let varNode = this.parentNode.getElementsByClassName("variant")[0];
                         varNode.innerHTML = this.myNewText;
                         varNode.classList.add("varreading");
                         };
                     msNode.onmouseout = function() {
-                        var varNode = this.parentNode.getElementsByClassName("variant")[0];
+                        let varNode = this.parentNode.getElementsByClassName("variant")[0];
                         varNode.innerHTML = varNode.myOldText;
                         varNode.classList.remove("varreading");
                         };
@@ -224,7 +227,7 @@ varOnClick: function() {
 windowClick: function(event) {
     var node = event.target;
     var max = 5;
-    for(var i=0;i<max;i++) {
+    for(let i=0;i<max;i++) {
         
         if(node && node.nodeType == 1 &&
             node.classList.contains('permahighlight'))
@@ -255,7 +258,9 @@ windowClick: function(event) {
 
 toDevanagari: function(text) {
 
+    var text;
     var options = {};
+    
     options.skip_sgml = true;
     text = jQuery("<textarea/>").html(text).text(); // decode HTML special characters
     text = text.toLowerCase();
@@ -302,10 +307,10 @@ toDevanagari: function(text) {
         else return p1+"<span class='spacer'> </span>"+p2;
         });
 
-    // join final o and anusvara 
-    text = text.replace(/ो ऽ/g,"ो<span class='spacer'> </span>ऽ"); 
+    // join final o/e and anusvara 
+    text = text.replace(/(ो|े) ऽ/g,"$1<span class='spacer'> </span>ऽ"); 
 
-    text = text.replace(/ो ं/g,"<span class='deva-changed' data-origig='ो'>ों</span><span class='spacer'> </span><span class='deva-removed'>ऽं</span>");
+    text = text.replace(/(ो|े) ं/g,"<span class='deva-changed' data-orig='$1'>$1ं</span><span class='spacer'> </span><span class='deva-removed'>ं</span>");
 
     // add zero-width joiner to viramas before a closing tag 
     //text = text.replace(/्</g, "्&zwj;<");
@@ -316,17 +321,17 @@ toDevanagari: function(text) {
 
 changeScript: function(node,lang,level = 0) {
 /* it seems to be faster to change the innerHTML of a node than to create a DocumentFragment and then replace the node */
-    if(lang == 'deva') func = upama.toDevanagari;
+    var func = (lang == 'deva') ? upama.toDevanagari : null;
     var kids = node.childNodes;
-    var i = 0;
+    var tags;
+    var htmlstr;
     if(level > 0) {
-        var tags = upama.outerTags(node);
-        var htmlstr = tags[0];
+        tags = upama.outerTags(node);
+        htmlstr = tags[0];
     }
     else htmlstr = '';
 
-    for(var i=0;i<kids.length;i++) {
-            kid = kids[i];
+    for(let kid of kids) {
 
             if(kid.nodeType == 3) {
             //    var htmlstr = func(kid.nodeValue);
@@ -349,8 +354,8 @@ changeScript: function(node,lang,level = 0) {
 outerTags: function(node) {
     var start = "<"+node.nodeName;
     var attrs = node.attributes;
-    for(var i=0; i<attrs.length; i++) {
-        start += " "+attrs[i].name+"='"+attrs[i].value+"'";
+    for(let attr of attrs) {
+        start += " "+attr.name+"='"+attr.value+"'";
     }
     start += ">";
     var end = "</"+node.nodeName+">";
@@ -361,7 +366,7 @@ outerTags: function(node) {
 
 highlight: function(id,node) {
     var pos = id.split("x");
-    for(var q=0;q<pos.length;q++)
+    for(let q=0;q<pos.length;q++)
         pos[q] = parseInt(pos[q]);
 
     var spaces = 0;
@@ -399,12 +404,11 @@ highlight: function(id,node) {
                 continue;
             }
             else {
-                var kidtext = kid.data;
+                let kidtext = kid.data;
                 space = re.exec(kidtext);
-                
                 if(startpos == -1 && pos[0] == 0) {
                   
-                  if(!space || space.index > 0) {
+                    if(!space || space.index > 0) {
                         if(preIgnored) {
                             startnode = preIgnored;
                             startpos = -2;
@@ -437,7 +441,6 @@ highlight: function(id,node) {
             
                         spaceAtEndOfContainer = false;
                     }
-
                     if(pos[1] == spaces) {
                         if(kid.parentNode.classList.contains('deva-changed')) {
                             endnode = kid.parentNode;
@@ -467,7 +470,6 @@ highlight: function(id,node) {
                 }
                 
                 while(space) {
-                    
                     preIgnored = false;
 
                     if(space.index > 0)
@@ -561,7 +563,7 @@ highlight: function(id,node) {
     
     if(pos.length > 2) {
         if(upama.script == 'deva' && startnode != endnode) {
-            var innernode = upama.getNextNode(startnode);
+            let innernode = upama.getNextNode(startnode);
             while(innernode && innernode != endnode) {
                 if(innernode.nodeType == 1) {
                     upama.addSpaces(innernode);
@@ -597,14 +599,17 @@ countCharsSuffix: function(range,pos) {
     }
 
   if(start == end) {
+      let strArr;
        if(upama.script == 'deva') {
-            var testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
-            var strArr = Array.from(testStr);
+            let testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
+            strArr = Array.from(testStr);
        }
        else
-           var strArr = Array.from(start.data.substring(startpos,endpos));
-       var b = 0;
-       for(var a=0;a<strArr.length;a++) {
+           strArr = Array.from(start.data.substring(startpos,endpos));
+       
+       let b = 0;
+       let a = 0;
+       for(a;a<strArr.length;a++) {
            if(strArr[a] == upama.hyphen)
                continue;
             if(b == pos)
@@ -614,7 +619,7 @@ countCharsSuffix: function(range,pos) {
 
        if(upama.script == 'deva') {
             
-            testStr = strArr.join('');
+            let testStr = strArr.join('');
             testStr = testStr.substring(0,a);
             testStr = Sanscript.t(testStr,"iast","devanagari",{skip_sgml: true});
             range.setEnd(start,startpos+testStr.length);
@@ -626,7 +631,7 @@ countCharsSuffix: function(range,pos) {
    } // end if(start == end)
    
    var skipKids = false;
-   for(var node = start;node != upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
+   for(let node = start;node != upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
         skipKids = false;
         if(node.nodeType != 3) {
             if(node.classList.contains('ignored') ||
@@ -641,26 +646,30 @@ countCharsSuffix: function(range,pos) {
             else pos -= node.data.length;
             continue;
         }
+
+        let strArr;
         if(upama.script == 'deva') {
-        
-            var testStr = Sanscript.t(node.data.substring(startpos),"devanagari","iast",{skip_sgml: true});
-            var strArr = Array.from(testStr);
+             
+            let testStr = Sanscript.t(node.data.substring(startpos),"devanagari","iast",{skip_sgml: true});
+            strArr = Array.from(testStr);
         }
        
         else {
-            var strArr = Array.from(node.data.substring(startpos));
+            strArr = Array.from(node.data.substring(startpos));
         }
-        var hyphens = strArr.join('').match(/\u00AD/g);
-        var hyphens = hyphens ? hyphens.length : 0;
+
+        let hyphens = strArr.join('').match(/\u00AD/g);
+        hyphens = hyphens ? hyphens.length : 0;
         if((strArr.length-hyphens) <= pos) {
             pos = pos - strArr.length + hyphens;
             startpos = 0;
             continue;
         }
         
-        else {
-            var b = 0;
-            for(var a=0;a<strArr.length;a++) {
+        else { // not devangari
+            let b = 0;
+            let a = 0;
+            for(a;a<strArr.length;a++) {
                 if(strArr[a] == upama.hyphen)
                     continue;
                  if(b == pos)
@@ -668,7 +677,7 @@ countCharsSuffix: function(range,pos) {
                  b++;
             }
             if(upama.script == 'deva') {
-                testStr = strArr.join('');
+                let testStr = strArr.join('');
                 testStr = testStr.substring(0,a);
                 testStr = Sanscript.t(testStr,"iast","devanagari",{skip_sgml: true});
                 range.setEnd(node,startpos+testStr.length);
@@ -702,15 +711,18 @@ countCharsPrefix: function(range,pos) {
         var endpos = 0;
     }
     if(start == end) {
-
+        
+       let strArr;
        if(upama.script == 'deva') {
-            var testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
-            var strArr = Array.from(testStr);
+            let testStr = Sanscript.t(start.data.substring(startpos,endpos),"devanagari","iast",{skip_sgml: true});
+            strArr = Array.from(testStr);
        }
        else
-           var strArr = Array.from(start.data.substring(startpos,endpos));
-       var b = 0;
-       for(var a=0;a<strArr.length;a++) {
+            strArr = Array.from(start.data.substring(startpos,endpos));
+       
+       let b = 0;
+       let a = 0;
+       for(a;a<strArr.length;a++) {
            if(strArr[a] == upama.hyphen)
                continue;
             if(b == pos)
@@ -720,7 +732,7 @@ countCharsPrefix: function(range,pos) {
 
        if(upama.script == 'deva') {
             
-            testStr = strArr.join('');
+            let testStr = strArr.join('');
             testStr = testStr.substring(0,a);
             testStr = Sanscript.t(testStr,"iast","devanagari",{skip_sgml: true});
             range.setStart(start,startpos+testStr.length);
@@ -731,7 +743,7 @@ countCharsPrefix: function(range,pos) {
         return range;
    } // end if(start == end)
    var skipKids = false;
-    for(var node = start;upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
+    for(let node = start;upama.getNextNode(end);node = upama.getNextNode(node,skipKids)) {
         skipKids = false;
         if(node.nodeType != 3) {
             if(node.classList.contains('ignored') ||
@@ -747,18 +759,20 @@ countCharsPrefix: function(range,pos) {
                 pos -= node.data.length;
             continue;
         }
+
+        let strArr;
         if(upama.script == 'deva') {
         
-            var testStr = Sanscript.t(node.data.substring(startpos),"devanagari","iast",{skip_sgml: true});
-            var strArr = Array.from(testStr);
+            let testStr = Sanscript.t(node.data.substring(startpos),"devanagari","iast",{skip_sgml: true});
+            strArr = Array.from(testStr);
         }
        
         else {
-            var strArr = Array.from(node.data.substring(startpos));
+            strArr = Array.from(node.data.substring(startpos));
         }
         
-        var hyphens = strArr.join('').match(/\u00AD/g);
-        var hyphens = hyphens ? hyphens.length : 0;
+        let hyphens = strArr.join('').match(/\u00AD/g);
+        hyphens = hyphens ? hyphens.length : 0;
         if((strArr.length-hyphens) <= pos) {
             pos = pos - strArr.length + hyphens;
             startpos = 0;
@@ -766,8 +780,9 @@ countCharsPrefix: function(range,pos) {
         }
         
         else {
-            var b = 0;
-            for(var a=0;a<strArr.length;a++) {
+            let b = 0;
+            let a = 0;
+            for(a;a<strArr.length;a++) {
                 if(strArr[a] == upama.hyphen)
                     continue;
                  if(b == pos)
@@ -775,7 +790,7 @@ countCharsPrefix: function(range,pos) {
                  b++;
             }
             if(upama.script == 'deva') {
-                testStr = strArr.join('');
+                let testStr = strArr.join('');
                 testStr = testStr.substring(0,a);
                 testStr = Sanscript.t(testStr,"iast","devanagari",{skip_sgml: true});
                 range.setStart(node,startpos+testStr.length);
@@ -871,29 +886,29 @@ lightTextNodes: function(range) {
         var toHighlight = [];
         
         if(start.nodeType == 3 && range.startOffset != start.length) {
-            var textRange = start.ownerDocument.createRange();
+            let textRange = start.ownerDocument.createRange();
             textRange.setStart(start,range.startOffset);
             textRange.setEnd(start,start.length);
             toHighlight.push(textRange);
         }
 
-        for(node = upama.getNextNode(start); node != end; node = upama.getNextNode(node)) {
+        for(let node = upama.getNextNode(start); node != end; node = upama.getNextNode(node)) {
             if(node.nodeType == 3) {
-                var textRange = node.ownerDocument.createRange();
+                let textRange = node.ownerDocument.createRange();
                 textRange.selectNode(node);
                 toHighlight.push(textRange);
             }
         }
         
         if(end.nodeType == 3 && range.endOffset > 0) {
-            var textRange = end.ownerDocument.createRange();
+            let textRange = end.ownerDocument.createRange();
             textRange.setStart(end,0);
             textRange.setEnd(end,range.endOffset);
             toHighlight.push(textRange);
         }
-        for(var k=0;k<toHighlight.length;k++) {
+        for(let hiNode of toHighlight) {
 // do highlighting at end so as not to add nodes during the tree traversal
-            upama.highlightNode(toHighlight[k]);
+            upama.highlightNode(hiNode);
         }
     }
 
@@ -928,16 +943,16 @@ addSpaces: function(node) {
             inodes.push(next);
     }
     
-    for(var i=0;i < inodes.length;i++) {
+    for(let inode of inodes) {
         
-        if(inodes[i].classList.contains('deva-changed'))
-            inodes[i].innerHTML = inodes[i].getAttribute('data-orig');
-        else if(inodes[i].classList.contains('deva-removed')) {
-            inodes[i].style.display = 'inline';
+        if(inode.classList.contains('deva-changed'))
+            inode.innerHTML = inode.getAttribute('data-orig');
+        else if(inode.classList.contains('deva-removed')) {
+            inode.style.display = 'inline';
         }
         
-        else if(inodes[i].classList.contains('deva-added'))
-            inodes[i].style.display = 'none';
+        else if(inode.classList.contains('deva-added'))
+            inode.style.display = 'none';
     }
 
 },
