@@ -26,6 +26,7 @@ if($meta && sizeof($dirfiles) > 0) {
     else { // no POST data
 
         $version = $meta['current'];
+        $tagfilters = $upama->getTagFilters();
         if($INPUT->get->str('upama_ver') && $version) { // check GET data
             $active = $meta['versions'][$version]['witnesses'];
             $tagfiltersdiff = $meta['versions'][$version]['tagfilters'];
