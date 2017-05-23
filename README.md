@@ -10,14 +10,15 @@ Here is an example of how to compare two files:
 include "upama.php";
 
 $upama = new Upama();
-$compared = $upama->compare('file1.xml','file2.xml');
+$comparison = $upama->compare('file1.xml','file2.xml');
+$stylesheet = 'apparatus.xsl';
 
-echo $upama->tramsform($compared);
+echo $upama->transform($comparison,$stylesheet);
 
 ?>
 ```
 
-This will render the file named "file1.xml" with an apparatus containing variants from "file2.xml", outputting in HTML. Both XML files need to have the same number of "block-level" text structure elements, like &lt;p&gt;, &lt;div&gt;, and &lt;l&gt;. In addition, at least "file2.xml" should have a siglum defined in the &lt;teiHeader&gt;. A typical, minimal file should look like this:
+This will render the file named "file1.xml" with an apparatus containing variants from "file2.xml", using the XSLT stylesheet called "apparatus.xsl" and outputting in HTML. Both XML files need to have the same number of "block-level" text structure elements, like &lt;p&gt;, &lt;div&gt;, and &lt;l&gt;. In addition, at least "file2.xml" should have a siglum defined in the &lt;teiHeader&gt;. A typical, minimal file should look like this:
 
 ```
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -62,12 +63,13 @@ In order to compare a text with more than two witnesses, use the "collate" funct
 include "upama.php";
 
 $upama = new Upama();
-$compared1 = $upama->compare('file1.xml','file2.xml');
-$compared2 = $upama->compare('file1.xml','file2.xml');
+$comparison1 = $upama->compare('file1.xml','file2.xml');
+$comparison2 = $upama->compare('file1.xml','file3.xml');
 
-$collated = $upama->collate($compared1,$compared2);
+$collation = $upama->collate($comparison1,$comparison2);
+$stylesheet = 'apparatus.xsl';
 
-echo $upama->transform($collated);
+echo $upama->transform($collation,$stylesheet);
 
 ?>
 ```
@@ -76,5 +78,5 @@ echo $upama->transform($collated);
 
 A live demo of upama.php in action can be found at http://saktumiva.org/wiki:dravyasamuddesa:start.
 
-The code for the plugin and template used on saktumiva.org, which runs on DokuWiki, is in the dokuwiki directory. The plugin includes the hyphenation engine hypher (https://github.com/bramstein/hypher) with a Sanskrit hyphenation library (both IAST and indic scripts supported) as well as a some functions based on sanscript.js (https://github.com/sanskrit/sanscript) to convert between scripts.
+The code for the plugin and template used on saktumiva.org, which runs on DokuWiki, is in the dokuwiki directory. The plugin includes the hyphenation engine hypher (https://github.com/bramstein/hypher) with a Sanskrit hyphenation library (both IAST and indic scripts supported) as well as some functions based on sanscript.js (https://github.com/sanskrit/sanscript) to convert between scripts.
 
