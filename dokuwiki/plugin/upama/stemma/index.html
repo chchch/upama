@@ -1,0 +1,67 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <style type="text/css" src="../style.css"></style>
+    <script type="text/javascript" data-cfasync="false" src="raphael-min.js"></script>
+    <script type="text/javascript" data-cfasync="false" src="jsphylosvg-min.js"></script>
+    <script type="text/javascript" data-cfasync="false">
+        var dataObject;
+        var posApp;
+        var listWit;
+        var lemmaText;
+        var varTexts;
+
+        function init() {
+           
+            Smits.PhyloCanvas.Render.Style.line.stroke = 'rgb(46,73,148)';
+            Smits.PhyloCanvas.Render.Style.text["font-family"] = 'Verdana';
+            phylocanvas = new Smits.PhyloCanvas(
+                dataObject,
+                '__upama_tree',
+                500,500,
+               // 'circular'
+            );
+            var highlights = new Array();
+            for(let txt of document.getElementById("__upama_tree").querySelectorAll("text")) {
+                let key = txt.textContent.trim();
+                if(listWit[key]) {
+                    let innerTxt = '<tspan style="font-weight: bold">' + toSVG(listWit[key]) + '</tspan>';
+                    txt.firstChild.innerHTML = innerTxt;
+                    if(posApp.indexOf(key) != -1)
+                        txt.firstChild.innerHTML = txt.firstChild.innerHTML + ": " + lemmaText;
+                    if(varTexts[key]) {
+                        let varText = varTexts[key].join(" ");
+                        txt.firstChild.innerHTML = txt.firstChild.innerHTML + ': ' + toSVG(varText);
+                        highlights.push(txt);
+                    } 
+                }
+            }
+            for(el of highlights) {
+                var BBox = el.getBBox();
+                var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rect.setAttribute("x", BBox.x);
+                rect.setAttribute("y", BBox.y);
+                rect.setAttribute("width", BBox.width);
+                rect.setAttribute("height", BBox.height);
+                rect.setAttribute("fill", "yellow");
+                el.parentElement.insertBefore(rect,el);
+
+            }
+        }
+
+        function toSVG(str) {
+            var str;
+            str = str.replace(/span/g, 'tspan');
+            str = str.replace(/<\/su[bp]>/g, '</tspan>');
+            str = str.replace(/<sub>/g, '<tspan style="font-size:0.7em;vertical-align:sub">');
+            str = str.replace(/<sup>/g, '<tspan style="font-size:0.7em;vertical-align:sup">');
+            return str;
+        }
+
+    </script>
+</head>
+
+<body>
+<div id="__upama_tree"></div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+#dokuwiki__content {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#dokuwiki__content > .group {
+    flex: 0 1 800px;
+}
+
+.ui-layout-center {
+    width: 100%;
+}
+
+.upama-block {
+    display: flex;
+    width: 800px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.maintext {
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    #dokuwiki__content > .group > .group > *:not(.section){
+        width: 97vw;
+        min-width: 200px;
+    }
+
+    #dokuwiki__content > .group, .section {
+        width: 97vw;
+        min-width: 200px;
+    }
+}

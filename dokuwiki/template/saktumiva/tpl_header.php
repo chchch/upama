@@ -52,18 +52,6 @@ if (!defined('DOKU_INC')) die();
                         tpl_action('login', 1, 'li');
                     ?>
                 </ul>
-                <?php
-                if(p_get_metadata($ID,'plugin_upama',false) && !$INPUT->get->str('do')) {
-                ?>
-                <div style="font-size: 80%;padding: 5px 0 5px 0"><span>Display script: </span><form><select id="__upama_script_selector" onchange="jQuery('#__upama_hidden_script_selector').val(jQuery(this).val()).change();upama.initialize()"><option value="iast">IAST</option>
-                <?php
-                echo '<option value="deva"';
-                if($INPUT->post->str('_upama_script') == 'deva') echo ' selected';
-                echo '>Devanāgarī</option>';
-                ?>
-                </select></form></div>
-                <?php } ?>
-
             </div>
         <?php endif ?>
 
@@ -89,14 +77,13 @@ if (!defined('DOKU_INC')) die();
     <?php if($conf['breadcrumbs'] || $conf['youarehere']): ?>
         <div class="breadcrumbs">
             <?php if($conf['youarehere']): ?>
-                <div class="youarehere"><?php tpl_youarehere() ?></div>
+                <div class="youarehere"><?php tpl_action('index',1,'span');?> • <?php tpl_youarehere() ?></div>
             <?php endif ?>
             <?php if($conf['breadcrumbs']): ?>
-                <div class="trace"><?php tpl_breadcrumbs() ?></div>
+                <div class="trace"><?php tpl_action('index',1,'span');?> • <?php tpl_breadcrumbs() ?></div>
             <?php endif ?>
         </div>
     <?php endif ?>
-
     <?php html_msgarea() ?>
 
     <hr class="a11y" />

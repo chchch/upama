@@ -24,25 +24,8 @@
 
 <xsl:template match="x:maintext">
     <!--td class="maintext hyphenate" lang="sa"-->
-    <!--div class="maintext" lang="sa"-->
-    <div class="maintext">
-    <xsl:comment>SECTION_START</xsl:comment>
-    <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+    <div class="maintext" lang="sa">
         <xsl:apply-templates />
-    <xsl:comment>SECTION_END</xsl:comment>
-    </div><xsl:text>
-    </xsl:text>
-</xsl:template>
-
-<xsl:template match="x:div2[@type='apparatus']/x:maintext">
-    <div class="maintext">
-        <xsl:comment>SECTION_START</xsl:comment>
-        <xsl:comment><xsl:value-of select="../@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
-        <xsl:element name="ul">
-            <xsl:attribute name="class">accordion</xsl:attribute>
-            <xsl:apply-templates />
-        </xsl:element>
-        <xsl:comment>SECTION_END</xsl:comment>
     </div><xsl:text>
     </xsl:text>
 </xsl:template>
@@ -52,9 +35,7 @@
     <xsl:element name="div">
     <xsl:attribute name="class">apparatus</xsl:attribute>
     <xsl:if test="@exclude">
-        <xsl:attribute name="data-exclude">
-            <xsl:value-of select="translate(@exclude,'#','')"/>
-        </xsl:attribute>
+    <xsl:attribute name="data-exclude"><xsl:value-of select="translate(@exclude,'#','')"/></xsl:attribute>
     </xsl:if>
     <xsl:text>
     </xsl:text>    
@@ -72,14 +53,14 @@
              <xsl:variable name="msstring" select="substring-before(
                                         concat($mss,' '),
                                       ' ')"/>
-             <xsl:choose>
-              <xsl:when test="./x:rdg[@wit=$msstring][not(@type='main')]">
+            <xsl:choose>
+            <xsl:when test="./x:rdg[@wit=$msstring][not(@type='main')]">
                 <xsl:attribute name="class">msid mshover</xsl:attribute>
-              </xsl:when>
-              <xsl:otherwise>
+            </xsl:when>
+            <xsl:otherwise>
                 <xsl:attribute name="class">msid</xsl:attribute>
-              </xsl:otherwise>
-             </xsl:choose>
+            </xsl:otherwise>
+            </xsl:choose>
              <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
              <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
              <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
@@ -113,7 +94,7 @@
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
         <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split"/><xsl:text>: </xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text>
     </xsl:text>
@@ -125,7 +106,7 @@
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
         <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split"/><xsl:text>: </xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
@@ -193,12 +174,8 @@
 </xsl:template>
 
 <xsl:template match="x:lg[@type='verse']/x:maintext">
-    <!--div class="maintext" lang="sa"-->
-    <div class="maintext">
-        <xsl:comment>SECTION_START</xsl:comment>
-    <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+    <div class="maintext" lang="sa">
         <xsl:apply-templates />
-    <xsl:comment>SECTION_END</xsl:comment>
     </div><xsl:text>
     </xsl:text>
 </xsl:template>
@@ -253,22 +230,13 @@
 <xsl:template match="x:app//x:caesura">
     <xsl:element name="span">
     <xsl:attribute name="class">caesura</xsl:attribute>
-    <xsl:if test="@ignored='TRUE'">
+    <xsl:if test="@ignored='TRUE' or @upama-show='TRUE'">
         <xsl:attribute name="class"><xsl:call-template name="ignore"/></xsl:attribute>
     </xsl:if>
     <xsl:element name="span">
         <xsl:attribute name="class">ignored</xsl:attribute>
         <xsl:text>/</xsl:text>
     </xsl:element>
-    </xsl:element>
-</xsl:template>
-
-<xsl:template match="x:div2[@type='apparatus']">
-    <xsl:element name="div">
-        <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
-        <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
-        <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
-        <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>
 

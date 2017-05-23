@@ -17,7 +17,6 @@ require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR .'bootstrap.php');
 
 if (!defined('DOKU_INC')) die(); /* must be run from within DokuWiki */
 header('X-UA-Compatible: IE=edge,chrome=1');
-
 $hasSidebar = page_findnearest($conf['sidebar']);
 $showSidebar = $hasSidebar && ($ACT=='show');
 
@@ -26,31 +25,58 @@ $showSidebar = $hasSidebar && ($ACT=='show');
 <head>
     <meta charset="utf-8" />
     <title><?php tpl_pagetitle() ?> [<?php echo strip_tags($conf['title']) ?>]</title>
-    <script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script>
+    <?php echo tpl_js('analyticstracking.js'); ?>
+    <!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.2/es6-shim.min.js"></script-->
+    <script type="text/javascript">
+        if(!HTMLCollection.prototype.hasOwnProperty(Symbol.iterator)) {
+            HTMLCollection.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
+            NodeList.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
+            NamedNodeMap.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
+    }
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dom4/1.8.3/dom4.js"></script>
+    <!--script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script-->
     <?php tpl_metaheaders() ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(array('favicon', 'mobile')) ?>
     <?php tpl_includeFile('meta.html') ?>
 
-<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-<link href="<?php print DOKU_TPL; ?>css/ui.layout.css" rel="stylesheet">
-
+<link href='http://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<!--link href="<?php print DOKU_TPL; ?>css/ui.layout.css" rel="stylesheet"-->
+<?php
+    if($INPUT->post->arr('upama_witnesses') || $INPUT->get->str('upama_ver')) {
+?>   
+<link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet">
+<?php    
+    }
+    else {
+?>
+<link href="<?php print DOKU_TPL; ?>css/no_apparatus.css" rel="stylesheet">
+<?php
+    }
+?>
 <?php echo tpl_js('layout.js'); ?>
-
-<script type="text/javascript">
+<!--script type="text/javascript">
 jQuery(function ()
 {
-    jQuery('#container').layout({
+var getvars = upama.getUrlVars();
+    var sideClosed = (getvars['sidebar'] == 'closed') || false;
+
+    upama.layout = jQuery('#container').layout({
         maskContents: true,
+        applyDefaultStyles: false,
         center: {
-            applyDefaultStyles: true
         },
         west: {
-            applyDefaultStyles: true,
             minSize: 300
-        }
+        },
+        west__onclose_start: upama.getViewPos,
+        west__onclose_end: upama.setViewPos,
+        west__onopen_start: upama.getViewPos,
+        west__onopen_end: upama.setViewPos,
+        west__initClosed: sideClosed,
     });
-
+/*
     jQuery('.ui-layout-pane').each(function () {
         var el = jQuery(this);
     });
@@ -77,10 +103,10 @@ jQuery(function ()
     }
 
     apply_space(jQuery('.codo_side_content >ul'), '&nbsp;');
-
+*/
 });
 
-</script>
+</script-->
 
 </head>
 
@@ -132,7 +158,7 @@ jQuery(function ()
                                     'edit'      => tpl_action('edit',      1, 'li', 1, '<span>', '</span>'),
                                     'revert'    => tpl_action('revert',    1, 'li', 1, '<span>', '</span>'),
                                     'revisions' => tpl_action('revisions', 1, 'li', 1, '<span>', '</span>'),
-                                    'backlink'  => tpl_action('backlink',  1, 'li', 1, '<span>', '</span>'),
+                                   // 'backlink'  => tpl_action('backlink',  1, 'li', 1, '<span>', '</span>'),
                                     'subscribe' => tpl_action('subscribe', 1, 'li', 1, '<span>', '</span>'),
                                     'top'       => tpl_action('top',       1, 'li', 1, '<span>', '</span>')
                                 )
@@ -160,17 +186,28 @@ jQuery(function ()
     <!--[if ( lte IE 7 | IE 8 ) ]></div><![endif]-->
     
     </div>
-
-            <div class="ui-layout-west codowiki_west">
-            
-            
+<?php
+    $sidebarclosed = $INPUT->get->str('sidebar') == 'closed';
+    if($sidebarclosed) {
+        ?>
+            <div class="ui-layout-west codowiki_west sidebar-shrink" id="sidebar-wrapper">
+               <div class="ui-layout-fixed sidebar-hide" id="sidebar"> 
+<?php
+    }
+    else {
+        ?>
+            <div class="ui-layout-west codowiki_west" id="sidebar-wrapper">
+               <div class="ui-layout-fixed" id="sidebar"> 
+<?php 
+    }
+        ?>
             <div class='codowiki_west_header'>
             <div class="headings group">
         <ul class="a11y skip">
             <li><a href="#dokuwiki__content"><?php echo $lang['skip_to_content']; ?></a></li>
         </ul>
 
-        <h1><?php
+        <h1 class="logo"><?php
             // get logo either out of the template images folder or data/media folder
             $logoSize = array();
             //$logo = tpl_getMediaFile(array(':wiki:logo.png', ':logo.png', 'images/codo_logo_s.png'), false, $logoSize);
@@ -179,7 +216,7 @@ jQuery(function ()
             tpl_link(
                 wl(),
                 //'<img src="'.$logo.'" '.$logoSize[3].' alt="" /> <span>'.$conf['title'].'</span>',
-                '<span>saktum<span style="font-size:1.5em;font-family:serif;vertical-align:sub">I</span>va</span>',
+                'saktumIva',
                 'accesskey="h" title="saktumiva"'
             );
         ?></h1>
@@ -189,13 +226,13 @@ jQuery(function ()
     </div>
             
             
-            
+       <!--     
         <div id="dokuwiki__sitetools">
             <h3 class="a11y"><?php echo $lang['site_tools']; ?></h3>
             <?php tpl_searchform(); ?>
-            <!--<div class="mobileTools">
+            <div class="mobileTools">
                 <?php tpl_actiondropdown($lang['tools']); ?>
-            </div>-->
+            </div>
             <ul id="codowiki_search_ul">
                 <?php
                     tpl_action('recent', 1, 'li');
@@ -204,6 +241,7 @@ jQuery(function ()
                 ?>
             </ul>
         </div>
+                -->
             
             </div>
             
@@ -214,20 +252,40 @@ jQuery(function ()
                         <?php tpl_flush() ?>
                         <?php tpl_includeFile('sidebarheader.html') ?>
                 <?php if($showSidebar): ?>
-                        <?php tpl_include_page($conf['sidebar'], 1, 1) ?>
+                        <?php tpl_include_page($conf['sidebar'], 1, 1); ?>
+                        <?php 
+                            $meta = p_get_metadata($INFO['id'],'plugin_upama',false);
+                            if($meta)
+                                tpl_includeFile('apparatus.php'); 
+                        ?>
+
                 <?php endif; ?>
-                        <?php tpl_includeFile('apparatus.php') ?>
                         <?php tpl_includeFile('sidebarfooter.html') ?>
                     </div>
                 
             
             <!--below div is end WEST pane-->
             </div>
+ <?php
+    if($sidebarclosed) {
+        ?>
+            <div class="ui-layout-toggler toggler-closed" id="sidebar-toggler">
+<?php
+    }
+    else {
+        ?>
+            <div class="ui-layout-toggler" id="sidebar-toggler">
+<?php 
+    }
+        ?>           
+    <div class="ui-layout-toggler-button">
+    </div>
+    </div>  
+            </div>
     
    
     <!--below div is end content-->
     </div>
-    
       <?php // include('tpl_footer.php') ?>
 </body>
 </html>

@@ -52,15 +52,8 @@ class Upama
         $this->implodeSubFilters();
         $this->optimizeHideFilters();
 
-        $ret1 = $this->loadFile($file1);
-        if(is_array($ret1)) list($text1,$xpath1) = $ret1;
-        else
-            throw new Exception($ret1);
-    
-        $ret2 = $this->loadFile($file2);
-        if(is_array($ret2)) list($text2,$xpath2) = $ret2;
-        else 
-            throw new Exception($ret2);
+        list($text1,$xpath1) = $this->loadFile($file1);
+        list($text2,$xpath2) = $this->loadFile($file2);
 
         $msidnode = $this->getSiglum($xpath2);
         $msid = $msidnode->nodeValue;
@@ -359,40 +352,19 @@ class Upama
             uksort($collated, function($i1,$i2) {
                 if($i1 == $i2) return 0; // this shouldn't be needed
                 else {
-                    $n1 = explode("x",$i1);
-                    $n2 = explode("x",$i2);
-                    if($n1[0] < $n2[0]) return -1;
-                    if($n1[0] > $n2[0]) return 1;
-                    return $n1[1] < $n2[1] ? -1 : 1;
+                    $n1 = (float) str_replace("x",".",$i1);
+                    $n2 = (float) str_replace("x",".",$i2);
+                    return $n1 < $n2 ? -1 : 1;
                 }
             });
+            /*while($parentnode->hasChildNodes()) {
+                $parentnode->removeChild($parentnode->firstChild);
+            }*/
             $parentnode->nodeValue = '';
             $fragment = $edition[0]->createDocumentFragment();
             foreach($collated as $entries) {
                 $newstr = '';
-                if(count($entries) > 1) {    
-                    $newstr .= '<rdgGrp>';
-                    
-                    // sort grouped variants
-                    usort($entries, function($i1,$i2) {
-                        if($i1 == $i2) return 0;
-                        $i1 = array_slice(explode("x",$i1['location']),2);
-                        $i2 = array_slice(explode("x",$i2['location']),2);
-                        
-                        // put full-length variants between prefixed and suffixed ones
-                        if(empty($i1))
-                            return (!isset($i2[1])) ? -1 : 1;
-                        if(empty($i2))
-                            return (!isset($i1[1])) ? 1 : -1;
-
-                        if($i1[0] < $i2[0]) return -1;
-                        if($i1[0] > $i2[0]) return 1;
-                        if(!isset($i2[1])) return -1;
-                        if(!isset($i1[1])) return 1;
-                        return ($i1[1] < $i2[1]) ? -1 : 1;
-                    });
-                }
-
+                if(count($entries) > 1) $newstr .= '<rdgGrp>';
                 foreach($entries as $entry) {
                     $readings = '';
                     $allmss = implode(" ",$entry['mss']);
@@ -406,7 +378,7 @@ class Upama
                             }
                         }
                     }
-                    $main = implode(" ",array_diff($entry['mss'],$nonmain));
+                    $main = implode(";",array_diff($entry['mss'],$nonmain));
                     $newstr .= "<app loc='".$entry['location'].
                     "' mss='".$allmss."'><rdg wit='$main' type='main'>".$entry['content']."</rdg>".$readings."</app>";
                 }
@@ -878,23 +850,9 @@ class Upama
         else return "";
     }
 
-    public function loadText($str,$filename = '') {
+    public function loadText($str) {
         $text = new DomDocument();
-        libxml_use_internal_errors(true);
         $text->loadXML($str);
-        $errors = libxml_get_errors();
-        if(!empty($errors)) {
-            $errlist = '';
-            foreach($errors as $error) {
-                $errlist .= "<b>Error:</b> $error->message".
-                " on line $error->line";
-                if($filename)
-                    $errlist .= " in $filename";
-                $errlist .= "\n<br/>\n";
-            }
-            libxml_clear_errors();
-            return $errlist;
-        }
         $xpath = new DomXpath($text);
         $rootNS = $text->lookupNamespaceUri($text->namespaceURI);
         $xpath->registerNamespace("x", $rootNS);
@@ -902,7 +860,7 @@ class Upama
     }
     public function loadFile($filename) {
         $text = file_get_contents($filename);
-        return $this->loadText($text,$filename);
+        return $this->loadText($text);
     }
 
     public function fixSpecialChars($data) {
@@ -1164,31 +1122,27 @@ class Upama
                             }
 
                             $prefix = $this->unfilterText($vartexts["prefix"],$counters2,$ignored2);
-                            if(trim($vartexts["var"]) == '') {
+                            $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
+                            if(trim($vartext) == '') 
                                 $vartext = "<editor>[om.]</editor>";
-                                $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
-                            }
                             else {
                                 //$vartext = "$prefix  *$vartext";
-                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2,$atlast);
                                 $vartext = "°".$vartext;
                                 $vartext = trim($vartext);
                                 $vartext = $this->closeTags($vartext);
                             }
                         }
                         else {
-                            if(trim($vartexts["var"]) == '') {
+                            $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
+                            $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
+                            if(trim($vartext) == '') 
                                 $vartext = "<editor>[om.]</editor>";
-                                $this->unfilterText($vartexts["var"],$counters2,$ignored2);
-                            }
                             else {
                                 //$vartext = "$vartext*  $suffix";
-                                $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
                                 $vartext = $vartext."°";
                                 $vartext = trim($vartext);
                                 $vartext = $this->closeTags($vartext);
                             }
-                            $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
                         }
                     }
                     else {

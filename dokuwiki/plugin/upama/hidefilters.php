@@ -1,19 +1,22 @@
 <?php
 
 return array( 
-            "explicit hiatus ⌜_⌟" => '_',
+            "abbreviation sign ⌜॰⌟" => '॰',
+            "avagrahas ⌜'⌟" => '\'',
+            "brackets" => array('\)','\(','\[','\]'),
+            "commas" => ',',
+            "daṇḍas" => '\|',
             //"dandas with numbers" => '\s*\|+\s*[\d-]+\s*\|+\s*',
             //"dandas ⌜|⌟" => '\s+\|+|\|+\s*',
-            "daṇḍas" => '\|',
+            "empty śirorekha ⌜¯⌟" => '¯',
+            "explicit hiatus ⌜_⌟" => '_',
+            "hyphens and dashes" => array('\-','—','='),
             "line fillers ⌜¦⌟" => '¦',
-            "middle dot ⌜·⌟" => '·',
-            //"numbers" => '\s+[\d-]+|[\d-]+\s*',
+            "middot ⌜·⌟" => '·',
             "numbers" => '\d',
-            "hyphens and dashes" => array('\-', '—'),
-            "brackets" => array('\)','\('),
-            "avagrahas ⌜'⌟" => '\'',
-            "commas" => ',',
-            "periods/elipsises" => ".",
+            //"numbers" => '\s+[\d-]+|[\d-]+\s*',
+            "puṣpikās ⌜꣸❈⌟" => array('꣸','❈'),
+            "periods/ellipses" => ".",
             "quotation marks" => array('"','“','”','‘','’'),
             );
 ?>

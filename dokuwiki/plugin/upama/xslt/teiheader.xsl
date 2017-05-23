@@ -3,6 +3,17 @@
                 exclude-result-prefixes="x">
 <xsl:output method="html" omit-xml-declaration="yes"/>
 
+<xsl:template name="lang">
+    <xsl:choose>
+    <xsl:when test="@xml:lang">
+        <xsl:attribute name="lang"><xsl:value-of select="@xml:lang"/></xsl:attribute>
+    </xsl:when>
+    <xsl:otherwise>
+        <xsl:attribute name="lang">sa</xsl:attribute>
+    </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
+
 <!--xsl:template match="x:titleStmt">
     <h1>
         <xsl:apply-templates select="x:title"/>
@@ -26,7 +37,29 @@
 </xsl:template>
 
 <xsl:template match="x:msContents/x:summary/x:title">
-    <em><xsl:apply-templates/></em>
+    <xsl:element name="em">
+        <xsl:call-template name="lang"/>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:msContents/x:summary/x:sub">
+    <xsl:element name="sub">
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+<xsl:template match="x:msContents/x:summary/x:sup">
+    <xsl:element name="sup">
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+
+<xsl:template match="x:msContents/x:summary/x:ptr">
+    <xsl:element name="a">
+        <xsl:attribute name="href"><xsl:value-of select="@target"/></xsl:attribute>
+        <xsl:value-of select="@target"/>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="x:msIdentifier">
@@ -51,16 +84,24 @@
 </xsl:template>
 
 <xsl:template match="x:msContents">
-    <p><xsl:apply-templates select="x:summary"/></p>
+    <p id="__upama_summary"><xsl:apply-templates select="x:summary"/></p>
     
     <xsl:for-each select="x:msItem">
-        <h2><xsl:apply-templates select="x:author"/></h2>
+        <h3><xsl:apply-templates select="x:author[1]"/></h3>
+        <xsl:for-each select="x:author[position()>1]">
+            <h4><xsl:value-of select="."/></h4>
+        </xsl:for-each>
         <h3><xsl:apply-templates select="x:title[1]"/></h3>
     
         <xsl:for-each select="x:title[position()>1]">
             <h4><xsl:value-of select="."/></h4>
         </xsl:for-each>
     </xsl:for-each>
+</xsl:template>
+
+<xsl:template match="x:xenoData/x:stemma[@format='newick']"/>
+<xsl:template match="x:xenoData/x:stemma[@format='nexml']">
+    <div id="__upama_stemma"><xsl:copy-of select="./*"/></div>
 </xsl:template>
 
 <xsl:template match="x:physDesc"/>

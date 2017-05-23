@@ -8,7 +8,7 @@ $curfile = basename($INFO['filepath']);
 $dirfiles = array_diff(scandir($curdir),array('..','.',$curfile));
 $meta = p_get_metadata($INFO['id'],'plugin_upama',false);
 
-if($meta && sizeof($dirfiles) > 0) {
+if(sizeof($dirfiles) > 0) {
 
     $active = $INPUT->post->arr('upama_witnesses');
     $upama = new Upama();
@@ -25,9 +25,11 @@ if($meta && sizeof($dirfiles) > 0) {
     }
     else { // no POST data
 
-        $version = $meta['current'];
+        //$version = $meta['current'];
+        $version = $INPUT->get->str('upama_ver');
         $tagfilters = $upama->getTagFilters();
-        if($INPUT->get->str('upama_ver') && $version) { // check GET data
+        //if($INPUT->get->str('upama_ver') && $version) { // check GET data
+        if($version) {
             $active = $meta['versions'][$version]['witnesses'];
             $tagfiltersdiff = $meta['versions'][$version]['tagfilters'];
             $hidefiltersoff = $meta['versions'][$version]['hidefilters'];
@@ -41,6 +43,7 @@ if($meta && sizeof($dirfiles) > 0) {
         }
         else { // use defaults
     
+            $active = [];
             $tagfilters = $upama->getTagFilters();
             $hidefilters = array_keys($allhidefilters);
             $subfilters = array_keys($allsubfilters);
@@ -53,11 +56,21 @@ if($meta && sizeof($dirfiles) > 0) {
     echo '<input name="_upama_script" type="hidden" id="__upama_hidden_script_selector" value="'.$script.'">';
     echo '<input type="hidden" name="id" value="'.$INFO['id'].'">';
     formSecurityToken();
-
-    echo '<div id="__upama_witnesses" style="padding:0"><h3 class="upama_menu">Compare with other witnesses</h3>';
-    echo '<div style="padding:0"><table class="options">';
+    echo '<div style="padding: 0"><input type="submit" id="__upama_generate_button" value="Generate apparatus"';
+    if(empty($active)) echo ' disabled title="select witnesses to compare"';
+    echo'></div>';
+?>
+    <ul class="accordion css-accordion">
+        <li class="accordion-item" id="__upama_witnesses">
+            <input class="accordion-item-input upama_menu" type="checkbox" name="accordion" id="item1" />
+            <label for="item1" class="accordion-item-hd">Other witnesses<span class="accordion-item-hd-cta">&#9650;</span></label>
+            <div class="accordion-item-bd">
+                <table class="options" id="__upama_witness_list">
+    
+<?php
     foreach($dirfiles as $file) {
         $pagebase = explode(".",$file)[0];
+        
         $pageid = $INFO['namespace'].":".$pagebase;
 
         if($conf['userewrite'] == 0) $url = "doku.php?id=".$pageid;
@@ -72,19 +85,25 @@ if($meta && sizeof($dirfiles) > 0) {
             if(in_array($file,$active))
                 echo ' checked';
             
-            echo ' value="'.$file . '"></td>'.
-            '<td><a class="sidebar-witness" href="'.$url.'"><span class="sidebar-siglum" data-pageid="'.$pageid.'">'.$shorttitle.'</span><br>'.
+            echo ' value="'.$file . '" onclick="toggleGenButton();"></td>'.
+            '<td><a class="sidebar-witness" href="'.$url.'"><span class="sidebar-siglum">'.$shorttitle.'</span><br>'.
             //'<div style="padding-bottom:0.5em">('.$longtitle.')</div>';
             '<span>('.$longtitle.')</span></a></td></tr>';
         }
     }
 ?>
-</table></div></div>
+                </table>
+            </div>
+        </li>
+    </ul>
+    
 <div id="__upama_options_button">Options</div>
-<div id="__upama_options">
-<h3 class="upama_menu">XML tags</h3>
-<div style="padding: 0">
-<table class="options">
+<ul class="accordion" id="__upama_options">
+    <li class="accordion-item upama_menu">
+        <input class="accordion-item-input upama_menu" type="radio" name="accordion" id="item2" />
+        <label for="item2" class="accordion-item-hd">XML tags<span class="accordion-item-hd-cta">&#9650;</span></label>
+        <div class="accordion-item-bd">
+            <table class="options">
 <?php
     foreach($tagfilters as $tag => $status) {
         echo '<tr><td>';
@@ -107,10 +126,14 @@ if($meta && sizeof($dirfiles) > 0) {
         echo '</select></td></tr>';
     }
 ?>
-</table></div>
-<h3 class="upama_menu">Punctuation</h3>
-<div style="padding: 0">
-<table class="options">
+            </table>
+        </div>
+    </li>
+    <li class="accordion-item upama_menu">
+        <input class="accordion-item-input upama_menu" type="radio" name="accordion" id="item3" />
+        <label for="item3" class="accordion-item-hd">Punctuation<span class="accordion-item-hd-cta">&#9650;</span></label>
+        <div class="accordion-item-bd">
+            <table class="options">
 <?php
     foreach($allhidefilters as $name => $regex) {
         echo '<tr><td><input type="checkbox" name="upama_hidefilters[]" value="';
@@ -121,27 +144,55 @@ if($meta && sizeof($dirfiles) > 0) {
         echo '></td><td><span>ignore '.$name.'</span></td></tr>';
     }
 ?>
-</table></div>
-<h3 class="upama_menu">Orthographic variants</h3>
-<div style="padding: 0">
-<table class="options">
+
+            </table>
+        </div>
+    </li>
+    <li class="accordion-item upama_menu">
+        <input class="accordion-item-input upama_menu" type="radio" name="accordion" id="item4" />
+        <label for="item4" class="accordion-item-hd">Orthographic variants<span class="accordion-item-hd-cta">&#9650;</span></label>
+        <div class="accordion-item-bd">
+            <table class="options">
 <?php
-    foreach($allsubfilters as $name => $regex) {
+    foreach($allsubfilters as $key => $value) {
         echo '<tr><td><input type="checkbox" name="upama_subfilters[]" value="';
-        echo $name;
+        echo $key;
         echo '"';
-        if(in_array($name,$subfilters))
+        if(in_array($key,$subfilters))
             echo ' checked';
-        echo '></td><td><span>filter '.$name.'</span></td></tr>';
+        echo '></td><td><span>filter '.$value['name'].'</span></td></tr>';
     }
 ?>
-</table></div>
-</div> <!-- _upama_options -->
-<div style="padding: 0"><input type="submit" style="width: 100%;font-weight: bold; border-radius: 5px" value="Generate Apparatus"></div>
+            </table>
+        </div>
+    </li>
+</ul> <!-- _upama_options -->
 </form>
 <script>
-jQuery("#__upama_options").accordion({ collapsible: true, active: false, heightStyle: "content"});
-jQuery("#__upama_witnesses").accordion({ collapsible: true, heightStyle: "content"});
+//var $upama_options = jQuery("#__upama_options");
+//$upama_options.accordion({ collapsible: true, active: false, heightStyle: "content"});
+//var $upama_witnesses = jQuery("#__upama_witnesses");
+//$upama_witnesses.accordion({ collapsible: true, active: false, heightStyle: "content"});
+//$upama_options.css('display','block');
+//$upama_witnesses.css('display','block');
+
+function toggleGenButton() {
+    var checked = false;
+    var button = document.getElementById("__upama_generate_button");
+    var $witnesses = jQuery("#__upama_witness_list").find("input");
+    $witnesses.each(function() {
+        if(this.checked) {
+            button.disabled = false;
+            button.title = "Generate apparatus with selected witnesses";
+            checked = true;
+            return false;
+        }
+    });
+    if(!checked) {
+        button.disabled = true;
+        button.title = "Select witnesses to compare";
+    }
+}
 </script>
 <?php
 

@@ -1,0 +1,48 @@
+#dokuwiki__content {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+#dokuwiki__content > .group {
+    flex: 0 1 1200px;
+}
+#dokuwiki__content > .group > .group > *:not(.section){
+    width: 62%;
+    max-width: 800px;
+}
+
+.maintext {
+    width: 62%;
+}
+
+.section {
+    max-width: 1200px;
+}
+
+.upama-block {
+    display: flex;
+    max-width: 1200px;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+@media (max-width: 600px) {
+
+#dokuwiki__content > .group > .group > *:not(.section){
+    width: 97vw;
+    min-width: 200px;
+}
+
+#dokuwiki__content > .group > .group > .section {
+    width: 97vw;
+    min-width: 200px;
+}
+span.varcontainer {
+    white-space: normal;
+    }
+
+.nowrap {
+    white-space: normal;
+    }
+}

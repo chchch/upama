@@ -8,26 +8,50 @@
 
 <xsl:template match="x:p[@xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">para</xsl:attribute>
+        <xsl:attribute name="class">para upama-block</xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
                 <xsl:attribute name="class">maintext</xsl:attribute>
-                <xsl:call-template name="lang"/>
+                <!--xsl:call-template name="lang"/-->
+                <xsl:comment>SECTION_START</xsl:comment>
+                <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
                 <xsl:apply-templates/>
+                <xsl:comment>SECTION_END</xsl:comment>
         </xsl:element>
     </xsl:element>
 </xsl:template>
 
 <xsl:template match="x:lg[@type='verse']">
     <xsl:element name="div">
-        <xsl:attribute name="class">verse</xsl:attribute>
+        <xsl:attribute name="class">verse upama-block</xsl:attribute>
         <xsl:if test="@xml:id">
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         </xsl:if>
         <xsl:element name="div">
             <xsl:attribute name="class">maintext</xsl:attribute>
-            <xsl:call-template name="lang"/>
+            <!--xsl:call-template name="lang"/-->
+            <xsl:comment>SECTION_START</xsl:comment>
+            <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
             <xsl:apply-templates/>
+            <xsl:comment>SECTION_END</xsl:comment>
+        </xsl:element>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:div2[@type='apparatus']">
+    <xsl:element name="div">
+        <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
+        <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
+        <xsl:element name="div">
+                <xsl:attribute name="class">maintext</xsl:attribute>
+                <!--xsl:call-template name="lang"/-->
+                <xsl:comment>SECTION_START</xsl:comment>
+                <xsl:comment><xsl:value-of select="@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+                <xsl:element name="ul">
+                    <xsl:attribute name="class">accordion</xsl:attribute>
+                    <xsl:apply-templates/>
+                </xsl:element>
+                <xsl:comment>SECTION_END</xsl:comment>
         </xsl:element>
     </xsl:element>
 </xsl:template>
