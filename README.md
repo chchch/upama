@@ -18,7 +18,7 @@ echo $upama->transform($comparison,$stylesheet);
 ?>
 ```
 
-This will render the file named "file1.xml" with an apparatus containing variants from "file2.xml", using the XSLT stylesheet called "apparatus.xsl" and outputting in HTML. Both XML files need to have the same number of "block-level" text structure elements, like &lt;p&gt;, &lt;div&gt;, and &lt;l&gt;. In addition, at least "file2.xml" should have a siglum defined in the &lt;teiHeader&gt;. A typical, minimal file should look like this:
+This will render the file named "file1.xml" with an apparatus containing variants from "file2.xml", using the XSLT stylesheet called "apparatus.xsl" and outputting in HTML. Both XML files should have text structure elements with xml:id attributes; these will be matched by the collation engine. In addition, at least "file2.xml" should have a siglum defined in the &lt;teiHeader&gt;. A typical, minimal file should look like this:
 
 ```
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
@@ -34,7 +34,13 @@ This will render the file named "file1.xml" with an apparatus containing variant
           <msIdentifier>
             <idno type="siglum">Siglum used for this witness in the apparatus</idno>
           </msIdentifier>
-        </msDesc>
+          
+          <msContents>
+             <msItem>
+                <textLang mainlang="sa-Deva">Sanskrit.</textLang>
+             </msItem>
+          </msContents>
+       </msDesc>
       </sourceDesc>
     </fileDesc>
   </teiHeader>
@@ -42,8 +48,8 @@ This will render the file named "file1.xml" with an apparatus containing variant
   <text xml:lang="sa-Latn">
     <body>
       <div>
-        <p>Some paragraph elements</p>
-        <lg>
+        <p xml:id="paragraph_1">Some paragraph elements</p>
+        <lg xml:id="verse_1">
           <l>a verse</l>
           <l>another verse</l>
         </lg>
@@ -54,7 +60,7 @@ This will render the file named "file1.xml" with an apparatus containing variant
 </TEI>
 ```
 
-See the "template.xml" file for more details. The text should be transcribed in IAST in order for Upama to work properly.
+The text should be transcribed in IAST in order for Upama to work properly. The mainLang attribute of the textLang tag should be sa-Latn, sa-Deva, sa-Mlym, sa-Telu, etc. depending on what script the original document is written in. Some of the text normalization functions rely on this attribute being set.
 
 In order to compare a text with more than two witnesses, use the "collate" function:
 
