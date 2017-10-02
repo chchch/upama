@@ -198,7 +198,19 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                 $upama->removeFilter("subtext",$tag);
 
                             $pageid = $INFO['namespace'].":".basename($thatfile,'.txt');
-                            if($conf['userewrite'] == 0) $url = "doku.php?id=".$pageid;
+                            switch($conf['userewrite']) {
+
+                                case 0: 
+                                    $url = "doku.php?id=".$pageid;
+                                    break;
+                                case 1:
+                                    $url = "/$pageid";
+                                    break;
+                                case 2:
+                                    $url = "/doku.php/$pageid";
+                                    break;
+                            }
+                            
                             try {
                                 $comparison = $upama->compare($thisfile,$thatfile,$url);
                             } catch (Exception $e) {

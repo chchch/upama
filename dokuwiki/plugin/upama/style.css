@@ -13,14 +13,14 @@
 
 @font-face {
     font-family: 'Rachana';
-            src: local('Rachana'),
-                 url('fonts/Rachana.woff');
+            src: local('Rachana Regular'),
+                 url('fonts/Rachana-Regular.woff');
             unicode-range: U+0D00-U+0D7F;
 }
 @font-face {
     font-family: 'Rachana';
             src: local('Rachana Bold'),
-                 url('fonts/Rachana-Bold.ttf');
+                 url('fonts/Rachana-Bold.woff');
             unicode-range: U+0D00-U+0D7F;
             font-weight: bold;
 }
@@ -97,7 +97,7 @@ span.spacer {display: none;
 }
 
 :lang(sa) {
-    font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+    font-family: Brill, Sanskrit2016, Rachana, Pothana2000, sans-serif;
 }
 
 p:lang(sa) {
@@ -125,7 +125,7 @@ div.apparatus {
              flex: 0 0.5 auto;
              line-height: 1.1rem;
              padding: 0;
-             font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+             font-family: Brill, Sanskrit2016, Rachana, Pothana2000, sans-serif;
              text-align: left;
              vertical-align:top;
              font-size: 1em;
@@ -133,6 +133,10 @@ div.apparatus {
              top: 2em;
              position: -webkit-sticky;
              position: sticky;
+}
+
+div.variorum {
+    width: 100%;
 }
 
 div.verse { 
@@ -359,6 +363,11 @@ del.orig {color: grey;
     text-decoration-color: #0000CC;
 }
 
+del.orig-underline {color: grey;
+    text-decoration-color: #0000CC;
+    text-decoration: underline;
+}
+
 span.sic {
     /* background-color: yellow; */
     display: inline;
@@ -392,7 +401,8 @@ span.pointer {
 }
 
 span.supplied {
-    background-color: #E4E7EC;
+    background-color: rgba(132,132,10,0.2);
+/*   background-color: #E4E7EC; */
 }
 
 span.metamark {
@@ -516,3 +526,4 @@ div.dokuwiki div.editbutton_plugin_upama form div button:hover {
     stroke: #b8cbff;
     stroke-width: 1;
 }
+

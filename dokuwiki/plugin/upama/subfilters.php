@@ -2,11 +2,29 @@
 // (?!\S) is used to mean a word boundary and (?=\S) is used to mean not a word boundary. \P{L} does not seem to catch end-of-line.
 
 return array(
+        
+//        "geminated j" => array('(?<=[rṛ])jj', "replace_with" => "j"),
+//        "geminated ṭ" => array('ṭṭ', "replace_with" => 'ṭ'),
+    ["name" => "geminated t",
+     "find" => ['(?<=[rṛi]|pa)tt','tt(?=[rv]\S)'],
+     "replace" => "t"],
+//        "geminated d" => array('(?<=r)dd', "replace_with" => "d"),
+//        "geminated y" => array('(?<=[rṛ])yy', "replace_with" => "y"),
+//        "geminated v" => array('(?<=[rṛ]\s*)vv', "replace_with" => "v"),
+//        "other geminated consonants" => array('(?<=[rṛ\s])([jṭṇdnmyv])\1', '([jṭd])\1(?=h)', "replace_with" => '\1'),
+    ["name" => "geminated consonants after r",
+     "find" => '(?<=[rṛ\s])([gjṭṇdnmyv])\1', 
+     "replace" => '\1'],
+
+    ["name" => "other geminated consonants",
+     "find" => '([jṭd])\1(?=h)',
+     "replace" => '\1'],
+
 //        "visarga aḥ + vowel" => array('aḥ(?=\s+[āiīeuūo])', "replace_with" => 'a'), 
 // this causes variants to be reported when there are none, i.e. 
 // "vacanaḥ sā..." vs "vacanaḥ ā..." becomes "vacano" and "vacana"
     ["name" => "visarga āḥ + voiced syllable",
-     "find" => 'āḥ?(?=\s+[āiīeuūogjḍḍbnmyrlv])',
+     "find" => 'āḥ?(?=\s+[āiīeuūogjḍdbnmyrlv])',
      "replace" => 'ā'],
         
     ["name" => "visarga aḥ variants",
@@ -39,7 +57,7 @@ return array(
 
     ["name" => "final anusvāra variants",
      "exclude" => "//textLang[@mainLang='sa-Mlym']",
-     "find" => ['ṃ?[mṅ](?!\S)', '(?<=k[ai])n(?=\s+[t])', 'ñ(?=\s+[jc])'],
+     "find" => ['ṃ?[mṅ](?!\S)', '(?<=k[ai])n(?=\s+t)', 'ñ(?=\s+[jc])'],
      "replace" => 'ṃ'],
 //        "final anusvāra" => array('ṃ?[mṅ](?!\S)', 'n(?=\s+t[uūv])', "replace_with" => 'ṃ'),
         // final ṅ can be written as ṃ in "ohāṅ gatau"
@@ -63,11 +81,12 @@ return array(
 //        "jjh/jh" => array('jjh', "replace_with" => 'jh'),
 //        "t ś/c ch" => array('t(\s+)ś', 'c(\s+)ch', "replace_with" => '\1ch'),
     ["name" => "final t + voiced syllable",
-     "find" => 'd(?=\s+[aāiīeuūogdbyrv])',
+     "find" => 'd(?=(?:\s+[aāiīeuūogdbyrv]|\s*$))',
      "replace" => 't'],
         
     ["name" => "final t + n/m",
-     "find" => 't(?=\s+[nm])',
+     //"find" => 't(?=(?:\s+[nm]|\s*$))',
+     "find" => 't(?=(?:\s+[nm]))',
      "replace" => 'n'],
         
     ["name" => "final t + c/j",
@@ -109,23 +128,10 @@ return array(
         // replacing i with y fails in some cases,
         // as in "abhyupaiti | etad"
         // or in "ity bhāvaḥ" compared to "iti āśaṇkyaḥ"
-        
-//        "geminated j" => array('(?<=[rṛ])jj', "replace_with" => "j"),
-//        "geminated ṭ" => array('ṭṭ', "replace_with" => 'ṭ'),
-    ["name" => "geminated t",
-     "find" => ['(?<=[rṛi]|pa)tt','tt(?=[rv]\S)'],
-     "replace" => "t"],
-//        "geminated d" => array('(?<=r)dd', "replace_with" => "d"),
-//        "geminated y" => array('(?<=[rṛ])yy', "replace_with" => "y"),
-//        "geminated v" => array('(?<=[rṛ]\s*)vv', "replace_with" => "v"),
-//        "other geminated consonants" => array('(?<=[rṛ\s])([jṭṇdnmyv])\1', '([jṭd])\1(?=h)', "replace_with" => '\1'),
-    ["name" => "geminated consonants after r",
-     "find" => '(?<=[rṛ\s])([gjṭṇdnmyv])\1', 
-     "replace" => '\1'],
-
-    ["name" => "other geminated consonants",
-     "find" => '([jṭd])\1(?=h)',
-     "replace" => '\1'],
-
+    ["name" => "malayālam ḻ",
+//     "include" => "//textLang[@mainLang='sa-Mlym']",
+        // also want to include C, which is a Devanāgarī transcript of Malayālam
+     "find" => 'ḻ',
+     "replace" => 'l'],
 );
 ?>

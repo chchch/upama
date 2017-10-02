@@ -105,11 +105,11 @@ h3.upama_menu { font-size: 80% !important;
 }
 
 .apparatus2 .maintext {
-    display: none;
+/*   display: none; */
     width: 100%;
 }
 .apparatus2 .apparatus {
-    display: none;
+/*    display: none; */
 }
 /*
 .ui-layout-west .ui-accordion-header {

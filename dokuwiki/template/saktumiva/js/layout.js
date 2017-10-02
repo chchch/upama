@@ -19,15 +19,18 @@ window.addEventListener("load", function() {
             radioel.checked = false;
         }
     });
-
+/*
     var apparati2 = document.querySelector('.sectiontext') ? jQuery('.apparatus2 > .maintext > .sectiontext') : jQuery('.apparatus2 > .maintext');
 //    apparati2.accordion({collapsible: true, heightStyle:content,active: false});
     if(document.querySelector('.apparatus')) {
         for(let app of document.querySelectorAll('.apparatus2')) {
             var target = app.getAttribute('data-target');
+            console.log(document.getElementById(target));
             document.getElementById(target).querySelector('.apparatus').appendChild(app);
         }
     }
     
     jQuery('.apparatus2 .maintext').css('display','block');
+*/
 });
+

@@ -23,6 +23,8 @@ return array(
             "unclear" => "-2",
             // gaiji
             "g" => "-2",
+            // linking
+            "anchor" => "-1",
             // msdescription
             "locus" => "-1",
             // transcr

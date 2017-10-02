@@ -31,6 +31,7 @@
                         txt.firstChild.innerHTML = txt.firstChild.innerHTML + ": " + lemmaText;
                     if(varTexts[key]) {
                         let varText = varTexts[key].join(" ");
+                        //let varText = varTexts[key];
                         txt.firstChild.innerHTML = txt.firstChild.innerHTML + ': ' + toSVG(varText);
                         highlights.push(txt);
                     } 
