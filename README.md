@@ -82,7 +82,7 @@ echo $upama->transform($collation,$stylesheet);
 
 # the DokuWiki plugin
 
-A live demo of upama.php in action can be found at http://saktumiva.org/wiki:dravyasamuddesa:start.
+A live demo of upama.php in action can be found at https://saktumiva.org/wiki/dravyasamuddesa/start.
 
 The code for the plugin and template used on saktumiva.org, which runs on DokuWiki, is in the dokuwiki directory. The plugin includes the hyphenation engine hypher (https://github.com/bramstein/hypher) with a Sanskrit hyphenation library (both IAST and indic scripts supported) as well as some functions based on sanscript.js (https://github.com/sanskrit/sanscript) to convert between scripts.
 
