@@ -1,68 +1,418 @@
 <html>
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
-    <style type="text/css" src="../style.css"></style>
+     <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <style type="text/css">
+@font-face {
+    font-family: 'PedanticDevanagari';
+    src: local('PedanticDevanagariLight'),
+         url('fonts/PedanticDevanagariLight.otf'),
+         url('fonts/PedanticDevanagariLight.woff');
+    unicode-range: U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24;
+}
+
+@font-face {
+    font-family: 'PedanticDevanagari';
+    src: local('PedanticDevanagariBold'),
+         url('fonts/PedanticDevanagariBold.woff');
+    unicode-range: U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'PedanticMalayalam';
+    src: url('fonts/PedanticMalayalam.woff');
+    unicode-range: U+0D00-0D7F, U+25CC;
+}
+
+@font-face {
+    font-family: 'PedanticMalayalam';
+    src: url('fonts/PedanticMalayalamBold.woff');
+    unicode-range: U+0D00-0D7F, U+25CC;
+    font-weight: bold;
+}
+@font-face {
+    font-family: 'PedanticTelugu';
+    src: url('fonts/PedanticTelugu.woff');
+    unicode-range: U+0C00-0C7F;
+}
+
+@font-face {
+    font-family: 'PedanticTelugu';
+    src: url('fonts/PedanticTeluguBold.woff');
+    unicode-range: U+0C00-0C7F;
+    font-weight: bold;
+}
+
+.witness {
+    font-size: 0.8em;
+    font-variant: small-caps;
+    font-family: 'Alegreya Sans', sans-serif;
+}
+
+.internal {
+    display: inline-block;
+    position: relative;
+    left: -1px;
+    top: 5px;
+    font-variant: small-caps;
+    font-family: 'Alegreya Sans', sans-serif;
+    font-size: 0.6em;
+    cursor: pointer;
+}
+
+#tooltip {
+    display: block;
+    position: fixed;
+    background: rgba(17,17,17,0.8);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    vertical-align: middle;
+    padding: .5em 1em;
+    margin-bottom: 11px;
+    max-width: 200px;
+    z-index: 3;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+    </style>
     <script type="text/javascript" data-cfasync="false" src="raphael-min.js"></script>
     <script type="text/javascript" data-cfasync="false" src="jsphylosvg-min.js"></script>
     <script type="text/javascript" data-cfasync="false">
-        var dataObject;
-        var posApp;
-        var listWit;
-        var lemmaText;
-        var varTexts;
+    var dataObject;
+    var posApp;
+    var listWit;
+    var lemmaText;
+    var varTexts;
+    
+    function setIntersection(...sets) {
+        const setA = sets[0];
+        return new Set(
+            [...setA].filter(el => {
+                for(let n=1;n<sets.length;n++) {
+                    if(!sets[n].has(el))
+                        return false;
+                }
+                return true;
+            })
+        );
+    }
 
-        function init() {
-           
-            Smits.PhyloCanvas.Render.Style.line.stroke = 'rgb(46,73,148)';
-            Smits.PhyloCanvas.Render.Style.text["font-family"] = 'Verdana';
-            phylocanvas = new Smits.PhyloCanvas(
-                dataObject,
-                '__upama_tree',
-                500,500,
-               // 'circular'
-            );
-            var highlights = new Array();
-            for(let txt of document.getElementById("__upama_tree").querySelectorAll("text")) {
-                let key = txt.textContent.trim();
-                if(listWit[key]) {
-                    let innerTxt = '<tspan style="font-weight: bold">' + toSVG(listWit[key]) + '</tspan>';
-                    txt.firstChild.innerHTML = innerTxt;
-                    if(posApp.indexOf(key) != -1)
-                        txt.firstChild.innerHTML = txt.firstChild.innerHTML + ": " + lemmaText;
-                    if(varTexts[key]) {
-                        let varText = varTexts[key].join(" ");
-                        //let varText = varTexts[key];
-                        txt.firstChild.innerHTML = txt.firstChild.innerHTML + ': ' + toSVG(varText);
-                        highlights.push(txt);
-                    } 
+    function setUnion(...sets) {
+        return new Set(
+            sets.reduce((acc, cur) => {
+                acc = [...acc,...cur];
+                return acc;
+            },[])
+        );
+    }
+
+    function drawTree(nexml) {
+        Smits.PhyloCanvas.Render.Style.line.stroke = 'rgb(46,73,148)';
+        Smits.PhyloCanvas.Render.Style.text["font-family"] = 'Verdana';
+        const phylocanvas = new Smits.PhyloCanvas(
+            //dataObject,
+            {nexml: nexml, fileSource: true},
+            '__upama_tree',
+            500,500,
+           // 'circular'
+        );
+        return phylocanvas;
+    }
+    function drawLabels(treediv) {
+        var highlights = new Array();
+        
+        for(let txt of treediv.querySelectorAll("text")) {
+            
+            const key = txt.textContent.trim();
+            const offleft = parseInt(txt.getAttribute('x')) + 2;
+            const offtop = parseInt(txt.getAttribute('y')) - 6;
+            txt.innerHTML = '';
+
+            const newEl = document.createElement('div');
+            newEl.classList.add('tree-div');
+            newEl.style.position = 'absolute';
+            newEl.style.left = offleft + 'px';
+            newEl.style.top = offtop + 'px';
+            newEl.style.width = '100%';
+            newEl.style.overflow = 'visibile';
+            newEl.style.whiteSpace = 'nowrap';
+            
+            if(listWit[key]) {
+                newEl.innerHTML = `<span class="witness">${listWit[key]}</span>`;
+                if(posApp.indexOf(key) != -1)
+                    newEl.innerHTML = newEl.innerHTML + `: <span class="tree-lemma" data-id="${key}" lang="sa">${lemmaText}</span>`;
+                else if(varTexts[key]) {
+                    const varText = varTexts[key];
+                    newEl.innerHTML = newEl.innerHTML + `: <span class="tree-lemma" data-id="${key}" lang="sa">${varText}</span>`;
+                }
+            delete listWit[key];
+            }
+
+            else if(key !== 'fakeroot')
+                newEl.innerHTML = `<span class="internal" data-key="${key}">0</span>`;
+
+            else newEl.innerHTML = `<span class="internal" data-key="${key}"></span>`; 
+
+            document.getElementById('__upama_tree').appendChild(newEl);
+        }
+
+        let leftovers = document.getElementById('__upama_leftovers');
+        for(let key in listWit) {
+            if(!listWit.hasOwnProperty(key)) continue;
+            if(posApp.indexOf(key) != -1) {
+                let newEl = document.createElement('div');
+                newEl.style.whiteSpace = 'nowrap';
+                newEl.innerHTML = '<span class="witness">'+listWit[key]+'</span>: '+
+                    '<span lang="sa">'+lemmaText+'</span>';
+                leftovers.appendChild(newEl);
+            }
+            else if(varTexts.hasOwnProperty(key)) {
+                let newEl = document.createElement('div');
+                newEl.style.whiteSpace = 'nowrap';
+                newEl.innerHTML = '<span class="witness">'+listWit[key]+'</span>: '+ 
+                    "<span lang='sa'>"+varTexts[key]+"</span>";
+                leftovers.appendChild(newEl);
+            }
+        }
+    }
+
+    function jiggleroot(nexml,nsResolver) {
+        const oldroot = nexml.evaluate('//nex:node[@root="true"]',nexml,nsResolver,XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue;
+        if(!oldroot) return;
+        const edges = nexml.evaluate('//nex:edge[@source="'+oldroot.id+'"]|//nex:edge[@target="'+oldroot.id+'"]',nexml,nsResolver,XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,null);
+        if(edges.snapshotLength === 3) {
+            var oldedge;
+            var newsrctrgt;
+            for(let i=0;i<edges.snapshotLength;i++) {
+                const thisedge = edges.snapshotItem(i);
+                const sourceid = thisedge.getAttribute('source');
+                const targetid = thisedge.getAttribute('target');
+                const sourcenode = nexml.evaluate('//nex:node[@id="'+sourceid+'"]',nexml,nsResolver,XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue;
+                const targetnode = nexml.evaluate('//nex:node[@id="'+targetid+'"]',nexml,nsResolver,XPathResult.FIRST_ORDERED_NODE_TYPE,null).singleNodeValue;
+                if(!sourcenode.hasAttribute('otu') && !targetnode.hasAttribute('otu')) {
+                    oldedge = thisedge;
+                    var newsrctrgt = targetid === oldroot.id ?
+                        'target' : 'source';
+                    break;
                 }
             }
-            for(el of highlights) {
-                var BBox = el.getBBox();
-                var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                rect.setAttribute("x", BBox.x);
-                rect.setAttribute("y", BBox.y);
-                rect.setAttribute("width", BBox.width);
-                rect.setAttribute("height", BBox.height);
-                rect.setAttribute("fill", "yellow");
-                el.parentElement.insertBefore(rect,el);
+            if(oldedge) {
+                const newroot = nexml.createElementNS(oldroot.namespaceURI,'node');
+                newroot.id = 'fakeroot';
+                newroot.setAttribute('root','true');
+                oldroot.removeAttribute('root');
+                oldroot.parentElement.insertBefore(newroot,oldroot);
+                const newedge = nexml.createElementNS(oldroot.namespaceURI,'edge');
+                newedge.id = "newrootedge";
+                newedge.setAttribute('length','0');
+                newedge.setAttribute('source','fakeroot');
+                newedge.setAttribute('target',oldroot.id);
+                oldroot.parentElement.insertBefore(newedge,oldedge);
+            
+                oldedge.setAttribute(newsrctrgt,newroot.id);
+            }
+        }
+    } 
+    function findLevels(nexml) {
+        const alledges = nexml.querySelectorAll('edge');
+        const taxa = [...nexml.querySelectorAll('node[otu]')];
+        const tree = nexml;
+        var levels = [taxa];
+
+        const getNextLevel = function(curlevel,edges) {
+            const ids = curlevel.map(t => t.id);
+            const dups = new Map();
+            const nodups = new Map();
+            const usededges = [];
+            for (const e of edges) {
+                    const target = e.getAttribute('target');
+                    const source = e.getAttribute('source');
+                    const group = (() => {
+                        if(ids.indexOf(target) !== -1)
+                            return {ancestor: tree.querySelector(`node[id="${source}"]`),
+                                    child: tree.querySelector(`node[id="${target}"]`)};
+                        else if(ids.indexOf(source) !== -1)
+                            return {ancestor: tree.querySelector(`node[id="${target}"]`),
+                                    child: tree.querySelector(`node[id="${source}"]`)};
+                        else
+                            return null;
+                            })();
+                    if(group !== null) {
+                        if(nodups.has(group.ancestor)) {// duplicate
+                            const othergroup = nodups.get(group.ancestor);
+                            dups.set(group.ancestor,[othergroup.child, group.child]);
+                            usededges.push(e);
+                            usededges.push(othergroup.edge);
+                        }
+                        else nodups.set(group.ancestor,{child: group.child, edge: e});
+                    }
+            }
+            const dupkeys = [...dups.keys()];
+            const leftovers = [...nodups.keys()].reduce((acc,key) => {
+                if(dupkeys.indexOf(key) === -1)
+                    acc.push(nodups.get(key).child);
+                return acc;
+            },[]);
+            
+            const unusededges = [...edges].reduce((acc,e) => {
+                if(usededges.indexOf(e) === -1)
+                    acc.push(e);
+                return acc;
+            },[]);
+
+            return {match: dups, remainder: [...new Set(leftovers)],edges: unusededges};
+        }
+
+        var curnodes = taxa;
+        var curedges = alledges;
+        do {
+            const nextlevel = getNextLevel(curnodes,curedges);
+            levels.push(nextlevel.match);
+            curnodes = [...nextlevel.match.keys(),...nextlevel.remainder];
+            curedges = nextlevel.edges;
+        } while (curedges.length > 0);
+        
+        return levels;
+    }
+
+    function labelInternal(nexml) {
+        for(const node of nexml.querySelectorAll('node:not([label])'))
+            node.setAttribute('label',node.id);
+    }
+
+    function cleanString(node) {
+        const clone = node.cloneNode(true);
+        const ignored = clone.querySelectorAll('.ignored, .gap, .editor');
+        ignored.forEach(e => e.parentNode.removeChild(e));
+        return clone.textContent
+                    .replace(/[॰+()\[\],;|0-9¯\-—―¦·꣸❈.'"“”‘’«»\\\/]/g,'')
+                    .trim();
+    }
+
+    function fitch1(treediv,levels) {
+        const firstpass = new Map();
+        for(const taxon of levels[0]) {
+            const label = taxon.getAttribute('label');
+            const reading_span = treediv.querySelector(`span.tree-lemma[data-id="${label}"]`);
+            if(reading_span) {
+                const reading = cleanString(reading_span);
+                firstpass.set(taxon,new Set([reading]));
+            }
+            else
+                firstpass.set(taxon,new Set());
+        }
+        for(let m=1;m<levels.length;m++) { // start at 1 (after taxa)
+            for(const [node,children] of levels[m]) {
+                const readings = children.map(node => firstpass.get(node));
+                const intersection = setIntersection(...readings);
+                const result = intersection.size > 0 ?
+                    intersection :
+                    setUnion(...readings);
+                firstpass.set(node,result);
 
             }
         }
+        return firstpass;
 
-        function toSVG(str) {
-            var str;
-            str = str.replace(/span/g, 'tspan');
-            str = str.replace(/<\/su[bp]>/g, '</tspan>');
-            str = str.replace(/<sub>/g, '<tspan style="font-size:0.7em;vertical-align:sub">');
-            str = str.replace(/<sup>/g, '<tspan style="font-size:0.7em;vertical-align:sup">');
-            return str;
+    }
+
+    function fitch2(nexml,levels,firstpass) {
+        const taxa = [...nexml.querySelectorAll('node[otu]')];
+        const secondpass = new Map();
+
+        for(const [node,children] of levels[levels.length-1]) {
+            secondpass.set(node,firstpass.get(node));
         }
+
+        for(let n=levels.length-1;n>1;n--) {
+            for(const [node,children] of levels[n]) {
+                const ancestral = secondpass.get(node);
+                for(const child of children) {
+                    if(taxa.indexOf(child) !== -1)
+                        continue;
+                    const childreading = firstpass.get(child);
+                    if(childreading.size === 1)
+                        secondpass.set(child,childreading)
+                    else {
+                        const intersection = setIntersection(ancestral,childreading);
+                        const result = intersection.size > 0 ?
+                            intersection :
+                            childreading;
+                        secondpass.set(child,result);
+                    }
+                }
+            }
+        }
+        return secondpass;
+    }
+
+    function fitch(treediv,nexml,levels) {
+        const firstpass = fitch1(treediv,levels);
+        const formatOutput = function(m) {
+                 const output = [...m].map(str => str.trim() === '' ? '_' : str);
+                 return output.length === 1 ? output[0] : "{" + output.join(', ') + "}";
+        }
+
+        const secondpass = fitch2(nexml,levels,firstpass);
+        for(const [node,reading] of secondpass) {
+            const htmlnode = treediv.querySelector(`span.internal[data-key="${node.id}"]`);
+            htmlnode.dataset.reconstructed = formatOutput(reading);
+        }
+    }
+
+    function init() {
+        const treediv = document.getElementById("__upama_tree");
+        const parser = new DOMParser();
+        const nexml = parser.parseFromString(dataObject.nexml.outerHTML,'text/xml');
+        const nsResolver = nexml.createNSResolver(nexml.ownerDocument == null ? nexml.documentElement : nexml.ownerDocument.documentElement);
+        
+        jiggleroot(nexml,nsResolver);
+        const levels = findLevels(nexml);
+        labelInternal(nexml);
+        const phylocanvas = drawTree(nexml);
+        drawLabels(treediv);
+        fitch(treediv,nexml,levels);
+        treediv.addEventListener('mouseover',treeMouseover);
+
+    }
+
+    function treeMouseover(e) {
+        const reconstructed = e.target.dataset.reconstructed;
+        if(!reconstructed) return;
+
+        const box = document.createElement('div');
+        box.id = 'tooltip';
+        box.lang = 'sa';
+        box.style.top = e.pageY + 'px';//(e.clientY + 10) + 'px';
+        box.style.left = e.pageX + 'px';//e.clientX + 'px';
+        box.style.opacity = 0;
+        box.style.transition = 'opacity 0.2s ease-in';
+        document.getElementById('__upama_tree').appendChild(box);
+
+        box.appendChild(
+            document.createTextNode(reconstructed)
+        );
+
+        window.getComputedStyle(box).opacity;
+        box.style.opacity = 1;
+        
+        e.target.addEventListener('mouseout', removeBox);
+
+    }
+
+    function removeBox() {
+    const box = document.getElementById('tooltip');
+    if(box) box.remove();
+    }
 
     </script>
 </head>
 
 <body>
 <div id="__upama_tree"></div>
+<div id="__upama_leftovers"></div>
 </body>
 </html>
