@@ -2,7 +2,11 @@
 <xsl:output method="text" encoding="UTF-8" omit-xml-declaration="yes"/>
 
 <xsl:template match="p">
+<xsl:text>
+\pstart
+</xsl:text>
 <xsl:apply-templates/><xsl:text>
+\pend
 
 </xsl:text>
 </xsl:template>
@@ -10,25 +14,48 @@
 <xsl:template match="lg">
 <xsl:text>
 \setstanzaindents{2,2,2,2,2}
-\stanza
+\stanza[\smallskip]
 
 </xsl:text><xsl:apply-templates/><xsl:text>
 
 </xsl:text>
 </xsl:template>
 
-<xsl:template match="lg/l">
+<xsl:template match="lg[@type='quote']">
+<xsl:text>
+
+</xsl:text>
+<xsl:apply-templates/>
+</xsl:template>
+<xsl:template match="lg[@type='quote']/l">
+<xsl:apply-templates/>
+<xsl:text>
+
+</xsl:text>
+</xsl:template>
+
+<xsl:template match="lg[@type='quote']/l[position()=last()]">
+<xsl:text>\smallskip
+</xsl:text>
+<xsl:apply-templates/>
+<xsl:text>\\
+</xsl:text>
+</xsl:template>
+
+<xsl:template match="lg[not(@type='quote')]/l">
+<xsl:text>\large </xsl:text>
 <xsl:apply-templates/><xsl:text>&amp;
 </xsl:text>
 </xsl:template>
 
-<xsl:template match="lg/l[position()=last()]">
+<xsl:template match="lg[not(@type='quote')]/l[position()=last()]">
+<xsl:text>\large </xsl:text>
 <xsl:apply-templates/><xsl:text>\&amp;
 </xsl:text>
 </xsl:template>
 
 <xsl:template match="milestone">
-<xsl:text>[From </xsl:text><xsl:value-of select="$no"/><xsl:text>]</xsl:text>
+<xsl:text>(From </xsl:text><xsl:value-of select="$no"/><xsl:text>)</xsl:text>
 </xsl:template>
 
 <xsl:template match="sub">
@@ -39,8 +66,8 @@
 <xsl:text>\textsuperscript{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>
 
-<xsl:template match="editor">
-<xsl:text>\textsc{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
+<xsl:template match="label">
+<xsl:text>\textsc{[</xsl:text><xsl:apply-templates /><xsl:text>]}</xsl:text>
 </xsl:template>
 
 <xsl:template match="unclear">
@@ -56,7 +83,7 @@
 </xsl:template>
 
 <xsl:template match="del">
-    <xsl:text>\xout{</xsl:text><xsl:apply-templates /><xsl:text>}</xsl:text>
+    <xsl:text>\uuline{</xsl:text><xsl:apply-templates /><xsl:text>}</xsl:text>
 </xsl:template>
 
 <xsl:template match="sic">
@@ -81,29 +108,29 @@
 </xsl:template>
 
 <xsl:template match="lb">
-        <xsl:text>\textsc{[</xsl:text>
+        <xsl:text>\textsc{(</xsl:text>
         <xsl:choose>
             <xsl:when test="@n">
-                <xsl:text>line </xsl:text><xsl:value-of select="@n"/>
+                <xsl:text>l. </xsl:text><xsl:value-of select="@n"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:text>line break</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
-        <xsl:text>]}</xsl:text>
+        <xsl:text>)}</xsl:text>
 </xsl:template>
 
 <xsl:template match="pb">
-        <xsl:text>\textsc{[</xsl:text>
+        <xsl:text>\textsc{(</xsl:text>
         <xsl:choose>
             <xsl:when test="@n">
-                <xsl:text></xsl:text><xsl:value-of select="@n"/>
+                <xsl:text>f. </xsl:text><xsl:value-of select="@n"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:text>page break</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
-        <xsl:text>]}</xsl:text>
+        <xsl:text>)}</xsl:text>
 </xsl:template>
 
 <xsl:template match="g">
@@ -131,7 +158,7 @@
 </xsl:template>
 
 <xsl:template match="gap">
-    <xsl:text>\textsc{[gap</xsl:text>
+    <xsl:text>\textsc{(gap</xsl:text>
     <xsl:choose>
         <xsl:when test="@quantity">
             <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
@@ -147,13 +174,13 @@
         </xsl:when>
     </xsl:choose>
     <xsl:if test="@reason">
-        <xsl:text> (</xsl:text><xsl:value-of select="@reason"/><xsl:text>)</xsl:text>
+        <xsl:text>, </xsl:text><xsl:value-of select="@reason"/>
     </xsl:if>
-    <xsl:text>]}</xsl:text>
+    <xsl:text>)}</xsl:text>
 </xsl:template>
 
 <xsl:template match="space">
-    <xsl:text>\textsc{[space</xsl:text>
+    <xsl:text>\textsc{(space</xsl:text>
     <xsl:choose>
         <xsl:when test="@quantity">
             <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
@@ -169,9 +196,9 @@
         </xsl:when>
     </xsl:choose>
     <xsl:if test="@reason">
-        <xsl:text> (</xsl:text><xsl:value-of select="@reason"/><xsl:text>)</xsl:text>
+        <xsl:text>, </xsl:text><xsl:value-of select="@reason"/>
     </xsl:if>
-    <xsl:text>]}</xsl:text>
+    <xsl:text>)}</xsl:text>
 </xsl:template>
 
 <xsl:template match="note">
@@ -184,6 +211,26 @@
 
 <xsl:template match="metamark">
     <xsl:text>\textbf{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
+</xsl:template>
+
+<xsl:template match="item">
+    <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="item/quote">
+    <xsl:apply-templates/>
+</xsl:template>
+<!--
+<xsl:template match="item/quote/lg">
+    <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="item/quote/lg/l">
+    <xsl:apply-templates/>
+</xsl:template>
+-->
+<xsl:template match="item/title">
+    <xsl:text>\emph{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>
 
 </xsl:stylesheet>

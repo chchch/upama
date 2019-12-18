@@ -34,7 +34,7 @@
     </xsl:text>
 </xsl:template>
 
-<xsl:template match="x:div2[@type='apparatus']/x:maintext">
+<!--<xsl:template match="x:div2[@type='apparatus']/x:maintext">
     <div class="maintext">
         <xsl:comment>SECTION_START</xsl:comment>
         <xsl:comment><xsl:value-of select="../@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -46,11 +46,20 @@
     </div><xsl:text>
     </xsl:text>
 </xsl:template>
+-->
+<xsl:template match="x:div[@type='apparatus']">
+    <xsl:element name="div">
+        <xsl:attribute name="class">apparatus</xsl:attribute>
+        <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
 
 <xsl:template match="x:listApp">
     <!--td class="apparatus hyphenate"-->
     <xsl:element name="div">
-    <xsl:attribute name="class">apparatus</xsl:attribute>
+    <!--xsl:attribute name="class">apparatus</xsl:attribute-->
+    <xsl:attribute name="class">variorum</xsl:attribute>
     <xsl:if test="@exclude">
         <xsl:attribute name="data-exclude">
             <xsl:value-of select="translate(@exclude,'#','')"/>
@@ -161,6 +170,9 @@
     </xsl:text>
 </xsl:template>
 
+<xsl:template match="x:app//x:anchor"/>
+<xsl:template match="x:app//x:locus"/>
+
 <xsl:template match="x:app//x:lg">
     <xsl:apply-templates />
 </xsl:template>
@@ -182,7 +194,7 @@
             )"/>
 </xsl:template>
 
-<xsl:template match="x:lg[@type='verse']">
+<xsl:template match="x:lg[@type='verse' or @xml:id]">
     <xsl:element name="div">
         <xsl:attribute name="class">verse upama-block</xsl:attribute>
         <xsl:if test="@xml:id">
@@ -192,17 +204,67 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:lg[@type='verse']/x:maintext">
+<!--xsl:template match="x:lg">
+    <xsl:element name="div">
+        <xsl:attribute name="class">verse</xsl:attribute>
+        <xsl:element name="div">
+            <xsl:attribute name="class">maintext</xsl:attribute>
+            <xsl:attribute name="lang">sa</xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:element>
+</xsl:template-->
+
+<xsl:template match="x:lg[@type='verse' or @xml:id]/x:maintext">
     <!--div class="maintext" lang="sa"-->
     <div class="maintext">
         <xsl:comment>SECTION_START</xsl:comment>
-    <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+        <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
         <xsl:apply-templates />
     <xsl:comment>SECTION_END</xsl:comment>
     </div><xsl:text>
     </xsl:text>
 </xsl:template>
 
+<xsl:template match="x:l[@xml:id]">
+    <xsl:element name="div">
+        <xsl:attribute name="class">verseline upama-block</xsl:attribute>
+        <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:l[@xml:id]/x:maintext">
+    <xsl:element name="div">
+        <xsl:attribute name="class">maintext</xsl:attribute>
+        <xsl:comment>SECTION_START</xsl:comment>
+        <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+        <xsl:apply-templates/>
+        <xsl:comment>SECTION_END</xsl:comment>
+    </xsl:element><xsl:text>
+    </xsl:text>
+</xsl:template>
+
+<xsl:template match="x:lg[@type='mangala']">
+    <xsl:element name="div">
+        <xsl:attribute name="class">mangala upama-block</xsl:attribute>
+        <xsl:if test="@xml:id">
+        <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:lg[@type='mangala']/x:maintext">
+    <!--div class="maintext" lang="sa"-->
+    <div class="maintext">
+        <xsl:comment>SECTION_START</xsl:comment>
+        <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+        <xsl:apply-templates />
+    <xsl:comment>SECTION_END</xsl:comment>
+    </div><xsl:text>
+    </xsl:text>
+</xsl:template>
 
 <xsl:template match="x:lg/x:maintext/x:l">
     <div class="verseline">
@@ -268,7 +330,17 @@
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
         <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
-        <xsl:apply-templates/>
+        <xsl:element name="div">
+            <xsl:attribute name="class">maintext</xsl:attribute>
+            <xsl:comment>SECTION_START</xsl:comment>
+            <xsl:comment><xsl:value-of select="@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+            <xsl:element name="ul">
+                <xsl:attribute name="class">accordion</xsl:attribute>
+                <xsl:apply-templates />
+            </xsl:element>
+            <xsl:comment>SECTION_END</xsl:comment>
+        </xsl:element><xsl:text>
+        </xsl:text>
     </xsl:element>
 </xsl:template>
 

@@ -130,6 +130,21 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:lg">
+    <xsl:element name="div">
+        <xsl:attribute name="class">verse</xsl:attribute>
+        <xsl:call-template name="lang"/>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:l">
+    <xsl:element name="div">
+        <xsl:attribute name="class">verseline</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:sub">
     <sub>
         <xsl:apply-templates/>
@@ -142,13 +157,13 @@
     </sup>
 </xsl:template>
 
-<xsl:template match="x:editor">
+<xsl:template match="x:label">
     <span class="editor" lang="en">[<xsl:apply-templates />]</span>
 </xsl:template>
 
 <xsl:template name="ignore">
     <xsl:if test="@ignored='TRUE'"> ignored</xsl:if>
-    <xsl:if test="@upama-show='TRUE'"> upama-show</xsl:if>
+    <!--xsl:if test="@upama-show='TRUE'"> upama-show</xsl:if-->
 </xsl:template>
 
 <xsl:template match="x:unclear">
@@ -165,6 +180,12 @@
 <xsl:template match="x:subst">
     <xsl:element name="span">
     <xsl:attribute name="class">subst<xsl:call-template name="ignore"/></xsl:attribute>
+    <xsl:attribute name="data-balloon">
+        <xsl:text>substitution</xsl:text>
+        <xsl:if test="@rend">
+            <xsl:text> (</xsl:text><xsl:value-of select="@rend"/><xsl:text>)</xsl:text>
+        </xsl:if>
+    </xsl:attribute>
     <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
@@ -212,7 +233,13 @@
 <xsl:template match="x:orig">
     <xsl:element name="del">
         <xsl:attribute name="data-balloon">original text</xsl:attribute>
-        <xsl:attribute name="class">orig<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>orig</xsl:text>
+            <xsl:call-template name="ignore" />
+            <xsl:if test="@rend='underline'">
+                <xsl:text> orig-underline</xsl:text>
+            </xsl:if>
+        </xsl:attribute>
         <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
@@ -222,6 +249,7 @@
         <xsl:attribute name="data-balloon">
             <xsl:text>inserted</xsl:text>
             <xsl:if test="@place"> (<xsl:value-of select="@place"/>)</xsl:if>
+            <xsl:if test="@rend"> (<xsl:value-of select="@rend"/>)</xsl:if>
         </xsl:attribute>
         <xsl:attribute name="class">add<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:apply-templates />
@@ -230,9 +258,36 @@
 
 <xsl:template match="x:corr">
     <xsl:element name="ins">
-        <xsl:attribute name="data-balloon">corrected by the transcriber</xsl:attribute>
+        <xsl:attribute name="data-balloon">
+            <xsl:text>corrected</xsl:text>
+            <xsl:choose>
+            <xsl:when test="@resp">
+                <xsl:text> (by </xsl:text>
+                <xsl:value-of select="@resp"/>
+                <xsl:text>)</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text> by the transcriber</xsl:text>
+            </xsl:otherwise>
+            </xsl:choose>
+        </xsl:attribute>
         <xsl:attribute name="class">corr<xsl:call-template name="ignore" /></xsl:attribute>
-        <xsl:apply-templates />
+        <xsl:choose>
+        <xsl:when test="@rend='parens'">
+            <xsl:element name="span">
+                <xsl:attribute name="class">ignored</xsl:attribute>
+                <xsl:text>(</xsl:text>
+            </xsl:element>
+            <xsl:apply-templates/>
+            <xsl:element name="span">
+                <xsl:attribute name="class">ignored</xsl:attribute>
+                <xsl:text>)</xsl:text>
+            </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:apply-templates />
+        </xsl:otherwise>
+        </xsl:choose>
     </xsl:element>
 </xsl:template>
 
@@ -343,11 +398,56 @@
 <xsl:template match="x:supplied">
     <xsl:element name="span">
         <xsl:attribute name="class">supplied<xsl:call-template name="ignore"/></xsl:attribute>
-        <xsl:if test="@reason">
-             <xsl:attribute name="data-balloon"><xsl:value-of select="@reason"/></xsl:attribute>
-        </xsl:if>
-        <xsl:apply-templates />
-    </xsl:element>
+         <xsl:attribute name="data-balloon">
+            <xsl:text>supplied</xsl:text>
+            <xsl:if test="@resp">
+                <xsl:text> (by </xsl:text>
+                <xsl:value-of select="@resp"/>
+                <xsl:text>)</xsl:text>
+            </xsl:if>
+            <xsl:if test="@reason">
+                <xsl:text> (</xsl:text>
+                <xsl:value-of select="@reason"/>
+                <xsl:text>)</xsl:text>
+            </xsl:if>
+         </xsl:attribute>
+        <xsl:choose>
+        <xsl:when test="@rend='parens'">
+            <xsl:element name="span">
+                <xsl:attribute name="class">ignored</xsl:attribute>
+                <xsl:text>(</xsl:text>
+            </xsl:element>
+            <xsl:apply-templates/>
+            <xsl:element name="span">
+                <xsl:attribute name="class">ignored</xsl:attribute>
+                <xsl:text>)</xsl:text>
+            </xsl:element>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:apply-templates />
+        </xsl:otherwise>
+        </xsl:choose>
+     </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:retrace">
+    <xsl:element name="span">
+        <xsl:attribute name="class">retrace<xsl:call-template name="ignore"/></xsl:attribute>
+         <xsl:attribute name="data-balloon">
+            <xsl:text>retraced</xsl:text>
+            <xsl:if test="@reason">
+                <xsl:text> (</xsl:text>
+                <xsl:value-of select="@reason"/>
+                <xsl:text>)</xsl:text>
+            </xsl:if>
+            <xsl:if test="@rend">
+                <xsl:text> (</xsl:text>
+                <xsl:value-of select="@rend"/>
+                <xsl:text>)</xsl:text>
+            </xsl:if>
+</xsl:attribute>
+         <xsl:apply-templates />
+     </xsl:element>
 </xsl:template>
 
 <xsl:template match="x:locus">
@@ -395,12 +495,17 @@
                 <xsl:choose>
                     <xsl:when test="@quantity">
                         <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
-                        <xsl:if test="@unit">
+                        <xsl:choose>
+                        <xsl:when test="@unit">
                         <xsl:text> </xsl:text><xsl:value-of select="@unit"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                        <xsl:text> akṣara</xsl:text>
+                        </xsl:otherwise>
+                        </xsl:choose>
                             <xsl:if test="@quantity &gt; '1'">
                                 <xsl:text>s</xsl:text>
                             </xsl:if>
-                        </xsl:if>
                     </xsl:when>
                     <xsl:when test="@extent">
                         <xsl:text> of </xsl:text><xsl:value-of select="@extent"/>
@@ -452,12 +557,20 @@
             <xsl:text>space</xsl:text>
             <xsl:if test="@quantity">
                 <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
-                <xsl:if test="@unit">
+                <xsl:choose>
+                <xsl:when test="@unit">
                 <xsl:text> </xsl:text><xsl:value-of select="@unit"/>
                     <xsl:if test="@quantity &gt; '1'">
                         <xsl:text>s</xsl:text>
                     </xsl:if>
-                </xsl:if>
+                </xsl:when>
+                <xsl:otherwise>
+                <xsl:text> akṣara</xsl:text>
+                    <xsl:if test="@quantity &gt; '1'">
+                        <xsl:text>s</xsl:text>
+                    </xsl:if>
+                </xsl:otherwise>
+                </xsl:choose>
             </xsl:if>
             <xsl:if test="@rend">
                 <xsl:text> (</xsl:text><xsl:value-of select="@rend"/><xsl:text>)</xsl:text>
@@ -508,6 +621,7 @@
         </xsl:attribute>
         <xsl:attribute name="data-balloon">note
             <xsl:if test="@place"> (<xsl:value-of select="@place"/>)</xsl:if>
+            <xsl:if test="@resp"> (by <xsl:value-of select="@resp"/>)</xsl:if>
         </xsl:attribute>
         <xsl:apply-templates />
     </xsl:element>
@@ -518,6 +632,7 @@
         <xsl:attribute name="class">hidenote<xsl:call-template name="ignore"/></xsl:attribute>
         <xsl:attribute name="data-balloon">
             <xsl:value-of select="text()"/>
+            <xsl:if test="@resp"> (note by <xsl:value-of select="@resp"/>)</xsl:if>
         </xsl:attribute>
         <xsl:element name="span">
             <xsl:attribute name="class">ignored</xsl:attribute>
@@ -534,7 +649,14 @@
 <xsl:template match="x:hi">
     <xsl:element name="span">
         <xsl:attribute name="class">hi<xsl:call-template name="ignore" /></xsl:attribute>
-        <xsl:attribute name="data-balloon">marked by <xsl:value-of select="@rend"/></xsl:attribute>
+        <xsl:choose>
+        <xsl:when test="@rend">
+            <xsl:attribute name="data-balloon">marked by <xsl:value-of select="@rend"/></xsl:attribute>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:attribute name="data-balloon">marked</xsl:attribute>
+        </xsl:otherwise>
+        </xsl:choose>
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>
@@ -556,6 +678,17 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:num">
+    <xsl:element name="span">
+        <xsl:attribute name="class">num<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="data-balloon">
+            <xsl:text>number</xsl:text>
+            <xsl:if test="@value"> (<xsl:value-of select="@value"/>)</xsl:if>
+            <xsl:if test="@type"> (<xsl:value-of select="@type"/>)</xsl:if>
+        </xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
 
 <!-- Apparatus items -->
 
@@ -591,6 +724,7 @@
 <xsl:template match="x:list/x:item">
     <xsl:element name="li">
         <xsl:attribute name="class">apparatus2-item</xsl:attribute>
+        <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>
@@ -618,10 +752,42 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:quote[@type='basetext']">
+    <xsl:element name="div">
+        <xsl:attribute name="class">section</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:title">
     <xsl:element name="em">
         <xsl:call-template name="lang"/>
         <xsl:attribute name="class">title</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:foreign">
+    <xsl:element name="span">
+        <xsl:call-template name="lang"/>
+        <xsl:attribute name="class">foreign</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:anchor">
+   
+    <xsl:element name="span">
+        <xsl:attribute name="class">anchor ignored</xsl:attribute>
+        <xsl:attribute name="data-anchor"><xsl:value-of select="@n"/></xsl:attribute>
+        <xsl:text>*</xsl:text>
+    </xsl:element>
+
+</xsl:template>
+
+<xsl:template match="x:ref">
+    <xsl:element name="a">
+        <xsl:attribute name="href"><xsl:value-of select="@target"/></xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>
