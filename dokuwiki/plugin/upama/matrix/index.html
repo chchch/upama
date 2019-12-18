@@ -1,1 +1,81 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <style type="text/css">
 
+#__upama_matrix {
+    display: flex;
+    align-items: center;
+/*    justify-content: center; */
+    height: 100%;
+}
+
+table {
+    overflow: visibile;
+    white-space: nowrap;
+}
+th {
+    text-align: right;
+    font-weight: normal;
+    font-size: 0.8em;
+    font-variant: small-caps;
+    font-family: sans-serif;
+}
+    </style>
+    <script type="text/javascript" data-cfasync="false">
+var dataObject;
+var posApp;
+var listWit;
+var lemmaArr;
+var varTexts;
+var unshift;
+
+function init() {
+    const maintable = document.getElementById('__upama_matrix_tbody');
+    for(const wit of Object.keys(listWit)) {
+        let newEl;
+        let htmlTxt;
+        if(posApp.indexOf(wit) != -1) {
+            newEl = document.createElement('tr');
+            htmlTxt = '<th scope="row" style="font-size:0.8em;font-family:sans-serif;font-variant: small-caps">'+listWit[wit]+':</th>';
+            htmlTxt += lemmaArr.map((s) => '<td lang="sa">'+s+'</td>').join('');
+        }
+        else if(varTexts[wit]) {
+            newEl = document.createElement('tr');
+            htmlTxt = '<th scope="row" style="font-size:0.8em;font-family: sans-serif;font-variant: small-caps">'+listWit[wit]+':</th>';
+            let varText = '';
+            let emptycount = 0;
+            for(let n=varTexts[wit].length-1;n >= 0;n--) {
+                if(varTexts[wit][n] == '') emptycount++;
+                else {
+                    let colspan = emptycount + 1;
+                    if(n === 0 && unshift.indexOf(wit) > -1)
+                        colspan--;
+                    varText = '<td lang="sa" colspan="'+colspan+'">'+
+                                varTexts[wit][n]+"</td>"+
+                                varText;
+                    emptycount = 0;
+                }
+            }
+            htmlTxt += varText;
+        }
+
+        if(newEl) {
+            newEl.innerHTML = htmlTxt;
+            maintable.appendChild(newEl);
+        }
+    }
+}
+
+    </script>
+</head>
+
+<body>
+<div id="__upama_matrix">
+    <table>
+        <tbody id="__upama_matrix_tbody"></tbody>
+    </table>
+</div>
+</body>
+</html>
