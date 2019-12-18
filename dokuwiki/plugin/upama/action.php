@@ -201,13 +201,13 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
             header('Content-Disposition: attachment; filename="'.basename($thisfile,".txt").'-'.$version.'.fas"');
 
             echo $upama->fasta($thisfile);
-            
-            if($version)
+            if($version) {
                 echo "\n\n";
                 foreach ($meta['versions'][$version]['witnesses'] as $file) {
                     echo $upama->fasta($thisdir . $file);
                     echo "\n\n";
                 }
+            }
             exit();
         }
         return false;

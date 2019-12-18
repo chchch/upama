@@ -118,7 +118,8 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                     return array($state, $data, $meta);
                 }
                 list($xml,$xpath) = $loaded;
-                $meta['shorttitle'] = $upama->DOMinnerXML($upama->getSiglum($xpath)) ?: NULL;
+                $siglum = $upama->getSiglum($xpath);
+                $meta['shorttitle'] = $siglum ? $upama->DOMinnerXML($siglum) : NULL;
                 $meta['title'] = $upama->getTitle($xpath) ?: NULL;
                 
                 // render TEI header
@@ -197,7 +198,12 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                             foreach($subfiltersoff as $tag)
                                 $upama->removeFilter("subtext",$tag);
 
-                            $pageid = $INFO['namespace'].":".basename($thatfile,'.txt');
+                            $separator = ($conf['useslash'] == 1) ? "/" : ":";
+                            $namespace = ($separator == '/') ?
+                                str_replace(":","/",$INFO['namespace']) :
+                                $INFO['namespace'];
+
+                            $pageid = $namespace.$separator.basename($thatfile,'.txt');
                             switch($conf['userewrite']) {
 
                                 case 0: 
@@ -233,7 +239,13 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                    }
                    
                    $upama = new Upama();
-                   $final = '';
+                   foreach($tagfiltersdiff as $tag => $status)
+                       $upama->setFilter("tag",$tag,$status);
+                   foreach($hidefiltersoff as $tag)
+                       $upama->removeFilter("hidetext",$tag);
+                   foreach($subfiltersoff as $tag)
+                       $upama->removeFilter("subtext",$tag);
+$final = '';
                    if(count($compared) > 1) // collate comparisons if thare are more than one
                        $final = $upama->collate($compared);
                    else
@@ -337,7 +349,15 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                         $section = $secsplit[1];
                         $thispos = $bytepos[$sec_id];
                         $halves = explode("<!--SECTION_END-->",$section);
-                        $sec_class = $renderer->startSectionEdit($thispos[0],'plugin_upama','Edit this section');
+                        
+                        if(method_exists($renderer, 'startSectionEdit')) {
+                            if(!defined('SEC_EDIT_PATTERN'))
+                                // backwards compatibility for Frusterick Manners (2017-02-19)
+                                $sec_class = $renderer->startSectionEdit($thispos[0],'plugin_upama','Edit section '.$sec_id);
+                            else
+                                $sec_class = $renderer->startSectionEdit($thispos[0],['target'=>'plugin_upama','name'=>'Edit section '.$sec_id,'hid'=>null]);
+                        }
+                        
                         $renderer->doc .= '<div class="'.$sec_class.' sectiontext" lang="'.$sec_lang.'">';
                         $renderer->doc .= $halves[0];
                         $renderer->doc .= '</div>';

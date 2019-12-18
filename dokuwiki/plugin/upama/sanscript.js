@@ -52,15 +52,15 @@
         devanagari: {
             // "Independent" forms of the vowels. These are used whenever the
             // vowel does not immediately follow a consonant.
-            vowels: 'अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ऎ ए ऐ ऒ ओ औ'.split(' '),
+            vowels: 'अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ऎ ए ऐ ऒ ओ औ ए ऐ ओ औ'.split(' '),
 
             // "Dependent" forms of the vowels. These are used whenever the
             // vowel immediately follows a consonant. If a letter is not
             // listed in `vowels`, it should not be listed here.
-            vowel_marks: 'ा ि ी ु ू ृ ॄ ॢ ॣ ॆ े ै ॊ ो ौ'.split(' '),
+            vowel_marks: 'ा ि ी ु ू ृ ॄ ॢ ॣ ॆ े ै ॊ ो ौ ॎ ॎे ॎा ॎो'.split(' '),
 
             // Miscellaneous marks, all of which are used in Sanskrit.
-            other_marks: 'ं ः ँ'.split(' '),
+            other_marks: 'ं ः ँ ꣽ'.split(' '),
 
             // In syllabic scripts like Devanagari, consonants have an inherent
             // vowel that must be suppressed explicitly. We do so by putting a
@@ -92,7 +92,8 @@
             candra: ['ॅ'],
 
             // Non-Sanskrit consonants
-            other: 'क़ ख़ ग़ ज़ ड़ ढ़ फ़ य़ ऱ'.split(' ')
+            other: 'क़ ख़ ग़ ज़ ड़ ढ़ फ़ य़ ऱ'.split(' '),
+
         },
 
         /* Gujarati
@@ -199,14 +200,28 @@
          * The most "professional" Sanskrit romanization scheme.
          */
         iast: {
-            vowels: 'a ā i ī u ū ṛ ṝ ḷ ḹ  e ai  o au'.split(' '),
-            other_marks: ['ṃ', 'ḥ', '~'],
+            vowels: 'a ā i ī u ū ṛ ṝ ḷ ḹ ẽ e ai õ o au ê aî ô aû'.split(' '),
+        //    other_marks: ['ṃ', 'ḥ', '~'],
+            other_marks: ['ṃ', 'ḥ', 'm̐', 'oḿ'],
             virama: [''],
+            //skip: ['_'],
             consonants: 'k kh g gh ṅ c ch j jh ñ ṭ ṭh ḍ ḍh ṇ t th d dh n p ph b bh m y r l v ś ṣ s h ḻ kṣ jñ'.split(' '),
-            symbols: "0 1 2 3 4 5 6 7 8 9 oṃ ' । ॥".split(' ')
+            symbols: "0 1 2 3 4 5 6 7 8 9 oṁ ' | ||".split(' '),
+            //symbols: "0 1 2 3 4 5 6 7 8 9 oṃ ' । ॥".split(' ')
         },
 
-        /* ITRANS
+        /* ISO 15919 */
+        iso: {
+            vowels: 'a ā i ī u ū r̥ r̥̄ l̥ l̥̄ ẽ e ai õ o au ê aî ô aû'.split(' '),
+        //    other_marks: ['ṃ', 'ḥ', '~'],
+            other_marks: ['ṁ', 'ḥ', 'm̐', 'oḿ'],
+            virama: [''],
+            //skip: ['_'],
+            consonants: 'k kh g gh ṅ c ch j jh ñ ṭ ṭh ḍ ḍh ṇ t th d dh n p ph b bh m y r l v ś ṣ s h ḷ kṣ jñ'.split(' '),
+            symbols: "0 1 2 3 4 5 6 7 8 9 om̐ ' | ||".split(' '),
+            //symbols: "0 1 2 3 4 5 6 7 8 9 oṃ ' । ॥".split(' ')
+        },
+/* ITRANS
          * ------
          * One of the first romanization schemes -- and one of the most
          * complicated. For alternate forms, see the "allAlternates" variable
