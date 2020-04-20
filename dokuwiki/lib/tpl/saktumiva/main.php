@@ -25,7 +25,6 @@ $showSidebar = $hasSidebar && ($ACT=='show');
 <head>
     <meta charset="utf-8" />
     <title><?php tpl_pagetitle() ?> [<?php echo strip_tags($conf['title']) ?>]</title>
-    <!--?php echo tpl_js('analyticstracking.js'); ?-->
     <!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.2/es6-shim.min.js"></script-->
     <script type="text/javascript">
         if(!HTMLCollection.prototype.hasOwnProperty(Symbol.iterator)) {
