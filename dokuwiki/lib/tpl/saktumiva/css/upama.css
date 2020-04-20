@@ -1,0 +1,453 @@
+table.options { width: 100%; padding: 0; margin: 0; font-size: 90%;
+}
+table.options td {border-width: 1px 0 1px 0;
+    color: white;
+}
+
+h3.upama_menu { font-size: 80% !important;
+}
+
+.sidebar-witness:link,
+.sidebar-witness:visited {
+    text-decoration: none;
+    color: #f4f3f0;
+}
+
+.sidebar-witness:link:hover {
+    text-decoration: underline;
+    background: none;
+}
+
+#select_all_text {
+    font-weight: bold;
+}
+
+.editButtons {
+    display: inline-block !important;
+    text-align: left;
+}
+
+#container {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+.ui-layout-west {
+    flex: 0 0 auto;
+    width: 300px;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    visibility: visible;  
+    order: -1;
+    z-index: 1;
+}
+
+.ui-layout-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    flex: 1 1 auto;
+    background: #444B5F;
+    overflow-y: auto;
+}
+
+.ui-layout-toggler {
+    position: fixed;
+    display: flex;
+    padding-left: 1px;
+    margin: 0;
+    cursor: w-resize;
+    left: 300px;
+    height: 100vh;
+    width: 6px;
+    top: 0;
+    background: #444B5F;
+    align-items: center;
+    justify-content: flex-center;
+    z-index: 1;
+}
+
+.ui-layout-toggler:hover {
+    background: #7F89A4;
+}
+
+.ui-layout-toggler-button {
+    display: block;
+    background: rgba(232, 229, 222,0.6);
+    padding: 0;
+    margin: 0;
+    height: 48px;
+    width: 6px;
+}
+
+.ui-layout-center {
+    position: relative;
+/*    width: 100%; */
+}
+/*
+.ui-layout-center .ui-accordion-header {
+    background: #f5f1e5;
+    font-size: 0.8em;
+    color: #333;
+}
+.ui-layout-center .ui-accordion-content {
+    font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+    font-size: 0.9em;
+    background: none;
+    padding: 1em 1.5em;
+}
+*/
+
+#dokuwiki__content li.apparatus2-item {
+    list-style-type: circle;
+    color: #222;
+    margin: 0 0 6px 0;
+}
+
+.apparatus2 {
+    display: block;
+    width: 100%;
+}
+
+.apparatus2 .maintext {
+/*   display: none; */
+    width: 100%;
+}
+.apparatus2 .apparatus {
+/*    display: none; */
+}
+/*
+.ui-layout-west .ui-accordion-header {
+    background: #636e8c;
+    color: #f4f3f0;
+}
+.ui-layout-west .ui-accordion-content {
+    background: none;
+    color: #f4f3f0;
+}
+*/
+
+.ui-layout-west table.options {
+    border: 0;
+}
+
+.ui-layout-west table.options td {
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: rgba(221,217,207,0.3);
+    background: #5C6170;
+}
+
+.codo_side_content {
+    position: relative;
+    top: 100px;
+    padding-left: 6px;
+}
+#__upama_generate_button {
+/*font-size: 14px; */
+width: 100%;
+color: #ffffff;
+padding: 10px 20px;
+background: -moz-linear-gradient(top,#b6bad1 0%,#827b82);
+background: -webkit-gradient(linear, left top, left bottom,
+                             from(#b6bad1),to(#827b82));
+border-radius: 3px;
+    border: 1px solid #adabad;
+box-shadow:
+0px 1px 3px rgba(107,89,107,0.5),
+inset 0px 0px 2px rgba(255,255,255,1);
+text-shadow:
+0px -1px 0px rgba(000,000,000,0.4),
+0px 1px 0px rgba(255,255,255,0.3);
+}
+
+#__upama_generate_button:enabled:hover {
+font-weight: bold;
+}
+
+.sidebar-hide {
+    display: none;
+}
+.sidebar-shrink {
+    width: 6px;
+    flex: 0 0 6px;
+}
+.toggler-closed {
+    left: 0px;
+    cursor: e-resize;
+}
+
+@media (max-width: 800px) {
+    .ui-layout-west {
+        width: 150px;
+    }
+
+    .ui-layout-fixed {
+        width: 150px;
+    }
+
+    .ui-layout-toggler {
+        left: 150px;
+    }
+
+    .toggler-closed {
+        left: 0px;
+        cursor: e-resize;
+    }
+}
+
+@media (max-width: 600px) {
+    #container {
+        flex-direction: column;
+    }
+    #dokuwiki__site > .site {
+        padding: 0;
+    }
+
+    #dokuwiki__content > .pad > .content_initial {
+        width: 95vw;
+        padding-left: 2vw;
+        padding-right: 2vw;
+    }
+
+    #dokuwiki__pagetools {
+        position: fixed;
+        right: 0;
+        top: 50vh;
+    }
+    
+    .ui-layout-center {
+        top: 100px;
+        width: 100vw;
+    }
+    .ui-layout-fixed {
+        height: 100px;
+        width: 100%;
+    }
+    .ui-layout-west {
+        width: 100%;
+        height: 100px;
+        z-index: 2;
+    }
+    .ui-layout-toggler {
+        position: fixed;
+        display: flex;
+        padding: 0;
+        margin: 0;
+        font-size: 1px;
+        cursor: n-resize;
+        top: 100px;
+        left: 0;
+        padding-left: 0;
+        padding-top: 1px;
+        height: 6px;
+        width: 100vw;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+
+    .ui-layout-toggler-button {
+        display: block;
+        padding: 0;
+        margin: 0;
+        height: 6px;
+        width: 48px;
+    }
+    .sidebar-shrink {
+        height: 6px;
+        flex: 0 0 6px;
+    }
+    .toggler-closed {
+        top: 0px;
+        cursor: s-resize;
+    }
+    .codo_side_content {
+        padding: 0 1px 0 1px;
+    }
+}
+
+.logo {
+    font-variant: small-caps;
+    font-size: 18px;
+}
+
+.codowiki_west_header {
+    background: none;
+}
+
+.accordion-item-input {
+    display: none;
+}
+
+.accordion-item-input:checked ~ .accordion-item-bd {
+    opacity: 1;
+    height: auto;
+    -webkit-transition: opacity .5s .25s, 
+                        line-height .3s ease-in,
+                        margin .3s ease-in, 
+                        padding .3s ease-in;
+    transition: opacity .5s .25s,
+                line-height .3s ease-in,
+                margin .3s ease-in, 
+                padding .3s ease-in;
+}
+
+.accordion-item-input:checked ~ .accordion-item-hd > .accordion-item-hd-cta {
+    -webkit-transform: rotate(0);
+    -ms-transform: rotate(0);
+    transform: rotate(0);
+}
+
+.accordion-item-bd {
+    line-height: 0;
+    opacity: 0;
+    margin: 0;
+    height: 0;
+    overflow: hidden;
+    padding: 0;
+    -webkit-transition: opacity .25s,
+                        height .3s ease-out,
+                        line-height .3s ease-out,
+                        margin .3s ease-out, 
+                        padding .3s ease-out;
+    transition: opacity .25s,
+                height .3s ease-out,
+                line-height .3s ease-out,
+                margin .3s ease-out, 
+                padding .3s ease-out;
+}
+
+.accordion-item-hd-cta {
+    display: block;
+    position: absolute;
+    pointer-events: none;
+    -webkit-transition: -webkit-transform .3s ease;
+    transition: transform .3s ease;
+    -webkit-transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg);
+    transform: rotate(-180deg);
+    text-align: center;
+    line-height: 1;
+}
+
+.ui-layout-west ul.accordion {
+    border-radius: 3px;
+    /*border: 1px solid #adabad; */
+    border: 1px solid #636e8c;
+    padding: 0;
+    margin: 0 auto;
+    margin-top: 2px;
+    list-style: none outside;
+}
+
+.ui-layout-west ul.accordion > * + * {
+    border-top: 1px solid white;
+}
+
+.ui-layout-west .accordion-item-hd {
+    display: block;
+    padding: 10px 0 12px 10px;
+    background: #636e8c;
+    color: #f4f3f0;
+    position: relative;
+    cursor: pointer;
+/*    font-size: 0.8em; */
+}
+
+.ui-layout-west .accordion-item-hd:hover {
+    color: #ffffff;
+    background: #36383f;
+}
+
+.ui-layout-west .accordion-item-input:checked ~ .accordion-item-bd {
+    max-height: 1500px;
+    -webkit-transition: opacity .25s .1s, 
+                        max-height .3s ease-in,
+                        margin .3s ease-in, 
+                        padding .3s ease-in;
+    transition: opacity .25s .1s,
+                max-height .3s ease-in,
+                margin .3s ease-in, 
+                padding .3s ease-in;
+}
+
+.ui-layout-west .accordion-item-hd-cta {
+    width: 10px;
+    top: calc(50%-5px);
+    right: 10px;
+    font-size: 9px;
+}
+
+.ui-layout-west .accordion-item-bd {
+    line-height: 1.2;
+    height: auto;
+    max-height: 0;
+}
+
+#__upama_options_button {
+    margin-top: 10px;
+}
+
+.ui-layout-center ul.accordion {
+    border-radius: 3px;
+    /*border: 1px solid #adabad; */
+    border: 1px solid #f5f1e5;
+    padding: 0;
+    margin: 0 auto;
+    margin-top: 2px;
+    list-style: none outside;
+}
+
+.ui-layout-center ul.accordion > * + * {
+    border-top: 1px solid white;
+}
+
+.ui-layout-center li.accordion-item {
+    margin: 0;
+}
+
+.ui-layout-center .accordion-item-hd {
+    display: block;
+    padding: 5px 0 5px 5px;
+    position: relative;
+    cursor: pointer;
+    font-size: 0.8em;
+    background: #f5f1e5;
+    font-size: 0.8em;
+    color: #333;
+}
+.ui-layout-center .ui-accordion-content {
+    }
+
+.ui-layout-center .accordion-item-hd:hover {
+    color: #ffffff;
+    background: #36383f;
+}
+
+.ui-layout-center .accordion-item-input:checked ~ .accordion-item-bd {
+    line-height: 1.3;
+}
+
+.ui-layout-center .accordion-item-hd-cta {
+    width: 10px;
+    top: calc(50%-4px);
+    right: 10px;
+    font-size: 8px;
+}
+
+.ui-layout-center .accordion-item-bd {
+    font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+    font-size: 0.9em;
+}
+
+.ui-layout-center .accordion-item-bd ul {
+    margin: 10px 10px 10px 20px;
+}
+
+.witness-longtitle {
+    font-size: 0.9em;
+}
