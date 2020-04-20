@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phyloxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.phyloxml.org http://www.phyloxml.org/1.20/phyloxml.xsd" xmlns="http://www.phyloxml.org">
+<phylogeny rooted="false" rerootable="true">
+  <clade>
+    <clade>
+<branch_length>1.0</branch_length>
+      <clade>
+<branch_length>1.0</branch_length>
+        
+          <name>O</name>
+        
+      </clade>
+      <clade>
+<branch_length>1.0</branch_length>
+        <clade>
+<branch_length>1.0</branch_length>
+          
+            <name>L</name>
+          
+        </clade>
+        <clade>
+<branch_length>1.0</branch_length>
+          <clade>
+<branch_length>1.0</branch_length>
+            
+              <name>G1</name>
+            
+          </clade>
+          <clade>
+<branch_length>1.0</branch_length>
+            
+              <name>G2</name>
+            
+          </clade>
+        </clade>
+      </clade>
+    </clade>
+    <clade>
+<branch_length>1.0</branch_length>
+      <clade>
+<branch_length>1.0</branch_length>
+        
+          <name>KEd</name>
+        
+      </clade>
+      <clade>
+<branch_length>1.0</branch_length>
+        <clade>
+<branch_length>1.0</branch_length>
+          
+            <name>D</name>
+          
+        </clade>
+        <clade>
+<branch_length>1.0</branch_length>
+          <clade>
+<branch_length>1.0</branch_length>
+            
+              <name>A</name>
+            
+          </clade>
+          <clade>
+<branch_length>1.0</branch_length>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+                <name>K</name>
+              
+            </clade>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+                <name>V</name>
+              
+            </clade>
+          </clade>
+        </clade>
+      </clade>
+    </clade>
+    <clade>
+<branch_length>1.0</branch_length>
+      <clade>
+<branch_length>1.0</branch_length>
+        <clade>
+<branch_length>1.0</branch_length>
+          
+            <name>M</name>
+          
+        </clade>
+        <clade>
+<branch_length>1.0</branch_length>
+          
+            <name>P</name>
+          
+        </clade>
+      </clade>
+      <clade>
+<branch_length>1.0</branch_length>
+        <clade>
+<branch_length>1.0</branch_length>
+          <clade>
+<branch_length>1.0</branch_length>
+            
+              <name>LEd</name>
+            
+          </clade>
+          <clade>
+<branch_length>1.0</branch_length>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+                <name>SEd</name>
+              
+            </clade>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+                <name>IEd</name>
+              
+            </clade>
+          </clade>
+        </clade>
+        <clade>
+<branch_length>1.0</branch_length>
+          <clade>
+<branch_length>1.0</branch_length>
+            
+              <name>H</name>
+            
+          </clade>
+          <clade>
+<branch_length>1.0</branch_length>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+                <name>T</name>
+              
+            </clade>
+            <clade>
+<branch_length>1.0</branch_length>
+              
+            <name>CT</name>
+              
+            </clade>
+          </clade>
+        </clade>
+      </clade>
+    </clade>
+  </clade>
+</phylogeny>
+
+</phyloxml>

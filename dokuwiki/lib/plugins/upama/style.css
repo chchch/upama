@@ -7,7 +7,6 @@
 @font-face {
     font-family: 'PedanticDevanagari';
     src: local('PedanticDevanagariLight'),
-         url('fonts/PedanticDevanagariLight.otf'),
          url('fonts/PedanticDevanagariLight.woff');
     unicode-range: ~"U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24";
 }

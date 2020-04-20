@@ -1,0 +1,523 @@
+@font-face {
+    font-family: 'Brill';
+    src: local('Brill'),
+          url(fonts/Brill-Roman.woff);
+}
+
+@font-face {
+    font-family: 'Sanskrit2016';
+    src: local('Sanskrit2016'),
+         url(fonts/Sanskrit2016.woff);
+    unicode-range: U+0900-U+097F,U+A8E0-U+A8FB,U+1CD0-U+1CF6;
+}
+
+@font-face {
+    font-family: 'Rachana';
+            src: local('Rachana'),
+                 url('fonts/Rachana.woff');
+            unicode-range: U+0D00-U+0D7F;
+}
+@font-face {
+    font-family: 'Rachana';
+            src: local('Rachana Bold'),
+                 url('fonts/Rachana-Bold.ttf');
+            unicode-range: U+0D00-U+0D7F;
+            font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Pothana2000';
+            src: local('fonts/Pothana2000.ttf');
+            unicode-range: U+0C00-U+0C7F;
+}
+
+/*
+@font-face {
+    font-family: Roboto;
+    src: url(fonts/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: MurtySanskrit;
+    src: url(fonts/Murty-Sanskrit.otf);
+}
+*/
+/*@font-face {
+    font-family: NagariShree;
+    src: url(fonts/NagariShree.ttf);
+}
+
+@font-face {
+    font-family: Surekh;
+    src: url(fonts/Surekh.ttf);
+}
+
+@font-face {
+    font-family: IndUni;
+    src: url(fonts/IndUni-H-Regular.otf);
+}
+*/
+
+body {line-height: 1;}
+
+div.para {width:100%;
+          text-align: justify;
+          padding: 1% 0 2% 0;
+}
+
+.milestone {width: 100%;
+              margin-bottom: 10px;
+            
+}
+div.devanagari {font-size: 1.1em !important;
+}
+
+span.devanagari {font-size: 1em !important;
+}
+
+p.devanagari {font-size: 1.2em !important;
+}
+
+div.malayalam {font-size: 1.2em !important;
+}
+span.malayalam {font-size: 1.1em !important;
+}
+p.malayalam {font-size: 1.3em !important;
+}
+
+div.telugu {font-size: 1.2em !important;
+          line-height: 150%;
+}
+span.telugu {font-size: 1.1em !important;}
+p.telugu {font-size: 1.3em !important;
+}
+
+span.spacer {display: none;
+             white-space: pre-wrap; /* when the highlight function splits a spacer node, sometimes the whitespace gets collapsed */
+}
+
+:lang(sa) {
+    font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+}
+
+p:lang(sa) {
+    font-size: 1.1em;    
+}
+
+div.maintext {
+            /*width:63%; */
+            /*font-family: Brill, MurtySanskrit, sans-serif; */
+            border: 0;
+            padding: 0 4% 0 0;
+            vertical-align:top;
+            font-size: 1.1em;
+            line-height:135%;
+            top: 2em;
+            position: -webkit-sticky;
+            position: sticky;
+            /*flex: 0 1 800px; */
+            max-width: 800px;
+}
+
+div.apparatus {
+             border: 0;
+             width: 32%;
+             flex: 0 0.5 auto;
+             line-height: 1.1rem;
+             padding: 0;
+             font-family: Brill, Sanskrit2016, Rachana, sans-serif;
+             text-align: left;
+             vertical-align:top;
+             font-size: 1em;
+             white-space: normal;
+             top: 2em;
+             position: -webkit-sticky;
+             position: sticky;
+}
+
+div.verse { 
+            width: 100%;
+            padding: 1em 0 0.5em 0;
+}
+
+div.verse div.verseline {
+                        font-size: 1.2em;
+}
+
+.devanagari .verseline {
+                        line-height: 1.4em;
+}
+
+.malayalam .verseline {
+                        line-height: 1.3em;
+}
+
+div.quotedverse {
+                padding: 2% 0 2% 2%;
+                vertical-align:top;
+                /*background-color: inherit; */
+}
+
+.apparatus2-item span.quote::before {
+    content: '“';
+}
+
+.apparatus2-item span.quote::after {
+    content: '”';
+}
+
+.apparatus2-item span.quote span.verse-in-quote {
+    display: block;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
+.apparatus2-item span.quote span.verse-in-quote span.verseline {
+    display: block;
+    margin-left: 1em;
+}
+
+div.verseline {
+}
+
+div.versebottompadding {padding-bottom: 1em;
+                       border:0;
+}
+
+a.msid:link, a.msid:visited {font-variant: small-caps;
+          color: #000000;
+          font-family: sans-serif;
+          font-size: 0.7em;
+/*          font-weight:bold; */
+}
+
+a.mshover:link, a.mshover:visited {text-decoration: underline;
+              text-decoration-style: dotted;
+              -webkit-text-decoration-style: dotted;
+              text-decoration-color: #990000;
+}
+a.mshover:hover {text-decoration-style: solid;
+                -webkit-text-decoration-style: solid;
+}
+
+span.varreading {background-color: #F0F0FF;
+}
+
+div.section {width:100%;
+               border:0;
+           /*    clear: both;
+               margin-left: 0.5em;
+               margin-right: auto; */
+}
+
+span.unclear {font-style: italic;
+}
+
+span.lb {color:#FF9900;
+        letter-spacing:-0.15em;
+        font-size:130%;
+        line-height:0.76;
+        font-family: serif;
+        font-weight:normal;
+        vertical-align: -0.1em;
+        cursor: default;
+        white-space: nowrap;
+}
+
+.devanagari span.lb {
+        font-size: 100%;
+}
+.malayalam span.lb {
+        font-size: 100%;
+}
+
+.pb {color:#FF9900;
+        letter-spacing:-0.3em;
+        font-size:130%;
+        line-height:0.76;
+        font-weight:normal;
+        font-family: sans-serif;
+        text-decoration: none;
+        vertical-align:bottom;
+        white-space: nowrap;
+}
+.devanagari .pb {
+                     font-size: 100%;
+                     vertical-align: text-bottom;
+}
+
+.malayalam .pb {
+                     font-size: 100%;
+                     vertical-align: text-bottom;
+}
+
+span.pb {
+         cursor: default;
+}
+
+a.pb:link, a.pb:visited {
+      color: #FF9900;
+      text-decoration: none;
+
+}
+
+a.pb:hover {
+      color: #2B73B7;
+      text-decoration: none !important;
+}
+
+span.gap {background-color: rgba(132,132,10,0.3);
+          font-size: 85%;
+          color: rgb(84,84,84);
+         /*color: #CCCCB2; */
+}
+
+span.space {background-color: rgba(132,132,10,0.3);
+            font-size: 85%;
+/*            word-break: break-all; */
+            color: rgb(84,84,84);
+           /* color: #FFFFCC; */
+}
+
+span.editor {font-size:80%;
+}
+.devanagari span.editor {font-size: 70%;
+}
+.malayalam span.editor {font-size: 70%;
+}
+
+span.note {font-size:80%;
+          margin-left: 0.5em;
+}
+
+span.inline {margin-left: 0.5em;
+}
+
+span.super {vertical-align: super;
+            margin-left: 0.2em;
+            margin-right: 0.2em;
+            line-height: normal;
+}
+
+span.sub {vertical-align: -20%;
+          margin-left: 0.2em;
+          margin-right: 0.2em;
+          line-height: normal;
+}
+
+span.varcontainer {padding-right: 1em;
+                  white-space: nowrap;
+                  word-wrap: normal;
+}
+
+span.varbracket {color: #9933FF;
+                 font-size: 1.5em;
+                 font-family: monospace;
+                 line-height: 100%;
+/*                 font-weight: bold; */
+}
+
+span.variant {white-space: normal;
+}
+
+
+span.variant:hover {background-color: rgba(255,250,0,0.5);
+}
+
+span.permahighlight {background-color: rgba(255,250,0,0.5);
+}
+
+span.highlight {background-color: rgba(255,250,0,0.5);
+}
+
+span.lowlight { /* background-color: rgb(179,209,255); */
+               background-color: rgba(255,250,0,0.5);
+}
+
+span.reading {display: none;
+}
+
+span.sidebar-siglum {font-variant: small-caps;
+}
+
+ins.add {
+        /*border: 1px dashed grey; */
+        text-decoration: none;
+        color: #CC0000;
+}
+
+ins.corr {
+         /* border:1px dashed #0099FF; */
+         text-decoration: none;
+         color: #0000CC;
+}
+
+del {color: grey;
+     text-decoration-color: #CC0000;
+}
+
+del.orig {color: grey;
+    text-decoration-color: #0000CC;
+}
+
+del.orig-underline {color: grey;
+    text-decoration-color: #0000CC;
+    text-decoration: underline;
+}
+
+span.sic {
+    /* background-color: yellow; */
+    display: inline;
+    position: relative;
+    background-image: url(squiggle.png);
+    background-position: bottom 0.1em right 0;
+    background-repeat: repeat-x;
+}
+
+span.surplus {
+    display: inline;
+    position: relative;
+    background-image: url(squiggle-blue.png);
+    background-position: bottom 0.1em right 0;
+    background-repeat: repeat-x;
+}
+
+span.hi {font-weight: bold;
+}
+
+span.glyph {
+    display: inline;
+    position: relative;
+    background-image: url(squiggle-blue.png);
+    background-position: bottom 0.1em right 0;
+    background-repeat: repeat-x;
+}
+
+span.pointer {
+    opacity: 0.6;
+}
+
+span.supplied {
+    background-color: #E4E7EC;
+}
+
+span.metamark {
+     color: #0000CC;
+}
+
+span.locus {
+    font-size: 70%;
+    color: #A85110;
+}
+a.locus:link, a.locus:visited {
+    font-size: 70%;
+    color: #A85110;
+}
+a.locus:hover {
+    color: #0C5083;
+}
+div.dokuwiki div.editbutton_plugin_upama {
+    padding: 1.5em 0 1.5em 0;
+    height: 1.5em;
+    display: inline-block;
+}
+
+div.dokuwiki div.editbutton_plugin_upama form div button {
+    color: #2b73b7;
+    background: #fff;
+    font-size: 0.8em;
+}
+
+div.dokuwiki div.editbutton_plugin_upama form div button:hover {
+    background: #ddd;
+}
+
+#__upama_script_selector, #__upama_export {
+    text-align: right;
+    padding: 0.2em;
+    margin: 0;
+    background-color: #fff;
+    color: #2b73b7;
+    border: none;    
+    border-radius: 5px;
+}
+
+#__upama_listWit {
+    display: none;
+}
+
+.thisWitness {
+    font-weight: bold;
+}
+#__upama_positive_apparatus {
+    display: block;
+    position: fixed;
+    background: rgba(17, 17, 17, 0.8);
+    border-radius: 4px;
+    color: #fff;
+    font-style: normal;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 0.7rem;
+    letter-spacing: normal;
+    line-height: normal;
+    vertical-align: center;
+    padding: .5em 1em;
+    margin-bottom: 11px;
+    max-width: 200px;
+    z-index: 3;
+}
+
+#__upama_tooltip {
+    display: block;
+    position: fixed;
+    background: rgba(17, 17, 17, 0.8);
+    border-radius: 4px;
+    color: #fff;
+    font-style: normal;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 0.7rem;
+    letter-spacing: normal;
+    line-height: normal;
+    vertical-align: center;
+    padding: .5em 1em;
+    margin-bottom: 11px;
+    max-width: 200px;
+    z-index: 3;
+}
+
+#__upama_tooltip hr {
+    border: 0;
+    margin-bottom: 3px;
+    margin-top: 3px;
+    border-bottom: 1px dashed rgba(200,200,200,1);
+}
+
+.nowrap {
+    white-space: nowrap;
+    word-wrap: break-word;
+}
+
+#__upama_ver {
+    display: none;
+}
+
+#__upama_stemma {
+    display: none;
+}
+
+#__upama_stemma_icon {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: sub;
+    cursor: pointer;
+}
+
+#__upama_stemma_icon path, #__upama_stemma_icon polygon, #__upama_stemma_icon rect {
+    fill: #b8cbff;
+}
+
+#__upama_stemma_icon circle {
+    stroke: #b8cbff;
+    stroke-width: 1;
+}
