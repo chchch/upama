@@ -86,3 +86,8 @@ A live demo of upama.php in action can be found at https://saktumiva.org/wiki/dr
 
 The code for the plugin and template used on saktumiva.org, which runs on DokuWiki, is in the dokuwiki directory. The plugin includes the hyphenation engine hypher (https://github.com/bramstein/hypher) with a Sanskrit hyphenation library (both IAST and indic scripts supported) as well as some functions based on sanscript.js (https://github.com/sanskrit/sanscript) to convert between scripts.
 
+To get it running on your own webserver,
+1. install a copy of DokuWiki
+2. copy the template directory (saktumiva/) into the lib/tpl/ directory
+3. copy the plugin directory (upama/) into the lib/plugins/ directory
+4. make sure that you have a sidebar page in data/pages/, even if it is blank
