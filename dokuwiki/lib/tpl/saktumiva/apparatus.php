@@ -70,6 +70,8 @@ if(sizeof($dirfiles) > 0) {
                         <td><input name="select_all" value="" onclick="WitnessSelectAll();" type="checkbox"></input></td>
                         <td id="select_all_text">Select all</td></tr> 
 <?php
+    $basedir = $conf['basedir'] ? $conf['basedir'] : getBaseURL();
+
     foreach($dirfiles as $file) {
         //$pagebase = explode(".",$file)[0];
         $pagebase = basename($file,".txt");
@@ -79,8 +81,7 @@ if(sizeof($dirfiles) > 0) {
             $INFO['namespace'].':';
 
         $pageid = $namespace.$pagebase;
-        $basedir = $conf['basedir'] ? $conf['basedir'] : '/';
-
+        
         $url = ($conf['userewrite'] == 0) ? "doku.php?id=".$pageid : $basedir . $pageid;
         
         if(p_get_metadata($pageid,"plugin_upama",false)) {
