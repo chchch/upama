@@ -79,9 +79,9 @@ if(sizeof($dirfiles) > 0) {
             $INFO['namespace'].':';
 
         $pageid = $namespace.$pagebase;
-        $basedir = $conf['basedir'] ? $conf['basedir'] . '/' : '';
+        $basedir = $conf['basedir'] ? $conf['basedir'] : '/';
 
-        $url = ($conf['userewrite'] == 0) ? $basedir . "doku.php?id=".$pageid : '/' . $basedir . $pageid;
+        $url = ($conf['userewrite'] == 0) ? "doku.php?id=".$pageid : $basedir . $pageid;
         
         if(p_get_metadata($pageid,"plugin_upama",false)) {
             $shorttitle = p_get_metadata($pageid,"shorttitle",false);
