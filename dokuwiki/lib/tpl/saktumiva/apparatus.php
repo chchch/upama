@@ -72,7 +72,7 @@ if(sizeof($dirfiles) > 0) {
 <?php
     foreach($dirfiles as $file) {
         //$pagebase = explode(".",$file)[0];
-        $pagebase = basename($file,"txt");
+        $pagebase = basename($file,".txt");
 
         $namespace = ($conf['useslash'] == 1) ? 
             preg_replace('/:/','/',$INFO['namespace']).'/' : 
