@@ -261,12 +261,12 @@ EOT;
                 $note = $this->latexCriticalNote($rdgs,$witnesses);
 */
                 if($app->nodeName == 'app') {
-                    $loc = explode("x",$app->getAttribute("loc"));
+                    $loc = array_map('intval',explode("x",$app->getAttribute("loc")));
                     $note = $this->shorterLatexCriticalNote($app,$witnesses,$xpath);
                 }
                 else { // <rdgGrp>
                     $apps = $xpath->query("./x:app",$app);
-                    $loc = explode("x",$app->firstChild->getAttribute("loc"));
+                    $loc = array_map('intval',explode("x",$app->firstChild->getAttribute("loc")));
                     $note = $this->shorterLatexCriticalNote($apps,$witnesses,$xpath);
                 }
                 if(!array_key_exists($loc[1],$closebrackets))
@@ -403,14 +403,14 @@ EOT;
             $adds = array();
             foreach($apps as $app) {
                 if($app->nodeName == 'app') {
-                    $loc = explode("x",$app->getAttribute("loc"));
+                    $loc = array_map('intval',explode("x",$app->getAttribute("loc")));
                     if($loc[0] === $loc[1])
                         $adds[$loc[0]] = $app;
                     else
                         $locs[$loc[0]."x".$loc[1]] = $app;
                 }
                 else { // <rdgGrp>
-                    $loc = explode("x",$app->firstChild->getAttribute("loc"));
+                    $loc = array_map('intval',explode("x",$app->firstChild->getAttribute("loc")));
                     if($loc[0] === $loc[1])
                         $adds[$loc[0]] = $app;
                     else
@@ -945,7 +945,7 @@ EOT;
             elseif(isset($settings[$value]))
                 $setting = $settings[$value];
             else
-                trigger_error("Invalid filter status for ".$name.", setting to SHOW", E_WARNING);
+                trigger_error("Invalid filter status for ".$name.", setting to SHOW", E_USER_NOTICE);
             $this->tagFILTERS[$name] = $setting;
         }
         elseif($type == 'hidetext') {
@@ -1765,9 +1765,8 @@ EOT;
         return $text;
     }
 
-    private function replaceIgnored(&$count,$text,&$posArray,$atlast = false) {
+    private function replaceIgnored(&$count,$text,&$posArray,$atlast = false,&$kept=false) {
         if(empty($posArray)) return $text;
-
         $startpos = $count;
         $count += strlen($text); // + 1 if missing a space after split
         if($atlast) $count++; // there might be ignored bits at the end
@@ -1782,6 +1781,7 @@ EOT;
              
             $text = substr_replace($text,$ins[0],$pos-$startpos,$inslength);
             $count += $ins[1] - $inslength;
+            if(is_array($kept)) $kept[] = $ins[0];
             
             if(next($posArray) === FALSE) { 
                 // if there are no more replacements
@@ -1792,7 +1792,6 @@ EOT;
                 $pos = key($posArray);
             }
         }
-
         return $text;
     }
 
@@ -2010,6 +2009,7 @@ EOT;
         $counters2 = array(
                            "text" => array(0,0,0),
                            "tags" => 0,
+                           "prependtags" => [],
                            );
         $postcount = false;
         $precount = false;
@@ -2041,7 +2041,7 @@ EOT;
                 
                 if(trim($maintext) == trim($vartext)) {
                     // this covers sections like dvayasiddhau<d> </d>
-                    $maintext = $this->unfilterText($maintext,$counters1,$ignored1,$atlast);
+                    /*$maintext = */$this->unfilterText($maintext,$counters1,$ignored1,$atlast);
                     
                     if(!$atlast) {
                         $this->unfilterText($vartext,$counters2,$ignored2);
@@ -2136,7 +2136,7 @@ EOT;
                     if($vartexts) {
                         if(isset($vartexts["prefix"])) {
                             //$prefix = $vartexts["prefix"];          
-                            $prefix = $this->unfilterText($vartexts["prefix"],$counters2,$ignored2);
+                            /*$prefix = */$this->unfilterText($vartexts["prefix"],$counters2,$ignored2);
                             if(trim($vartexts["var"]) == '') {
                                 $vartext = "<label>om</label>";
                                 if($charpos) {
@@ -2246,13 +2246,20 @@ EOT;
         $end = array_slice($arr,-2);
         return implode($start) . "…" . implode($end);
     }
-    
+ 
+    private function unfilterText($text,&$counters,&$ignored,$atlast = false,&$charcount = false) {
+        $text = $this->unfilterText1($text,$counters,$ignored,$atlast,$charcount);
+        $text = $this->unfilterText2($text,$counters,$ignored,$atlast,$charcount);
+        return $text;
+    }
+   
     private function unfilterText1($text,&$counters,&$ignored,$atlast = false,&$charcount = false) {
         $text = $this->replaceIgnored($counters["text"][2],$text,$ignored["text"][2],$atlast);
         $text = $this->replaceIgnored($counters["text"][1],$text,$ignored["text"][1],$atlast);
         return $text;
     }
     private function unfilterText2($text,&$counters,&$ignored,$atlast = false,&$charcount = false) {
+        $no = false;
         $text = $this->replaceIgnored($counters["text"][0],$text,$ignored["text"][0],$atlast);
 
         $ctext = false;
@@ -2278,17 +2285,87 @@ EOT;
                 $counters["endspace"]++;
         }
 
-        $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast);
-        $text = $this->restoreSubs($text,$ignored["subs"]);
+        $tags = isset($counters["prependtags"]) ? [] : false;
+        $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast,$tags);
+        $prepend = $this->tagsToStr($counters["prependtags"]);
 
+        $this->prependTagsAppend($tags,$counters["prependtags"]);
+
+        $text = $prepend . $this->restoreSubs($text,$ignored["subs"]);
         return $text;
     }
-    private function unfilterText($text,&$counters,&$ignored,$atlast = false,&$charcount = false) {
-        $text = $this->unfilterText1($text,$counters,$ignored,$atlast,$charcount);
-        $text = $this->unfilterText2($text,$counters,$ignored,$atlast,$charcount);
-        return $text;
+
+    private function tagsToStr($tags) {
+        if(empty($tags)) return '';
+        return array_reduce($tags,function($acc,$el) {return $acc . $el[0];});
     }
 
+    private function prependTagsAppend($tags,&$tagcounter) {
+        if(!empty($tags)) { 
+            
+            $opentags = array_map(function($str) {
+                if(preg_match('/^<(\w+)\b(?:"[^"]*"|\'[^\']*\'|[^\'">\/])*?>$/',$str,$matches) === 1) return [$str,$matches[1]];
+                else return false;
+            },$tags);
+            $opentags = array_filter($opentags,function($el) {return $el;});
+            
+            $closetags = array_map(function($str) {
+                if(preg_match('/^<\/(\w+)>/',$str,$matches) === 1) return [$str,$matches[1]];
+            },$tags);
+            $closetags = array_filter($closetags,function($el) {return $el;});
+           
+            $unclosed = [];
+            $index = $this->lastOpenTag($opentags);
+            while($index !== false) {
+                $tagname = $opentags[$index][1];
+                $closetag = $this->correspCloseTag($closetags,$index,$tagname);
+                if($closetag) {
+                    unset($closetags[$closetag]);
+                }
+                else {
+                    array_unshift($unclosed,$opentags[$index]);
+                }
+                unset($opentags[$index]);
+                $index = $this->lastOpenTag($opentags);
+            }
+            if(empty($unclosed)) {
+                foreach($closetags as $closeindex => $closeval)  {
+                    $openindex = end(array_keys($tagcounter));
+                    //$openindex = array_key_last($tagcounter);
+                    if($tagcounter[$openindex][1] === $closeval[1]) {
+                        array_pop($tagcounter);
+                    }
+                    else
+                        break;
+                }
+            }
+            else {
+                $tagcounter = array_merge($tagcounter,$unclosed);
+                return $tagstr;
+            }
+        }
+    }
+
+    private function lastOpenTag($arr) {
+        if(count($arr) === 0) return false;
+        $last = end(array_keys($arr)); 
+        //$last = array_key_last($arr);
+        return $last;
+    }
+
+    private function correspCloseTag($arr,$start,$tagname) {
+        if(count($arr) === 0) return false;
+        foreach($arr as $key => $val) {
+            if($key > $start) {
+                if($val[1] === $tagname)
+                    return $key;
+                else
+                    return false;
+            }
+        }
+        return false;
+    }
+    
     private function binarySearch($arr1,$arr2,$len1,$len2,$min=0) {
         
 //       if($arr1[0] != $arr2[0]) return false;
