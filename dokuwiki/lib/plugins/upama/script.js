@@ -2317,7 +2317,7 @@ outerTags: function(node) {
     const fragClip = function(node,varstr,locs,lemmacounts,clips) {
         const findPos = function(walker,pos) {
             let counter = pos;
-            //const firstChild = walker.firstChild();
+            walker.firstChild();
             do {
                 const curlength = walker.currentNode.data.length;
                 if(curlength >= counter)
