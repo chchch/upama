@@ -2370,28 +2370,65 @@ outerTags: function(node) {
         }
     };
 
+    const getPos = function(pos,ar) {
+        const arr = (pos > 0) ? ar : [...ar].reverse();
+        const end = Math.abs(pos);
+        let m=0;
+        let n=0;
+        while(n<arr.length) {
+            if(arr[n] !== '') m++;
+            if(m > end) break;
+            n++;
+        }
+        return n;
+    };
+
     const matchPos = function(str1,str2,lpos,rpos) {
     //const str1 = (pos > 0) ? lemma.slice(0,pos) : lemma.slice(pos);
-        const aligned = needlemanWunsch(str1,str2);
-        const getPos = (pos) => {
-            const arr = (pos > 0) ? aligned[0] : [...aligned[0]].reverse();
-            const end = Math.abs(pos);
-            let m=0;
-            let n=0;
-            while(n<arr.length) {
-                if(arr[n] !== '') m++;
-                if(m > end) break;
-                n++;
-            }
-            return n;
-        };
-        const str1lpos = lpos ? getPos(lpos) : 0;
-        const str1rpos = rpos ? getPos(-rpos) : 0;
-        const str2lclip = lpos ? aligned[1].slice(0,str1lpos) : false;
-        const str2rclip = rpos ? aligned[1].slice(0,aligned[1].length-str1rpos) : false;
+        
+        const str1normal = normalize(str1);
+        const str2normal = normalize(str2);
+        const aligned = needlemanWunsch(str1normal.arr,str2normal.arr);
+        const unnormalized = unnormalize(aligned,str1normal.matches,str2normal.matches);
+        const str1lpos = lpos ? getPos(lpos,unnormalized[0]) : 0;
+        const str1rpos = rpos ? getPos(-rpos,unnormalized[0]) : 0;
+        const str2lclip = lpos ? unnormalized[1].slice(0,str1lpos) : false;
+        const str2rclip = rpos ? unnormalized[1].slice(0,unnormalized[1].length-str1rpos) : false;
         const str2lpos = str2lclip ? str2lclip.join('').length : 0;
         const str2rpos = str2rclip ? str2rclip.join('').length : 0;
         return {lpos: str2lpos, rpos: str2rpos};
+    };
+    
+    const normalize = function(str) {
+        const re = /[|,.-?—―=_॰+¦·\(\)\[\]\/\\\d;¯꣸❈"'`“”‘’«»]/g;
+        const matches = [...str.matchAll(re)];
+        const strarr = str.split('');
+        if(matches.length > 0) {
+            for(const match of matches) {
+                const i = match.index;
+                const len = match[0].length;
+                for(let l = 0;l < len;l++)
+                    strarr[i+l] = '';
+            }
+        }
+        return {arr: strarr.filter(el => el !== ''),matches: matches};
+    };
+    const unnormalize = function(aligned,matches1,matches2) {
+        const adjustedmatches1 = matches1.map(m => {m.index = getPos(m.index,aligned[0]);return m;});
+        const adjustedmatches2 = matches2.map(m => {m.index = getPos(m.index,aligned[1]);return m;});
+        for(const match of adjustedmatches1) {
+            for(let l=0;l<match[0].length;l++) {
+                aligned[0].splice(match.index+l,0,match[0].charAt(l));
+                aligned[1].splice(match.index+l,0,'');
+            }
+        }
+        for(const match of adjustedmatches2) {
+            for(let l=0;l<match[0].length;l++) {
+                aligned[1].splice(match.index+l,0,match[0].charAt(l));
+                aligned[0].splice(match.index+l,0,'');
+            }
+        }
+        return aligned;
     };
 
     const needlemanWunsch = function(s1,s2,op={G:2,P:1,M:-1}) {
@@ -2401,9 +2438,11 @@ outerTags: function(node) {
 
         const mat   = {};
         const direc = {};
-        const s1arr = s1.split('');
+        //const s1arr = s1.split('');
+        const s1arr = s1;
         const s1len = s1arr.length;
-        const s2arr = s2.split('');
+        //const s2arr = s2.split('');
+        const s2arr = s2;
         const s2len = s2arr.length;
 
         // initialization
