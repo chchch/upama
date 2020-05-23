@@ -189,7 +189,7 @@ return array(
     ],
     ["name" => "ba written as va (some scripts)",
      "include" => "//scriptNote[@xml:id='script-ba-va']",
-     "find" => 'b',
+     "find" => 'b(?!h)',
      "replace" => 'v',
      "first" => true,
     ],
