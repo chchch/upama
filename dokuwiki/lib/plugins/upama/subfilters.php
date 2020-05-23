@@ -22,8 +22,14 @@ return array(
      "replace" => 'hm'],
 
     ["name" => "geminated aspirated consonants", // excluding cch
-     "find" => '([jtṭd])\1(?=h)',
-     "replace" => '\1'],
+     "find" => '([kgjṭḍtdpb])\1(?=h)',
+     "replace" => '\1',
+     "first" => true],
+
+    ["name" => "ṭh written as ṭ (some scripts)",
+     "include" => "//scriptNote[@xml:id='script-ṭha-ṭa']",
+     "find" => 'ṭh',
+     "replace" => 'ṭ'],
 
     ["name" => "final nasal variants",
     "find" => '(?:ṃ[lśs]|nn)(?!\S)', 
@@ -181,6 +187,12 @@ return array(
      "replace" => 'u',
      "first" => true,
     ],
+    ["name" => "ba written as va (some scripts)",
+     "include" => "//scriptNote[@xml:id='script-ba-va']",
+     "find" => 'b',
+     "replace" => 'v',
+     "first" => true,
+    ],
 /*
     ["name" => "pṛṣṭhamātrās (Devanāgarī)",
      "include" => "//textLang[@mainLang='sa-Deva']",
@@ -193,7 +205,7 @@ return array(
      "find" => 'ṙ',
      "replace" => 'r',
      "first" => true,
-     ],
+    ],
 
 );
 ?>

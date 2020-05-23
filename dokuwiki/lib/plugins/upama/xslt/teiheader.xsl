@@ -96,6 +96,20 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:foreign">
+    <xsl:element name="em">
+        <xsl:call-template name="lang"/>
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:term">
+    <xsl:element name="em">
+        <xsl:call-template name="lang"/>
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:titleStmt/x:title">
     <h1><xsl:apply-templates/></h1>
 </xsl:template>
@@ -345,7 +359,16 @@
   <table id="__upama_physDesc">
   <th colspan="2">Physical description</th>
   <tr>
-    <td>Language/Script</td> <td><xsl:apply-templates select="//x:textLang"/></td>
+    <td>Language/Script</td> 
+    <td><xsl:apply-templates select="//x:textLang"/>
+        <xsl:if test="x:scriptDesc/x:scriptNote">
+            <ul>
+                <xsl:for-each select="x:scriptDesc/x:scriptNote">
+                  <li><xsl:apply-templates/></li>
+                </xsl:for-each>
+            </ul>
+        </xsl:if>
+    </td>
   </tr>
   <tr>
     <td>Format</td> <td><xsl:value-of select="x:objectDesc/@form"/></td>
