@@ -1815,7 +1815,8 @@ EOT;
             }
             foreach($unwrap as $el) {
                 while($el->hasChildNodes())
-                    $el->parentNode->appendChild($el->childNodes->item(0));
+                    //$el->parentNode->appendChild($el->childNodes->item(0));
+                    $el->parentNode->insertBefore($el->childNodes->item(0),$el);
                 $el->parentNode->removeChild($el);
             }
             return $this->DOMinnerXML($doc->getElementsByTagName('xml_tags')->item(0));
@@ -2286,17 +2287,22 @@ EOT;
 
         $tags = isset($counters["prependtags"]) ? [] : false;
         $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast,$tags);
-        $prepend = $this->tagsToStr($counters["prependtags"]);
+        list($prepend,$postpend) = $this->tagsToStr($counters["prependtags"]);
 
         $this->prependTagsAppend($tags,$counters["prependtags"]);
 
-        $text = $prepend . $this->restoreSubs($text,$ignored["subs"]);
+        $text = $prepend . $this->restoreSubs($text,$ignored["subs"]) . $postpend;
         return $text;
     }
 
     private function tagsToStr($tags) {
-        if(empty($tags)) return '';
-        return array_reduce($tags,function($acc,$el) {return $acc . $el[0];});
+        if(empty($tags)) return ['',''];
+        //return [array_reduce($tags,function($acc,$el) {return $acc . $el[0];}), array_reduce($tags,function($acc,$el) {return $acc . "</".$el[1].">";})];
+        return array_reduce($tags,function($acc,$el) {
+            $pre = $acc[0] . $el[0];
+            $post = $acc[1] . "</".$el[1].">";
+            return [$pre,$post];
+        },['','']);
     }
 
     private function prependTagsAppend($tags,&$tagcounter) {
