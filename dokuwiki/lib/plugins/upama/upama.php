@@ -1794,11 +1794,11 @@ EOT;
         return $text;
     }
 
-    private function closeTags($str) {
+    private function cleanVartext($str) {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true);
         $doc->loadHTML('<?xml version="1.0" encoding="UTF-8"><xml_tags>'
-        .$str.
+        .trim($str).
         '</xml_tags>');
         $unwrap = array();
 //        if(!empty(libxml_get_errors()) ) {
@@ -1819,7 +1819,11 @@ EOT;
                     $el->parentNode->insertBefore($el->childNodes->item(0),$el);
                 $el->parentNode->removeChild($el);
             }
-            return $this->DOMinnerXML($doc->getElementsByTagName('xml_tags')->item(0));
+            return trim(
+                       preg_replace('/\s+/',' ',
+                          $this->DOMinnerXML($doc->getElementsByTagName('xml_tags')->item(0))
+                       )//;
+                   );
 //        }
 //        else {
 //            return $str;
@@ -2128,8 +2132,8 @@ EOT;
                 }
                 else if(!$maintext) {
                         $vartext = $this->unfilterText($vartext,$counters2,$ignored2,$atlast);
-                        $vartext = trim($vartext);
-                        $vartext = $this->closeTags($vartext);
+                        //$vartext = trim($vartext);
+                        $vartext = $this->cleanVartext($vartext);
                         $vartext = "<label>add</label> " . $vartext;
                 }
                 else {
@@ -2140,7 +2144,7 @@ EOT;
                             if(trim($vartexts["var"]) == '') {
                                 $vartext = "<label>om</label>";
                                 if($charpos) {
-                                    $omission = $this->closeTags($main2);
+                                    $omission = $this->cleanVartext($main2);
                                     $stripped = trim(strip_tags($omission));
                                         if(strlen($stripped) > $this->maxOmissionLength)
                                             $omission = $this->shorten($stripped);
@@ -2157,19 +2161,19 @@ EOT;
                                 // this is to catch some visarga sandhi cases, i.e., dravyavacanaḥ ākṛti... vs dravyavacanaḥ sākṛti...
                                 // the first one will be normalized to dravyavacana, and the second one will be unchanged
                                 if(trim($vartext1) === trim($cleanmain)) continue;
-                                $vartext = $this->closeTags($vartext);
+                                $vartext = $this->cleanVartext($vartext);
                                 if($charpos) 
                                     $vartext = "°".$vartext;
                                 else
                                     $vartext = "<label>add</label> ".$vartext;
-                                $vartext = trim($vartext);
+                                //$vartext = trim($vartext);
                             }
                         }
                         else { // common suffix
                             if(trim($vartexts["var"]) == '') {
                                 $vartext = "<label>om</label>";
                                 if($charpos) {
-                                    $omission = $this->closeTags($main1);
+                                    $omission = $this->cleanVartext($main1);
                                     $stripped = trim(strip_tags($omission));
                                         if(strlen($stripped) > $this->maxOmissionLength)
                                             $omission = $this->shorten($stripped);
@@ -2181,23 +2185,23 @@ EOT;
                             else {
                                 //$vartext = "$vartext*  $suffix";
                                 $vartext = $this->unfilterText($vartexts["var"],$counters2,$ignored2);
-                                $vartext = $this->closeTags($vartext);
+                                $vartext = $this->cleanVartext($vartext);
                                 if($charpos) 
                                     $vartext = $vartext."°";
                                 else
                                     $vartext = "<label>add</label> ".$vartext;
-                                $vartext = trim($vartext);
+                                //$vartext = trim($vartext);
                             }
                             $suffix = $this->unfilterText($vartexts["suffix"],$counters2,$ignored2,$atlast);
                         }
                     }
-                    else {
+                    else { // no common affixes
                         $vartext1 = $this->unfilterText1($vartext,$counters2,$ignored2,$atlast);
                         $vartext = $this->unfilterText2($vartext1,$counters2,$ignored2,$atlast);
                         if(trim($vartext1) === trim($cleanmain)) continue;
 
-                        $vartext = trim($vartext);
-                        $vartext = $this->closeTags($vartext);
+                        //$vartext = trim($vartext);
+                        $vartext = $this->cleanVartext($vartext);
                     }
                 }  
 
@@ -2287,38 +2291,39 @@ EOT;
 
         $tags = isset($counters["prependtags"]) ? [] : false;
         $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast,$tags);
-        list($prepend,$postpend) = $this->tagsToStr($counters["prependtags"]);
+        //list($prepend,$postpend) = $this->tagsToStr($counters["prependtags"]);
 
+        $prepend = $this->tagsToStr($counters["prependtags"]);
+        $text = $prepend . $this->restoreSubs($text,$ignored["subs"]); // . $postpend;
         $this->prependTagsAppend($tags,$counters["prependtags"]);
-
-        $text = $prepend . $this->restoreSubs($text,$ignored["subs"]) . $postpend;
         return $text;
     }
 
     private function tagsToStr($tags) {
-        if(empty($tags)) return ['',''];
-        //return [array_reduce($tags,function($acc,$el) {return $acc . $el[0];}), array_reduce($tags,function($acc,$el) {return $acc . "</".$el[1].">";})];
-        return array_reduce($tags,function($acc,$el) {
+        if($tags === false || empty($tags)) return '';
+        return array_reduce($tags,function($acc,$el) {return $acc . $el[0];});
+        //if(empty($tags)) return ['',''];
+        /*return array_reduce($tags,function($acc,$el) {
             $pre = $acc[0] . $el[0];
             $post = $acc[1] . "</".$el[1].">";
             return [$pre,$post];
         },['','']);
+        */
     }
 
     private function prependTagsAppend($tags,&$tagcounter) {
-        if(!empty($tags)) { 
+        if($tags !== false && !empty($tags)) { 
             
             $opentags = array_map(function($str) {
                 if(preg_match('/^<(\w+)\b(?:"[^"]*"|\'[^\']*\'|[^\'">\/])*?>$/',$str,$matches) === 1) return [$str,$matches[1]];
                 else return false;
             },$tags);
-            $opentags = array_filter($opentags,function($el) {return $el;});
+            $opentags = array_filter($opentags,function($el) {return $el;}); // removes empty elements
             
             $closetags = array_map(function($str) {
                 if(preg_match('/^<\/(\w+)>/',$str,$matches) === 1) return [$str,$matches[1]];
             },$tags);
             $closetags = array_filter($closetags,function($el) {return $el;});
-           
             $unclosed = [];
             $index = $this->lastOpenTag($opentags);
             while($index !== false) {
@@ -2333,7 +2338,7 @@ EOT;
                 unset($opentags[$index]);
                 $index = $this->lastOpenTag($opentags);
             }
-            if(empty($unclosed)) {
+            if(!empty($closetags)) {
                 foreach($closetags as $closeindex => $closeval)  {
                     $openindex = end(array_keys($tagcounter));
                     //$openindex = array_key_last($tagcounter);
@@ -2344,10 +2349,8 @@ EOT;
                         break;
                 }
             }
-            else {
-                $tagcounter = array_merge($tagcounter,$unclosed);
-                return $tagstr;
-            }
+
+            $tagcounter = array_merge($tagcounter,$unclosed);
         }
     }
 
