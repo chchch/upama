@@ -1371,8 +1371,7 @@ EOT;
                 $matchlen = strlen($match[0]);
                 if(isset($matches[1])) { // there is a backreference
                     $backref = $matches[1][$n][0];
-                
-/*                    if(trim($backref) == '') { // backreference is spaces
+                    if($backref !== '' && trim($backref) == '') { // backreference is spaces
                         list($matchA,$matchB) = explode($backref,$match[0],2);
                         $matchAlen = strlen($matchA);
                         $matchBlen = strlen($matchB);
@@ -1390,13 +1389,13 @@ EOT;
                         }
                         $results[$subBstart] = array($matchB,$matchBlen,$subB);
                     }
-                    else { */
+                    else { // backreference is not spaces, or is empty
                         $newsubchar = str_replace('\1',$backref,$subchar);
                         $results[$match[1]] = array($match[0],$matchlen,$newsubchar);
                         
                         // replace with asterisks so that the match can't be filtered again
                         $text = substr_replace($text,str_repeat("*",$matchlen),$match[1],$matchlen);
-                   // }
+                    }
                 }
 
                 else { // no backreferences

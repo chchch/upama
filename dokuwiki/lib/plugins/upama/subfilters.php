@@ -95,6 +95,13 @@ return array(
      "include" => "//textLang[@mainLang='sa-Mlym']",
      "find" => ['n(?=\s[tdn])','ṃ?[mṅ](?!\S)','ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
+
+     ["name" => "sth written as sch (some scripts)",
+      "include" => "//scriptNote[@xml:id='script-stha-scha']",
+      "find" => 'sch',
+      "replace" => 'sth',
+      "first" => true,
+     ],
      
      ["name" => "kcch/kś", // A 8.4.63
      "find" => 'k\s*(?:ś|c?ch)',
@@ -187,10 +194,16 @@ return array(
      "replace" => 'u',
      "first" => true,
     ],
-    ["name" => "ba written as va (some scripts)",
+    ["name" => "b written as v (some scripts)",
      "include" => "//scriptNote[@xml:id='script-ba-va']",
      "find" => 'b(?!h)',
      "replace" => 'v',
+     "first" => true,
+    ],
+    ["name" => "dbh written as bhd (some scripts)",
+     "include" => "//scriptNote[@xml:id='script-dbha-bhda']",
+     "find" => 'bh(\s?)d(?!h)',
+     "replace" => 'd\1bh',
      "first" => true,
     ],
 /*
