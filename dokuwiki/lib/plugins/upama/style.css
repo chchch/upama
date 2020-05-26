@@ -559,7 +559,10 @@ div.dokuwiki div.editbutton_plugin_upama form div button:hover {
     border: 0;
     margin-bottom: 3px;
     margin-top: 3px;
-    border-bottom: 1px dashed rgba(200,200,200,1);
+/*    border-bottom: 1px dashed rgba(200,200,200,1); */
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(255,255,255,0),rgba(255,255,255,0.75),rgba(255,255,255,0));
+
 }
 
 .nowrap {
