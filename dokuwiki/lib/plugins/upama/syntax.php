@@ -204,16 +204,18 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                 $INFO['namespace'];
 
                             $pageid = $namespace.$separator.basename($thatfile,'.txt');
+                            $basedir = $conf['basedir'] ? $conf['basedir'] : getBaseURL();
+
                             switch($conf['userewrite']) {
 
                                 case 0: 
-                                    $url = "doku.php?id=".$pageid;
+                                    $url = $basedir."doku.php?id=".$pageid;
                                     break;
                                 case 1:
-                                    $url = "/$pageid";
+                                    $url = $basedir."$pageid";
                                     break;
                                 case 2:
-                                    $url = "/doku.php/$pageid";
+                                    $url = $basedir."doku.php/$pageid";
                                     break;
                             }
                             
