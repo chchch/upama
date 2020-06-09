@@ -370,19 +370,25 @@
         </xsl:if>
     </td>
   </tr>
-  <tr>
-    <td>Format</td> <td><xsl:value-of select="x:objectDesc/@form"/></td>
-  </tr>
-  <tr>
-    <td>Material</td> <td><xsl:value-of select="x:objectDesc/x:supportDesc/@material"/></td>
-  </tr>
-  <tr>
-    <td>Extent</td> 
-    <td>
-        <xsl:value-of select="x:objectDesc/x:supportDesc/x:extent/x:measure/@quantity"/><xsl:text> </xsl:text><xsl:value-of select="x:objectDesc/x:supportDesc/x:extent/x:measure/@unit"/>
-        <xsl:text>. </xsl:text><xsl:apply-templates select="x:objectDesc/x:supportDesc/x:extent/x:measure" />
-    </td>
-  </tr>
+  <xsl:if test="x:objectDesc/@form">
+      <tr>
+        <td>Format</td> <td><xsl:value-of select="x:objectDesc/@form"/></td>
+      </tr>
+  </xsl:if>
+  <xsl:if test="x:objectDesc/x:supportDesc/@material">
+      <tr>
+        <td>Material</td> <td><xsl:value-of select="x:objectDesc/x:supportDesc/@material"/></td>
+      </tr>
+  </xsl:if>
+  <xsl:if test="x:objectDesc/x:supportDesc/x:extent">
+      <tr>
+        <td>Extent</td> 
+        <td>
+            <xsl:value-of select="x:objectDesc/x:supportDesc/x:extent/x:measure/@quantity"/><xsl:text> </xsl:text><xsl:value-of select="x:objectDesc/x:supportDesc/x:extent/x:measure/@unit"/>
+            <xsl:text>. </xsl:text><xsl:apply-templates select="x:objectDesc/x:supportDesc/x:extent/x:measure" />
+        </td>
+      </tr>
+  </xsl:if>
   <xsl:if test="x:objectDesc/x:supportDesc/x:extent/x:dimensions">
       <tr>
         <td>Dimensions</td> 
