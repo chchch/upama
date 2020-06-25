@@ -701,7 +701,7 @@ EOT;
             throw new Exception($ret);
     
         $this->implodeSubFilters([$xpath]);
-        $this->setFilter("hidetext","spaces","\s");
+        //$this->setFilter("hidetext","spaces","\s");
         $this->optimizeHideFilters();
        
         $msidnode = $this->getSiglum($xpath);
@@ -737,13 +737,14 @@ EOT;
                 $this->fastaFilter($n);
                 $ntext = $this->filterText($n->nodeValue)[0];
                 $ntext = $this->slp1($ntext);
+                $ntext = preg_replace("/\s/u","",$ntext);
                 $filtered .= $ntext;
                 
                 if($endnode === NULL || $name === $endnode) break;
             }
         }
 
-        $notallowed = "/[^aA12uUeE03fFxXMHkKgGNcCjJYwWqQRtTdDnpPbBmyr8vSzsh\-]/";
+        $notallowed = "/[^aAiIuUefFxX3eE0oOMHkKgGNcCjJYwWqQRtTdDnpPbBmyrlvSzshL\-]/";
         $matched = preg_match_all($notallowed,$filtered,$matches,PREG_PATTERN_ORDER);
         if($matched) {
             echo ";WARNING: sequence contains the following unpermitted characters: ";
@@ -762,10 +763,10 @@ EOT;
         $iast2slp1 = array(
             "ā" => "A",
             "ai" => "E",
-            "au" => "3", // O not allowed
-            "i" => "1",
-            "î" => "1",
-            "ī" => "2", // I not allowed
+            "au" => "O", // was 3
+            //"i" => "1",
+            "î" => "i", // was 1
+            "ī" => "I", // was 2
             "û" => "u",
             "ū" => "U",
             "ṛ" => "f",
@@ -773,8 +774,8 @@ EOT;
             "ê" => "e",
             "ṃ" => "M",
             "ḥ" => "H",
-            "o" => "0", // o not allowed
-            "ô" => "0",
+            "o" => "o", // was 0
+            "ô" => "o",
             "kh" => "K",
             "gh" => "G",
             "ṅ" => "N",
@@ -793,8 +794,9 @@ EOT;
             "ṙ" => "r",
             "ś" => "S",
             "ṣ" => "z",
-            "l" => "8", // l not allowed
-            "ḻ" => "8", // l not allowed
+            //"l" => "8",
+            "ḻh" => "1",
+            "ḻ" => "L", // was 8
             "ḷ" => "x",
             "ḹ" => "X",
             "‾" => "-",
@@ -1819,7 +1821,7 @@ EOT;
                     $el->parentNode->insertBefore($el->childNodes->item(0),$el);
                 $el->parentNode->removeChild($el);
             }
-            return trim(
+            return trim( // trim again to catch spaces before closing tags
                        preg_replace('/\s+/',' ',
                           $this->DOMinnerXML($doc->getElementsByTagName('xml_tags')->item(0))
                        )//;
