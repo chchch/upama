@@ -744,7 +744,7 @@ EOT;
             }
         }
 
-        $notallowed = "/[^aAiIuUefFxX3eE0oOMHkKgGNcCjJYwWqQRtTdDnpPbBmyrlvSzshL\-]/";
+        $notallowed = "/[^aAiIuUefFxX3eE0oOM2HkKgGNcCjJYwWqQRtTdDnpPbBmyrlvSzshL\-]/";
         $matched = preg_match_all($notallowed,$filtered,$matches,PREG_PATTERN_ORDER);
         if($matched) {
             echo ";WARNING: sequence contains the following unpermitted characters: ";
