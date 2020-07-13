@@ -720,7 +720,7 @@ const upama = (function() {
         options: {skip_sgml: true},
 
         smush: function(text,placeholder) {
-            const vowelRegex = new RegExp('([ḍdrmvynhs]) (['+consts.vowelChars+']+)','g');
+            const vowelRegex = new RegExp('([ḍdrmvynhs])\s+(['+consts.vowelChars+']+)','g');
             const smushed = text.toLowerCase()
             // remove space between a word that ends in a consonant and a word that begins with a vowel
                 .replace(vowelRegex, '$1$2'+placeholder)
@@ -2414,18 +2414,20 @@ outerTags: function(node) {
         return {arr: strarr.filter(el => el !== ''),matches: matches};
     };
     const unnormalize = function(aligned,matches1,matches2) {
-        const adjustedmatches1 = matches1.map(m => {m.index = getPos(m.index,aligned[0]);return m;});
-        const adjustedmatches2 = matches2.map(m => {m.index = getPos(m.index,aligned[1]);return m;});
-        for(const match of adjustedmatches1) {
+        //const adjustedmatches1 = matches1.map(m => {m.index = getPos(m.index,aligned[0]);return m;});
+        //const adjustedmatches2 = matches2.map(m => {m.index = getPos(m.index,aligned[1]);return m;});
+        for(const match of matches1) {
+            const i = getPos(match.index,aligned[0]);
             for(let l=0;l<match[0].length;l++) {
-                aligned[0].splice(match.index+l,0,match[0].charAt(l));
-                aligned[1].splice(match.index+l,0,'');
+                aligned[0].splice(i+l,0,match[0].charAt(l));
+                aligned[1].splice(i+l,0,'');
             }
         }
-        for(const match of adjustedmatches2) {
+        for(const match of matches2) {
+            const i = getPos(match.index,aligned[1]);
             for(let l=0;l<match[0].length;l++) {
-                aligned[1].splice(match.index+l,0,match[0].charAt(l));
-                aligned[0].splice(match.index+l,0,'');
+                aligned[1].splice(i+l,0,match[0].charAt(l));
+                aligned[0].splice(i+l,0,'');
             }
         }
         return aligned;
