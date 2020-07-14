@@ -720,15 +720,15 @@ const upama = (function() {
         options: {skip_sgml: true},
 
         smush: function(text,placeholder) {
-            const vowelRegex = new RegExp('([ḍdrmvynhs])\s+(['+consts.vowelChars+']+)','g');
+            const vowelRegex = new RegExp('([ḍdrmvynhs])\\s+(['+consts.vowelChars+']+)','g');
             const smushed = text.toLowerCase()
             // remove space between a word that ends in a consonant and a word that begins with a vowel
                 .replace(vowelRegex, '$1$2'+placeholder)
             // remove space between a word that ends in a consonant and a word that begins with a consonant
-                .replace(/([kgcjṭḍtdpb]) h/g, '$1\u200C'+placeholder+'h') // is there a better way to deal with this?
-                .replace(/([kgcjñḍtdnpbmrlyvśṣsṙ]) ([kgcjṭḍtdnpbmyrlvśṣshḻ])/g, '$1'+placeholder+'$2')
+                .replace(/([kgcjṭḍtdpb])\s+h/g, '$1\u200C'+placeholder+'h') // is there a better way to deal with this?
+                .replace(/([kgcjñḍtdnpbmrlyvśṣsṙ])\s+([kgcjṭḍtdnpbmyrlvśṣshḻ])/g, '$1'+placeholder+'$2')
             // join final o/e/ā and avagraha/anusvāra
-                .replace(/([oôeêā]) ([ṃ'])/g,'$1'+placeholder+'$2')
+                .replace(/([oôeêā])\s+([ṃ'])/g,'$1'+placeholder+'$2')
                 .replace(/^ṃ/,'\'\u200Dṃ') // initial anusvāra
                 .replace(/^ḥ/,'\'\u200Dḥ') // initial visarga
                 .replace(/^_y/,'\'\u200Dy') // half-form of ya
