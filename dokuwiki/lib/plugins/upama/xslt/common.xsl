@@ -259,7 +259,14 @@
 <xsl:template match="x:corr">
     <xsl:element name="ins">
         <xsl:attribute name="data-balloon">
-            <xsl:text>corrected</xsl:text>
+            <xsl:choose>
+                <xsl:when test="@evidence">
+                    <xsl:value-of select="@evidence"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>corrected</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:choose>
             <xsl:when test="@resp">
                 <xsl:text> (by </xsl:text>
