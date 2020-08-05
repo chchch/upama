@@ -536,6 +536,10 @@ div.dokuwiki div.editbutton_plugin_upama form div button:hover {
     z-index: 3;
 }
 
+#__upama_positive_apparatus del {
+    text-decoration-color: rgb(230,152,174);
+}
+
 #__upama_tooltip {
     display: block;
     position: fixed;

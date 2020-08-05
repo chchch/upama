@@ -62,6 +62,10 @@
     cursor: pointer;
 }
 
+.witness del {
+    text-decoration-color: rgb(230,152,174);
+}
+
 #tooltip {
     display: block;
     position: fixed;
@@ -141,13 +145,16 @@
             newEl.style.whiteSpace = 'nowrap';
             
             if(listWit[key]) {
-                newEl.innerHTML = `<span class="witness">${listWit[key]}</span>`;
+                const siglum = `<span class="witness">${listWit[key]}</span>`;
                 if(posApp.indexOf(key) != -1)
-                    newEl.innerHTML = newEl.innerHTML + `: <span class="tree-lemma" data-id="${key}" lang="sa">${lemmaText}</span>`;
+                    newEl.innerHTML = `${siglum}: <span class="tree-lemma" data-id="${key}" lang="sa">${lemmaText}</span>`;
                 else if(varTexts[key]) {
                     const varText = varTexts[key];
-                    newEl.innerHTML = newEl.innerHTML + `: <span class="tree-lemma" data-id="${key}" lang="sa">${varText}</span>`;
+                    newEl.innerHTML = `${siglum}: <span class="tree-lemma" data-id="${key}" lang="sa">${varText}</span>`;
                 }
+                else
+                    newEl.innerHTML = `<span class="witness"><del>${siglum}</del></span>`;
+
             delete listWit[key];
             }
 
@@ -162,20 +169,20 @@
         let leftovers = document.getElementById('__upama_leftovers');
         for(let key in listWit) {
             if(!listWit.hasOwnProperty(key)) continue;
+            const newEl = document.createElement('div');
+            newEl.style.whiteSpace = 'nowrap';
             if(posApp.indexOf(key) != -1) {
-                let newEl = document.createElement('div');
-                newEl.style.whiteSpace = 'nowrap';
                 newEl.innerHTML = '<span class="witness">'+listWit[key]+'</span>: '+
                     '<span lang="sa">'+lemmaText+'</span>';
-                leftovers.appendChild(newEl);
             }
             else if(varTexts.hasOwnProperty(key)) {
-                let newEl = document.createElement('div');
-                newEl.style.whiteSpace = 'nowrap';
                 newEl.innerHTML = '<span class="witness">'+listWit[key]+'</span>: '+ 
                     "<span lang='sa'>"+varTexts[key]+"</span>";
-                leftovers.appendChild(newEl);
             }
+            else {
+                newEl.innerHTML = `<span class="witness"><del>${listWit[key]}</del></span>`;
+            }
+            leftovers.appendChild(newEl);
         }
     }
 
