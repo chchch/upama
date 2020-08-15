@@ -53,6 +53,12 @@
     font-weight: bold;
 }
 
+@font-face {
+    font-family: 'Tantular Bali';
+    src: url('fonts/TantularBali.ttf');
+    unicode-range: ~"U+1B00-U+1B7F";
+}
+
 .aalt {
     font-feature-settings: "aalt" 1;
 }
@@ -134,12 +140,16 @@ span.telugu {font-size: 1.1em !important;
 p.telugu {font-size: 1.3em !important;
 }
 
+.balinese {font-size: 1.1em !important;
+           line-height: 200%;
+}
+
 span.spacer {display: none;
              white-space: pre-wrap; /* when the highlight function splits a spacer node, sometimes the whitespace gets collapsed */
 }
 
 :lang(sa) {
-    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, serif;
+    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Tantular Bali, serif;
 }
 
 p:lang(sa) {
@@ -167,7 +177,7 @@ div.apparatus {
              flex: 0 0.5 auto;
              line-height: 1.1rem;
              padding: 0;
-             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, sans-serif;
+             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Tantular Bali, sans-serif;
              text-align: left;
              vertical-align:top;
              font-size: 1em;

@@ -86,19 +86,23 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         if(!p_get_metadata($ID,'plugin_upama',false)) return;
             
         $selected = $INPUT->post->str('_upama_script');
+        $deva_select = '';
+        $mala_select = '';
+        $telu_select = '';
+        $bali_select = '';
         switch($selected) {
             case 'devanagari':
                 $deva_select = ' selected';
-                $mala_select = '';
+                break;
             case 'malayalam':
-                $deva_select = '';
                 $mala_select = ' selected';
+                break;
             case 'telugu':
-                $deva_select = '';
-                $mala_select = ' selected';
-            default:
-                $deva_select = '';
-                $mala_select = '';
+                $telu_select = ' selected';
+                break;
+            case 'balinese':
+                $bali_select = ' selected';
+                break;
         };
         $event->data['items'] = array_slice($event->data['items'], 0, 1, true) +
         array('changescript' =>
@@ -107,7 +111,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 '<option value="iast">IAST</option>' .
                 '<option value="devanagari"'.$deva_select.'>Devanāgarī</option>' .
                 '<option value="malayalam"'.$mala_select.'>Malayālam</option>' .
-                '<option value="telugu"'.$mala_select.'>Telugu</option>' .
+                '<option value="telugu"'.$telu_select.'>Telugu</option>' .
+                '<option value="balinese"'.$bali_select.'>Balinese</option>' .
             '</select></span></a></li>'
             ) +
         array_slice($event->data['items'],1,null,true);

@@ -6,14 +6,14 @@ return array(
 //        "geminated j" => array('(?<=[rṛ])jj', "replace_with" => "j"),
 //        "geminated ṭ" => array('ṭṭ', "replace_with" => 'ṭ'),
     ["name" => "geminated t",
-     "find" => ['(?<=[rṛi]|pa)tt','tt(?=[rvy]\S)'],
+     "find" => ['(?<=[rṛr̥i]|pa)tt','tt(?=[rvy]\S)'],
      "replace" => "t"],
 //        "geminated d" => array('(?<=r)dd', "replace_with" => "d"),
 //        "geminated y" => array('(?<=[rṛ])yy', "replace_with" => "y"),
 //        "geminated v" => array('(?<=[rṛ]\s*)vv', "replace_with" => "v"),
 //        "other geminated consonants" => array('(?<=[rṛ\s])([jṭṇdnmyv])\1', '([jṭd])\1(?=h)', "replace_with" => '\1'),
     ["name" => "geminated consonants after r", // A 8.4.46; include tripled consonants, as in ryyya
-     "find" => '(?<=[rṛ]|[rṛ]\s)([kgcjṭḍṇdnpbmyvl])\1{1,2}', 
+     "find" => '(?<=[rṛr̥]|[rṛr̥]\s)([kgcjṭḍṇdnpbmyvl])\1{1,2}', 
      //"find" => '(?<=[rṛṙ\s])([gjṭṇdnbmyv])\1', 
      "replace" => '\1'],
 
