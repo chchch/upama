@@ -30,7 +30,25 @@
      * and "roman" for clarity.)
      */
     var schemes = Sanscript.schemes = {
+        balinese: {
+            vowels: 'ᬅ ᬆ ᬇ ᬈ ᬉ ᬊ ᬋ ᬌ ᬍ ᬎ  ᬏ ᬐ  ᬑ ᬒ'.split(' '),
 
+
+            vowel_marks: 'ᬵ ᬶ ᬷ ᬸ ᬹ ᬺ ᬻ ᬼ ᬽ ᭂ ᬾ ᬿ ᭃ ᭀ ᭁ'.split(' '),
+
+            other_marks: ['ᬂ','ᬄ','ᬁ',''],
+            virama: ['᭄'],
+
+            consonants: 'ᬓ ᬔ ᬕ ᬖ ᬗ ᬘ ᬙ ᬚ ᬛ ᬜ ᬝ ᬞ ᬟ ᬠ ᬡ ᬢ ᬣ ᬤ ᬥ ᬦ ᬧ ᬨ ᬩ ᬪ ᬫ ᬬ ᬭ ᬮ ᬯ ᬰ ᬱ ᬲ ᬳ'.split(' '),
+
+            symbols: '᭐ ᭑ ᭒ ᭓ ᭔ ᭕ ᭖ ᭗ ᭘ ᭙   ᭞ ᭟'.split(' '),
+
+
+            zwj: ['\u200D'],
+
+            skip: [''],
+
+        },
         /* Bengali
          * -------
          * 'va' and 'ba' are both rendered as ব.
@@ -52,12 +70,12 @@
         devanagari: {
             // "Independent" forms of the vowels. These are used whenever the
             // vowel does not immediately follow a consonant.
-            vowels: 'अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ऎ ए ऐ ऒ ओ औ ए ऐ ओ औ'.split(' '),
+            vowels: 'अ आ इ ई उ ऊ ऋ ॠ ऌ ॡ ऎ ए ऐ ऒ ओ औ ए ऐ ओ'.split(' '),
 
             // "Dependent" forms of the vowels. These are used whenever the
             // vowel immediately follows a consonant. If a letter is not
             // listed in `vowels`, it should not be listed here.
-            vowel_marks: 'ा ि ी ु ू ृ ॄ ॢ ॣ ॆ े ै ॊ ो ौ ॎ ॎे ॎा ॎो'.split(' '),
+            vowel_marks: 'ा ि ी ु ू ृ ॄ ॢ ॣ ॆ े ै ॊ ो ौ ॎ ॎे ॎा ॎो ॆ ॏ'.split(' '),
 
             // Miscellaneous marks, all of which are used in Sanskrit.
             other_marks: 'ं ः ँ ꣽ'.split(' '),
@@ -306,6 +324,10 @@
 
     // Map of alternate encodings.
     allAlternates = {
+        iast: {
+            ṛ: ['r̥'],
+            ṃ: ['ṁ']
+        },
         itrans: {
             A: ['aa'],
             I: ['ii', 'ee'],
