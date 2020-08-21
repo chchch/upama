@@ -1,6 +1,6 @@
 <?php
-//ini_set('display_errors','On');
-//ini_set('error_reporting', E_ALL);
+#ini_set('display_errors','On');
+#ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -758,7 +758,49 @@ EOT;
         echo ">$msid\n";
         echo $filtered;
     }
-    
+
+     public function fasta2($file,$nodes,$options = NULL) {
+        $ret = $this->loadFile($file);
+        if(is_array($ret)) list($text,$xpath) = $ret;
+        else
+            throw new Exception($ret);
+        $dofilter = FALSE;
+        if($options['normalize'] === TRUE) {
+            $this->implodeSubFilters([$xpath]);
+                //$this->setFilter("hidetext","spaces","\s");
+            $this->optimizeHideFilters();
+            $dofilter = TRUE;
+        }
+
+        $msidnode = $this->getSiglum($xpath);
+
+        if(!$msidnode) {
+            $msid = basename($file,'.txt');
+        }
+        else $msid = $msidnode->nodeValue;
+
+        $filtered = '';
+        $started = false;
+        foreach($nodes as $name) {
+            $n = $xpath->query("/x:TEI/x:text//*[@xml:id='".$name."']");
+            if(!$n || $n->length === 0) continue;
+            else {
+                $this->fastaFilter($n[0]);
+                $ntext = $dofilter ? $this->filterText($n[0]->nodeValue)[0] : $this->collapseSpaces($n[0]->nodeValue);
+                $filtered .= $ntext;
+            }
+        }
+
+        return ">$msid\n" . $filtered;
+    }
+
+    private function collapseSpaces($txt) {
+        $txt = preg_replace('/^\s+/u','',$txt);
+        $txt = preg_replace('/\s+$/u',' ',$txt); // not right trim!!
+        $txt = preg_replace('/\s\s+|[\n\t\f]/u',' ',$txt);
+        return $txt;
+    }
+   
     public function slp1($text) {
         $iast2slp1 = array(
             "ā" => "A",
@@ -2291,14 +2333,14 @@ EOT;
             if($atlast && strlen($text) > 0 && !preg_match('/\s/',$text[strlen($text)-1]) )
                 $counters["endspace"]++;
         }
-
-        $tags = isset($counters["prependtags"]) ? [] : false;
+        $doprepend = isset($counters["prependtags"]);
+        $tags = $doprepend ? [] : false;
         $text = $this->replaceIgnored($counters["tags"],$text,$ignored["tags"],$atlast,$tags);
         //list($prepend,$postpend) = $this->tagsToStr($counters["prependtags"]);
 
-        $prepend = $this->tagsToStr($counters["prependtags"]);
+        $prepend = $doprepend ? $this->tagsToStr($counters["prependtags"]) : '';
         $text = $prepend . $this->restoreSubs($text,$ignored["subs"]); // . $postpend;
-        $this->prependTagsAppend($tags,$counters["prependtags"]);
+        if($doprepend) $this->prependTagsAppend($tags,$counters["prependtags"]);
         return $text;
     }
 
@@ -2343,7 +2385,8 @@ EOT;
             }
             if(!empty($closetags)) {
                 foreach($closetags as $closeindex => $closeval)  {
-                    $openindex = end(array_keys($tagcounter));
+                    $k = array_keys($tagcounter);
+                    $openindex = end($k);
                     //$openindex = array_key_last($tagcounter);
                     if($tagcounter[$openindex][1] === $closeval[1]) {
                         array_pop($tagcounter);
@@ -2359,7 +2402,8 @@ EOT;
 
     private function lastOpenTag($arr) {
         if(count($arr) === 0) return false;
-        $last = end(array_keys($arr)); 
+        $k = array_keys($arr);
+        $last = end($k); 
         //$last = array_key_last($arr);
         return $last;
     }

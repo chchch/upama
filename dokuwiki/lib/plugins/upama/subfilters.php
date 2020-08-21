@@ -120,7 +120,8 @@ return array(
         
     ["name" => "final t + n/m",
      //"find" => 't(?=(?:\s+[nm]|\s*$))',
-     "find" => 't(?=(?:\s[nm]))',
+     //"find" => 't(?=(?:\s[nm]))',
+     "find" => 't(?=\s[nm])',
      "replace" => 'n'],
         
     ["name" => "final t + c/j",

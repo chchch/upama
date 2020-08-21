@@ -591,7 +591,8 @@ const upama = (function() {
 
             else if(_this.value == 'latex')
                 window.location.href = url + prefix + 'do=export_latex';
-            
+           
+            else if(_this.value == 'fastt') showExportWindow();
             _this.value = 'default';
         },
         
@@ -622,6 +623,77 @@ const upama = (function() {
         },
 
     }; // end listener
+
+    const showExportWindow = function() {
+        const submitClick = function(e) {
+            e.preventDefault();
+            const opts = [];
+            const exportform = document.getElementById('exportform');
+            const inputs = exportform.getElementsByTagName('input');
+            for(const i of inputs)
+                if(i.checked) opts.push(i.name);
+            const selects = exportform.getElementsByTagName('select');
+            for(const s of selects)
+                opts.push(`${s.name}~${s.value}`);
+            document.body.removeChild(blackout);
+            const url = window.location.href;
+            const prefix = url.indexOf('?') > -1 ? '&' : '?';
+            const opttxt = opts.join('+');
+            window.location.href = url + prefix + 'do=export_fasta2&export_options=' + opttxt;
+        };
+        const blackoutClick = function(e) {
+            const targ = e.target.closest('.popup');
+            if(!targ) {
+                const blackout = document.querySelector('#__upama_blackout');
+                blackout.parentNode.removeChild(blackout);
+            }
+        };
+
+    const blackout = document.createElement('div');
+        blackout.id = '__upama_blackout';
+        const frag = document.createRange().createContextualFragment(
+`<div id="exportoptions" class="popup">
+    <form id="exportform">
+      <div style="font-weight: bold">Export to FASTT</div>
+      <div>
+        <input type="checkbox" id="option_normalize" name="option_normalize"><label for="option_normalize">Apply filters</label>
+      </div>
+      <div>
+        <input type="checkbox" id="option_zip" name="option_zip" checked><label for="option_zip">Separate files for each node</label>
+      </div>
+      <div>
+        <label for ="option_start">Start node</label><select id="option_start" name="option_start"></select>
+      </div>
+      <div>
+        <label for ="option_end">End node</label><select type="select" id="option_end" name="option_end"></select>
+      </div>
+      <div>
+        <button type="submit">Export</button>
+      </div>
+    </form>
+</div>`
+        );
+        blackout.appendChild(frag);
+        document.body.appendChild(blackout);
+        const startnode = blackout.querySelector('#option_start');
+        const endnode = blackout.querySelector('#option_end');
+        const nodes = [...document.getElementsByClassName('upama-block')];
+        const nodeids = nodes.reduce((acc,cur) => {
+            if(!cur.classList.contains('apparatus2')) acc.push(cur.id);
+            return acc;
+        },[]);
+        for(const i of nodeids) {
+            const o = document.createElement('option');
+            o.value = i;
+            o.appendChild(document.createTextNode(i));
+            const o2 = o.cloneNode(true);
+            startnode.appendChild(o);
+            endnode.appendChild(o2);
+        }
+        const submit = blackout.querySelector('button');
+        submit.addEventListener('click',submitClick);
+        blackout.addEventListener('click',blackoutClick);
+     };
 
     const rewriteURL = function(getvars,morevars) {
         const vars = getvars || getUrlVars();

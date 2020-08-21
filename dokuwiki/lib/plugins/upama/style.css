@@ -243,12 +243,25 @@ div.versebottompadding {padding-bottom: 1em;
                        border:0;
 }
 
+.msid, .msid:link, .msid:visited {
+    font-variant: small-caps;
+    color: #000000;
+    font-family: sans-serif;
+    font-size: 0.7em;
+}
+
+.msid.exclude {
+    text-decoration: line-through;
+    text-decoration-color: red;
+}
+
+/*
 a.msid:link, a.msid:visited {font-variant: small-caps;
           color: #000000;
           font-family: sans-serif;
           font-size: 0.7em;
-/*          font-weight:bold; */
 }
+*/
 
 a.mshover:link, a.mshover:visited {text-decoration: underline;
               text-decoration-style: dotted;
@@ -577,6 +590,30 @@ div.dokuwiki div.editbutton_plugin_upama form div button:hover {
     height: 1px;
     background-image: linear-gradient(to right, rgba(255,255,255,0),rgba(255,255,255,0.75),rgba(255,255,255,0));
 
+}
+
+#__upama_blackout {
+    z-index: 10;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(50,50,50,0.5);
+}
+
+#__upama_blackout .popup {
+    max-width: 50%;
+    background: white;
+    padding: 10px;
+    font-size: 0.7em;
+}
+
+#__upama_blackout .popup div {
+    padding-bottom: 0.5em;
 }
 
 .nowrap {

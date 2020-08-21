@@ -58,17 +58,27 @@
 <xsl:template match="x:listApp">
     <!--td class="apparatus hyphenate"-->
     <xsl:element name="div">
-    <!--xsl:attribute name="class">apparatus</xsl:attribute-->
-    <xsl:attribute name="class">variorum</xsl:attribute>
-    <xsl:if test="@exclude">
-        <xsl:attribute name="data-exclude">
-            <xsl:value-of select="translate(@exclude,'#','')"/>
-        </xsl:attribute>
-    </xsl:if>
+        <!--xsl:attribute name="class">apparatus</xsl:attribute-->
+        <xsl:attribute name="class">variorum</xsl:attribute>
+        <xsl:if test="@exclude">
+            <xsl:attribute name="data-exclude">
+                <xsl:value-of select="translate(@exclude,'#','')"/>
+            </xsl:attribute>        
+            <xsl:element name="span">
+                <xsl:attribute name="class">varbracket</xsl:attribute>
+                <xsl:text>❲</xsl:text>
+            </xsl:element>
+            <xsl:call-template name="splitexclude"/>
+            <xsl:element name="span">
+                <xsl:attribute name="class">varbracket</xsl:attribute>
+                <xsl:text>❳</xsl:text>
+            </xsl:element>
+        </xsl:if>
+        <xsl:text>
+        </xsl:text>
+            <xsl:apply-templates/>
+    </xsl:element>
     <xsl:text>
-    </xsl:text>    
-        <xsl:apply-templates />
-    </xsl:element><xsl:text>
     </xsl:text>
 </xsl:template>
 
@@ -94,6 +104,25 @@
              <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
             </xsl:element>
             <xsl:call-template name="split">
+                <xsl:with-param name="mss" select=
+                    "substring-after($mss, ' ')"/>
+            </xsl:call-template>
+        </xsl:if>
+</xsl:template>
+
+<xsl:template name="splitexclude">
+    <xsl:param name="mss" select="@exclude"/>
+        <xsl:if test="string-length($mss)">
+            <xsl:if test="not($mss=@exclude)">, </xsl:if>
+            <xsl:element name="span">
+                 <xsl:attribute name="class">msid exclude</xsl:attribute>
+                 <xsl:variable name="msstring" select="substring-before(
+                                            concat($mss,' '),
+                                          ' ')"/>
+                 <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
+                 <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+            </xsl:element>
+            <xsl:call-template name="splitexclude">
                 <xsl:with-param name="mss" select=
                     "substring-after($mss, ' ')"/>
             </xsl:call-template>
