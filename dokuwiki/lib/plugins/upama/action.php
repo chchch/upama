@@ -125,6 +125,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 '<option value="tei">TEI XML</option>'.
                 '<option value="latex">LaTeX</option>'.
                 '<option value="fasta">FASTA</option>'.
+                '<option value="fastt">FASTT</option>'.
                 '</select></span></a></li>'
                 ) +
         array_slice($event->data['items'],4,null,true);
@@ -212,6 +213,113 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                     echo $upama->fasta($thisdir . $file);
                     echo "\n\n";
                 }
+            }
+            exit();
+        }
+
+        if($ACT == 'export_fasta2') {
+        
+            $event->preventDefault();
+            
+            $optstr = $INPUT->get->str('export_options');
+            $version = $INPUT->get->str('upama_ver');
+            $thisfile = $INFO['filepath'];
+            $thisdir = dirname($thisfile) . '/';
+            $ret = $upama->loadFile($thisfile);
+            if(is_array($ret)) list($text,$xpath) = $ret;
+            else
+                throw new Exception($ret);
+                
+            $optarr = [
+                "normalize" => FALSE,
+                ]; 
+            $startnode = NULL;
+            $endnode = NULL;
+            $dozip = FALSE;
+
+            if($optstr) {
+                $opts = explode(' ',$optstr);
+                foreach($opts as $o) {
+                    $os = NULL;
+                    if($o === 'option_normalize') {
+                        $optarr['normalize'] = TRUE;
+                        continue;
+                    }
+                    if($o === 'option_zip') {
+                        $dozip = TRUE;
+                        continue;
+                    }if(preg_match('/^option_start~/',$o)) {
+                        $os = explode('~',$o,2);
+                        $startnode = $os[1];
+                        continue;
+                    }
+                    if(preg_match('/^option_end~/',$o)) {
+                        $os = explode('~',$o,2);
+                        $endnode = $os[1];
+                        continue;
+                    }
+                }
+            }
+
+            $allnodes = $xpath->query("/x:TEI/x:text//*[@xml:id]");
+            $selectednodes = [];
+            $started = FALSE;
+            foreach($allnodes as $n) {
+            
+                if ($n->getAttribute("type") === "apparatus") continue;
+
+                $name = $n->getAttribute("xml:id");
+
+                if($started || $name === $startnode) {
+                    $started = true;
+                    $selectednodes[] = $name; 
+                    if($name === $endnode) break;
+                }
+            }
+
+
+            if(!$dozip) {
+                header('Content-Type: text/plain');
+                header('Content-Disposition: attachment; filename="'.basename($thisfile,".txt").'-'.$version.'.fas"');
+                echo $upama->fasta2($thisfile,$selectednodes,$optarr);
+                if($version) {
+                    echo "\n\n";
+                    foreach ($meta['versions'][$version]['witnesses'] as $file) {
+                        echo $upama->fasta2($thisdir . $file,$selectednodes,$optarr);
+                        echo "\n\n";
+                    }
+                }
+            }
+            else {
+                $zipfile = new ZipArchive();
+                $zipfilename = $conf['cachedir'] . "/upama/" . $version . ".zip";
+                if($zipfile->open($zipfilename, ZipArchive::CREATE) !== TRUE) {
+                    exit("cannot open <$zipfilename>\n");
+                }
+                
+                $witnesses = [$thisfile];
+                foreach($meta['versions'][$version]['witnesses'] as $add) {
+                    $witnesses[] = $thisdir . $add;
+                }
+
+                foreach($selectednodes as $s) {
+                    $nodefilename = $s.".txt";
+                    $strarr = [];
+                    foreach($witnesses as $w) {
+                        $strarr[] = $upama->fasta2($w,[$s],$optarr);
+                    }
+                    $zipfile->addFromString($nodefilename,implode("\n\n",$strarr));
+                }
+
+                header('Content-Type: application/zip');
+                header('Content-Disposition: attachment; filename="'.basename($thisfile,".txt").'-'.$version.'.zip"');
+                header('Content-Length: ' . filesize($zipfilename));
+                header('Pragma: no-cache');
+                header('Expires: 0');
+                ob_clean();
+                flush();
+                readfile($zipfilename);
+                unlink($zipfilename);
             }
             exit();
         }
