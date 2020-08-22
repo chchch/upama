@@ -6,7 +6,7 @@
 
 <xsl:output omit-xml-declaration="yes" encoding="utf-8" method="html"/>
 
-<xsl:variable name="testurl" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[1]/@ref"/>
+<xsl:variable name="testurl" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[1]/@ref"/>
 <xsl:variable name="urlprefix">
     <xsl:choose>
         <xsl:when test="contains($testurl,'?')">&amp;</xsl:when>
@@ -62,8 +62,8 @@
             </xsl:otherwise>
             </xsl:choose>
              <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
-             <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
-             <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+             <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
+             <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
             </xsl:element>
             <xsl:call-template name="split">
                 <xsl:with-param name="mss" select=

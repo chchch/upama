@@ -187,6 +187,23 @@ div.apparatus {
              position: sticky;
 }
 
+span.embedded.lemma {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: rgb(166,162,190);
+    cursor: default;
+}
+
+span.embedded.reading {
+    margin-left: 0.5em;
+}
+
+span.embedded.varcontainer {
+    font-size: 0.8em;
+    padding-right: 0.2em;
+    background: rgb(166,162,190);
+}
+
 div.variorum {
     width: 100%;
 }

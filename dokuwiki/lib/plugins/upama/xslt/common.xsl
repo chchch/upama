@@ -12,8 +12,11 @@
             <xsl:apply-templates select="x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']/node()"/>
         </xsl:element>
     </xsl:element>
-    <xsl:for-each select="x:fileDesc/x:sourceDesc/x:listWit/x:witness">
+    <xsl:for-each select="x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness">
         <xsl:element name="li">
+            <xsl:if test="x:idno/@source">
+                <xsl:attribute name="data-source"><xsl:value-of select="x:idno/@source"/></xsl:attribute>
+            </xsl:if>
             <xsl:attribute name="data-msid"><xsl:value-of select="@xml:id"/></xsl:attribute>
             <xsl:attribute name="data-url"><xsl:value-of select="@ref"/></xsl:attribute>
             <xsl:apply-templates select="x:idno/node()"/>
@@ -805,6 +808,78 @@
     <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
 </xsl:template-->
+
+<xsl:template match="x:app">
+    <xsl:element name="span">
+        <xsl:attribute name="class">embedded apparatus</xsl:attribute>
+        <xsl:apply-templates select="x:lem"/>
+        <xsl:element name="span">
+            <xsl:attribute name="class">embedded reading</xsl:attribute>
+            <xsl:apply-templates select="x:rdg"/>
+        </xsl:element>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:lem">
+    <xsl:element name="span">
+        <xsl:attribute name="class">embedded lemma</xsl:attribute>
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template name="splitwit">
+    <xsl:param name="mss" select="@wit"/>
+        <xsl:if test="string-length($mss)">
+            <xsl:if test="not($mss=@wit)">, </xsl:if>
+            <xsl:element name="span">
+                 <xsl:attribute name="class">embedded msid</xsl:attribute>
+                 <xsl:attribute name="lang">en</xsl:attribute>
+                 <xsl:variable name="msstring" select="substring-before(
+                                            concat($mss,' '),
+                                          ' ')"/>
+                 <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
+                 <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+            </xsl:element>
+            <xsl:call-template name="splitwit">
+                <xsl:with-param name="mss" select=
+                    "substring-after($mss, ' ')"/>
+            </xsl:call-template>
+        </xsl:if>
+</xsl:template>
+
+<xsl:template match="x:rdg">
+    <xsl:element name="span">
+        <xsl:attribute name="class">embedded varcontainer</xsl:attribute>
+        <xsl:call-template name="splitwit"/><xsl:text>:&#160;</xsl:text>
+        <xsl:apply-templates />
+    </xsl:element>
+    <xsl:text> </xsl:text>
+</xsl:template>
+
+<xsl:template match="x:app//x:anchor"/>
+<xsl:template match="x:app//x:locus"/>
+
+<xsl:template match="x:app//x:lg">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="x:app//x:l">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="x:app//x:l/text()[1]">
+<!-- left trim, so that word wrap doesn't happen at beginning -->
+    <xsl:value-of select=
+        "substring-after
+            (.,
+            substring-before
+                (.,
+                substring
+                    (translate(.,' &#x9;&#xa;&#xd;',''), 1, 1)
+                )
+            )"/>
+</xsl:template>
+
 
 <xsl:template match="@*|node()">
     <xsl:copy><xsl:apply-templates select="@* | node()"/></xsl:copy>

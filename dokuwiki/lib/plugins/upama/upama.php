@@ -1,6 +1,6 @@
 <?php
-#ini_set('display_errors','On');
-#ini_set('error_reporting', E_ALL);
+//ini_set('display_errors','On');
+//ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -86,8 +86,7 @@ class Upama
 
         $sourceDesc = $xpath1->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc")->item(0);
         $listWit = $text1->createDocumentFragment();
-
-        $listWit->appendXML("<listWit><witness xml:id='$msid' ref='$url'>$msidnode</witness></listWit>");
+        $listWit->appendXML("<listWit resp='upama'><witness xml:id='$msid' ref='$url'>$msidnode</witness></listWit>");
         $sourceDesc->appendChild($listWit);
         $elements1 = $xpath1->query("/x:TEI/x:text//*[@xml:id]");
         $elements2 = $xpath2->query("/x:TEI/x:text//*[@xml:id]");
@@ -171,17 +170,89 @@ class Upama
         
             }
         }
-        return $text1->saveXML();
-        // outputting as text fixes namespace issues
 
+        $otherwitnesses = $xpath2->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        if(!$otherwitnesses || $otherwitnesses->length === 0) {
+            return $text1->saveXML();
+            // outputting as text fixes namespace issues
+        }
+        else {
+            $addwits = $xpath2->query("./x:witness",$otherwitnesses->item(0));
+            $witarr = [];
+            foreach($addwits as $addwit) {
+                $witref = $addwit->getAttribute('xml:id');
+                $witarr[] = $this->additionalWitness($file2,$witref,"#$msid");
+            }
+            return array($text1->saveXML(),$witarr);
+        }
     }
-    
+    private function additionalWitness($file,$ref,$parref) {
+        $ret = $this->loadFile($file);
+        if(is_array($ret)) list($text,$xpath) = $ret;
+        else 
+            throw new Exception($ret);
+        $listWit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]")->item(0);
+        $wit = $xpath->query("./x:witness[@xml:id='$ref']",$listWit)->item(0);
+        $xmlid = '#' . $ref;
+        $newsiglum = $xpath->query('./x:idno',$wit)->item(0);
+
+        $oldsiglum = $this->getSiglum($xpath);
+        if(!$oldsiglum) {
+            $msid = basename($file,'.txt') . '-' . $ref;
+            $msidxml = $msid . '-' . $this->DOMinnerXML($newsiglum);
+        }
+        else {
+            $msid = $oldsiglum->nodeValue . '-' . $ref;
+            $msidxml = $oldsiglum->nodeValue . '-' . $this->DOMinnerXML($newsiglum);
+        }
+
+        $sourceDesc = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc")->item(0);
+        $sourceDesc->removeChild($listWit);
+
+        $siglum = $text->createDocumentFragment();
+        $siglum->appendXML("<idno type='siglum' source='$parref'>$msidxml</idno>");
+
+        $msIdentifier = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier")->item(0);
+        if($oldsiglum) {
+            $msIdentifier->replaceChild($siglum,$oldsiglum);
+        }
+        else {
+            $msIdentifier->appendChild($siglum);
+        }
+
+        $apps = $xpath->query("/x:TEI/x:text//x:app");
+        foreach($apps as $app) {
+            $lemma = $xpath->query("./x:lem",$app)->item(0);
+            $rdgs = $xpath->query("./x:rdg",$app);
+            $rightrdg = NULL;
+            foreach($rdgs as $rdg) {
+                $witnesses = $rdg->getAttribute('wit');
+                $witlist = explode(' ',$witnesses);
+                if(in_array($xmlid,$witlist)) {
+                    $rightrdg = $rdg;
+                    break;
+                }
+            }
+            if($rightrdg) {
+                $frag = $text->createDocumentFragment();
+                $frag->appendXML($this->DOMinnerXML($rightrdg));
+                $app->parentNode->replaceChild($frag,$app);
+            }
+            else {
+                $frag = $text->createDocumentFragment();
+                $frag->appendXML($this->DOMinnerXML($lemma));
+                $app->parentNode->replaceChild($frag,$app);
+            }
+        }
+        return $text->saveXML();
+}
+
     public function latex($text,$xsl = 'latex.xsl') {
         $return = '';
         list($xml,$xpath) = $this->loadText($text);
         $this->mergeAdds($xml,$xpath);
         $elements = $xpath->query("/x:TEI/x:text//*[@xml:id]");
-        $listwit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness");
+        $listwit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness");
         $witnesses = array();
         foreach($listwit as $wit) {
             $witnesses["#" . $wit->getAttribute("xml:id")] = 
@@ -1107,11 +1178,11 @@ EOT;
     }
 
     private function witnessList(&$ed,$wits) {
-        $edlist = $ed[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit")->item(0);
+        $edlist = $ed[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']")->item(0);
         $edfrag = $ed[0]->createDocumentFragment();
         $witstr = '';
         foreach($wits as $wit) {
-            $witlist = $wit[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit")->item(0);
+            $witlist = $wit[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']")->item(0);
             $witstr .= $this->DOMinnerXML($witlist);
         }
         $edfrag->appendXML($witstr);
@@ -1130,6 +1201,7 @@ EOT;
         $this->witnessList($edition,array_slice($witnesses,1));
 
         $mainapparati = $edition[1]->query("//x:listApp");
+        
         $apparati = array_map( function($w) { return $w[1]->query("//x:listApp"); },
                                 $witnesses);
 
@@ -1139,10 +1211,14 @@ EOT;
             $exclude = array();
             $parentnode = $mainapparati->item($n);
             foreach($witnesses as $m => $witness) {
+                $pW = $witness[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness/x:idno/@source")->item(0);
+                $parentWitness = $pW ? $pW->nodeValue : NULL;
                 $apparatus = $apparati[$m]->item($n);
                 //if(!$apparatus) continue; 
                 if($apparatus->hasAttribute('exclude')) {
-                        $exclude[] = $apparatus->getAttribute('exclude');
+                        if(!$parentWitness) {
+                            $exclude[] = $apparatus->getAttribute('exclude');
+                        }
                     continue;
                  }
                 
@@ -1175,6 +1251,12 @@ EOT;
                             $oldms = $entry['mss'][0];
                             $compared = $this->compareVariants($oldcontent,$newcontent);
                             if($compared !== 0) {
+                               
+                               if($parentWitness && in_array($parentWitness,$entry['mss'])) {
+                                    $done = TRUE;
+                                    break;
+                                }
+                                
                                 $entry['mss'][] = $ms;
                                 if(!isset($entry['readings'])) {
                                     $entry['readings'] = array();

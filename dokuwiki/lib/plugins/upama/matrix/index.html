@@ -27,13 +27,18 @@ th {
 var dataObject;
 var posApp;
 var listWit;
+var otherWit;
 var lemmaArr;
 var varTexts;
 var unshift;
 
 function init() {
     const maintable = document.getElementById('__upama_matrix_tbody');
-    for(const wit of Object.keys(listWit)) {
+    const leftovers = [];
+    for(const w of Object.keys(otherWit))
+        if(varTexts[w]) leftovers[w] = otherWit[w];
+
+    for(const wit of [...Object.keys(listWit),...Object.keys(leftovers)]) {
         let newEl;
         let htmlTxt;
         if(posApp.indexOf(wit) != -1) {
@@ -42,8 +47,9 @@ function init() {
             htmlTxt += lemmaArr.map((s) => '<td lang="sa">'+s+'</td>').join('');
         }
         else if(varTexts[wit]) {
+            const witstr = listWit[wit] ? listWit[wit] : leftovers[wit];
             newEl = document.createElement('tr');
-            htmlTxt = '<th scope="row" style="font-size:0.8em;font-family: sans-serif;font-variant: small-caps">'+listWit[wit]+':</th>';
+            htmlTxt = '<th scope="row" style="font-size:0.8em;font-family: sans-serif;font-variant: small-caps">'+witstr+':</th>';
             let varText = '';
             let emptycount = 0;
             for(let n=varTexts[wit].length-1;n >= 0;n--) {

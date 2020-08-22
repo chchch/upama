@@ -6,7 +6,7 @@
 
 <xsl:output omit-xml-declaration="yes" encoding="utf-8" method="html"/>
 
-<xsl:variable name="testurl" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[1]/@ref"/>
+<xsl:variable name="testurl" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[1]/@ref"/>
 <xsl:variable name="urlprefix">
     <xsl:choose>
         <xsl:when test="contains($testurl,'?')">&amp;</xsl:when>
@@ -100,8 +100,8 @@
               </xsl:otherwise>
              </xsl:choose>
              <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
-             <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
-             <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+             <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
+             <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
             </xsl:element>
             <xsl:call-template name="split">
                 <xsl:with-param name="mss" select=
@@ -120,7 +120,7 @@
                                             concat($mss,' '),
                                           ' ')"/>
                  <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
-                 <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+                 <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
             </xsl:element>
             <xsl:call-template name="splitexclude">
                 <xsl:with-param name="mss" select=
@@ -129,15 +129,22 @@
         </xsl:if>
 </xsl:template>
 
-<xsl:template match="x:rdgGrp">
+<xsl:template match="x:div[@type='apparatus']//x:rdgGrp">
     <xsl:apply-templates/>
 </xsl:template>
 
-<xsl:template match="x:rdg">
+<xsl:template match="x:div[@type='apparatus']//x:app[not(@loc)]">
+    <xsl:apply-templates />
+</xsl:template>
+<xsl:template match="x:div[@type='apparatus']//x:lem">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="x:div[@type='apparatus']//x:rdg">
     <xsl:element name="span"><xsl:attribute name="data-ms"><xsl:value-of select="substring-after(@wit,'#')"/></xsl:attribute><xsl:attribute name="class">reading</xsl:attribute><xsl:attribute name="lang">sa</xsl:attribute><xsl:apply-templates /></xsl:element>
 </xsl:template>
 
-<xsl:template match="x:rdg[@type='main']">
+<xsl:template match="x:div[@type='apparatus']//x:rdg[@type='main']">
     <xsl:element name="span">
         <xsl:attribute name="class">variant</xsl:attribute>
         <xsl:attribute name="lang">sa</xsl:attribute>
@@ -145,7 +152,7 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:app">
+<xsl:template match="x:div[@type='apparatus']//x:app[@loc]">
     <xsl:element name="span">
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
@@ -157,7 +164,7 @@
     </xsl:text>
 </xsl:template>
 
-<xsl:template match="x:rdgGrp/x:app">
+<xsl:template match="x:div[@type='apparatus']//x:rdgGrp/x:app">
     <xsl:element name="span">
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
@@ -168,7 +175,7 @@
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
 
-<xsl:template match="x:rdgGrp/x:app[1]">
+<xsl:template match="x:div[@type='apparatus']//x:rdgGrp/x:app[1]">
     <xsl:element name="span">
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
@@ -183,7 +190,7 @@
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
 
-<xsl:template match="x:rdgGrp/x:app[last()]">
+<xsl:template match="x:div[@type='apparatus']//x:rdgGrp/x:app[last()]">
     <xsl:element name="span">
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
@@ -197,30 +204,6 @@
         </xsl:element>
     </xsl:element><xsl:text>
     </xsl:text>
-</xsl:template>
-
-<xsl:template match="x:app//x:anchor"/>
-<xsl:template match="x:app//x:locus"/>
-
-<xsl:template match="x:app//x:lg">
-    <xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="x:app//x:l">
-    <xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="x:app//x:l/text()[1]">
-<!-- left trim, so that word wrap doesn't happen at beginning -->
-    <xsl:value-of select=
-        "substring-after
-            (.,
-            substring-before
-                (.,
-                substring
-                    (translate(.,' &#x9;&#xa;&#xd;',''), 1, 1)
-                )
-            )"/>
 </xsl:template>
 
 <xsl:template match="x:lg[@type='verse' or @xml:id]">

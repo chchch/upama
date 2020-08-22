@@ -88,6 +88,7 @@
     var dataObject;
     var posApp;
     var listWit;
+    var otherWit;
     var lemmaText;
     var varTexts;
     
@@ -167,8 +168,11 @@
         }
 
         let leftovers = document.getElementById('__upama_leftovers');
-        for(let key in listWit) {
-            if(!listWit.hasOwnProperty(key)) continue;
+        const others = [];
+        for(const w of Object.keys(otherWit))
+            if(varTexts[w]) others[w] = otherWit[w];
+
+        for(const key of [...Object.keys(listWit),...Object.keys(others)]) {
             const newEl = document.createElement('div');
             newEl.style.whiteSpace = 'nowrap';
             if(posApp.indexOf(key) != -1) {
@@ -176,7 +180,8 @@
                     '<span lang="sa">'+lemmaText+'</span>';
             }
             else if(varTexts.hasOwnProperty(key)) {
-                newEl.innerHTML = '<span class="witness">'+listWit[key]+'</span>: '+ 
+                const witstr = listWit[key] ? listWit[key] : others[key];
+                newEl.innerHTML = '<span class="witness">'+witstr+'</span>: '+ 
                     "<span lang='sa'>"+varTexts[key]+"</span>";
             }
             else {

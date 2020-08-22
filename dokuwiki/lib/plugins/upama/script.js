@@ -26,6 +26,7 @@ const upama = (function() {
         script: 'iast',
         contentbox: null,
         listWit: [],
+        otherWit: [],
         middle: null,
     //placeholder: "#",
     };
@@ -93,8 +94,12 @@ const upama = (function() {
         }
 
         const witnesses = document.querySelectorAll('#__upama_listWit li');
-        for(const w of witnesses)
-            state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+        for(const w of witnesses) {
+            if(w.getAttribute('data-source')) 
+                state.otherWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+            else
+                state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+        }
 
         //if(state.script != 'iast') 
         docSetScript(state.script,true);
@@ -112,7 +117,7 @@ const upama = (function() {
 
         state.contentbox.addEventListener('copy',listener.removeHyphens);
 
-        state.contentbox.addEventListener('mouseover',listener.toolTipBubble);
+        state.contentbox.addEventListener('mouseover',listener.toolTipsAndLemmata);
 
         if(document.getElementById('__upama_script_selector'))
             document.getElementById('__upama_script_selector').addEventListener('change',listener.scriptSelectorChange);
@@ -480,12 +485,31 @@ const upama = (function() {
                 item.style.display = display;
         },
 
-        toolTipBubble: function(e) {
-            var target = e.target.closest('[data-balloon]');
+        toolTipsAndLemmata: function(e) {
+            const target = e.target.closest('[data-balloon]');
             while(target && target.hasAttribute('data-balloon')) {
                 listener.toolTip(e,target);
                 target = target.parentNode;
             }
+            
+            const lemma = e.target.classList.contains('lemma');
+            if(lemma) listener.showReadings(e.target);
+        },
+
+        showReadings: function(targ) {
+            const apparatus = targ.closest('.apparatus');
+            const rdgs = apparatus.querySelectorAll('.embedded.reading');
+            for(const rdg of rdgs)
+                rdg.style.display = 'inline';
+            apparatus.addEventListener('mouseleave',listener.hideReadings);
+        },
+
+        hideReadings: function(e) {
+            const apparatus = e.target;
+            const rdgs = apparatus.querySelectorAll('.embedded.reading');
+            for(const rdg of rdgs)
+                rdg.style.display = 'none';
+            apparatus.removeEventListener('mouseleave',listener.hideReadings);
         },
 
         toolTip: function(e,target) {
@@ -2299,6 +2323,9 @@ outerTags: function(node) {
         const listWit = [];
         for(const wit of state.listWit)
             listWit[wit[0]] = wit[1];
+        const otherWit = [];
+        for(const wit of state.otherWit)
+            otherWit[wit[0]] = wit[1];
         const varTexts = [];
         const unshift = [];
     
@@ -2406,6 +2433,7 @@ outerTags: function(node) {
         }
         stemmaWindow.posApp = posApp;
         stemmaWindow.listWit = listWit;
+        stemmaWindow.otherWit = otherWit;
         stemmaWindow.unshift = unshift;
         stemmaWindow.onload = function() {stemmaWindow.init();};
     };

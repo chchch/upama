@@ -40,9 +40,13 @@ return array(
             "surplus" => "-1",
             // verse
             "caesura" => "-1",
-            // TEI Tite
+            // TEI Title
             "sub" => "-2",
             "sup" => "-2",
+            // textcrit
+            "app" => "-2",
+            "lem" => "-2",
+            "rdg" => "1",
             // XML
             "#comment" => "-1",
             );
