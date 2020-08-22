@@ -225,11 +225,32 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                 $data .= $e->getMessage();
                                 return array($state, $data, $meta);
                             }
+                            
+                            $basecomp = NULL;
 
-                            $compared[] = $comparison;
+                            if(is_array($comparison)) {
+                                
+                                list($basecomp,$others) = $comparison;
+                                $compared[] = $basecomp;
+
+                                $otherfiles = [];
+                                foreach($others as $other) {
+                                    $otherfilename = $cachedir . base_convert(uniqid(''),16,36).".xml";
+                                    $othercachefile = fopen($otherfilename, "w");
+                                    fwrite($othercachefile,$other);
+                                    fclose($othercachefile);
+                                    $othercomp = $upama->compare($thisfile,$otherfilename,$url);
+                                    $compared[] = $othercomp;
+                                }
+                            }
+                            else {
+                                $basecomp = $comparison;
+                                $compared[] = $basecomp;
+                            }
+
                             $newcachefilename = $cachedir . base_convert(uniqid(''),16,36).".xml";
                             $cachefile = fopen($newcachefilename, "w");
-                            fwrite($cachefile,$comparison);
+                            fwrite($cachefile,$basecomp);
                             fclose($cachefile);
                             $meta['plugin_upama']['cached'][$witness][] = 
                                 array('filename' => $newcachefilename,
