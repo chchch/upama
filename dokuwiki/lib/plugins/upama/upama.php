@@ -1,6 +1,6 @@
 <?php
-//ini_set('display_errors','On');
-//ini_set('error_reporting', E_ALL);
+#ini_set('display_errors','On');
+#ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -58,13 +58,25 @@ class Upama
     }
 
     public function compare($file1,$file2,$basename = false) {
+        $text1 = file_get_contents($file1);
+        $text2 = file_get_contents($file2);
+        $url = $basename ?: $file2;
+        return $this->docompare($text1,$text2,$url);
+    }
+
+    public function compare_($file1,$text2,$basename) {
+        $text1 = file_get_contents($file1);
+        return $this->docompare($text1,$text2,$basename);
+    }
+
+    public function docompare($str1,$str2,$basename) {
     
-        $ret1 = $this->loadFile($file1);
+        $ret1 = $this->loadText($str1);
         if(is_array($ret1)) list($text1,$xpath1) = $ret1;
         else
             throw new Exception($ret1);
     
-        $ret2 = $this->loadFile($file2);
+        $ret2 = $this->loadText($str2);
         if(is_array($ret2)) list($text2,$xpath2) = $ret2;
         else 
             throw new Exception($ret2);
@@ -73,10 +85,10 @@ class Upama
         $this->optimizeHideFilters();
 
         $siglum = $this->getSiglum($xpath2);
-        $url = $basename ?: $file2;
+        $url = $basename;
 
         if(!$siglum) {
-            $msid = basename($file2,'.txt');
+            $msid = basename($url,'.txt');
             $msidnode = '<idno type="siglum">'.$msid.'</idno>';
         }
         else { 
@@ -181,13 +193,13 @@ class Upama
             $witarr = [];
             foreach($addwits as $addwit) {
                 $witref = $addwit->getAttribute('xml:id');
-                $witarr[] = $this->additionalWitness($file2,$witref,"#$msid");
+                $witarr[] = $this->additionalWitness($str2,$witref,$msid);
             }
             return array($text1->saveXML(),$witarr);
         }
     }
-    private function additionalWitness($file,$ref,$parref) {
-        $ret = $this->loadFile($file);
+    private function additionalWitness($str,$ref,$parref) {
+        $ret = $this->loadText($str);
         if(is_array($ret)) list($text,$xpath) = $ret;
         else 
             throw new Exception($ret);
@@ -198,7 +210,7 @@ class Upama
 
         $oldsiglum = $this->getSiglum($xpath);
         if(!$oldsiglum) {
-            $msid = basename($file,'.txt') . '-' . $ref;
+            $msid = $parref . '-' . $ref;
             $msidxml = $msid . '-' . $this->DOMinnerXML($newsiglum);
         }
         else {
@@ -210,7 +222,7 @@ class Upama
         $sourceDesc->removeChild($listWit);
 
         $siglum = $text->createDocumentFragment();
-        $siglum->appendXML("<idno type='siglum' source='$parref'>$msidxml</idno>");
+        $siglum->appendXML("<idno type='siglum' source='#$parref'>$msidxml</idno>");
 
         $msIdentifier = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier")->item(0);
         if($oldsiglum) {

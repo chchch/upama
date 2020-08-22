@@ -46,7 +46,7 @@ return array(
             // textcrit
             "app" => "-2",
             "lem" => "-2",
-            "rdg" => "1",
+            "rdg" => "-1",
             // XML
             "#comment" => "-1",
             );

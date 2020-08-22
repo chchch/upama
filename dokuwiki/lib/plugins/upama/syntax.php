@@ -155,6 +155,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                        $thatfile = $thisdir . $witness;
                        $cachefilename = '';
                        $cachefileindex = NULL;
+                       $additionalcache = NULL;
 
                        if(array_key_exists($witness,$cached_comparisons)) {
                            /** use the cached copy of a particular comparison
@@ -173,6 +174,9 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                         
                                         $cachefilename = $file['filename'];
                                         $cachefileindex = $index;
+                                        if(array_key_exists('additional',$file)) {
+                                            $additionalcache = $file['additional'];
+                                        }
                                 }
                             }
                            if($cachefilename) {
@@ -189,6 +193,13 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                             $cache = fopen($cachefilename, "r");
                             $compared[] = fread($cache,filesize($cachefilename));
                             fclose($cache);
+                            if($additionalcache) {
+                                foreach($additionalcache as $a) {
+                                    $aa = fopen($a, 'r');
+                                    $compared[] = fread($aa,filesize($a));
+                                    fclose($aa);
+                                }
+                            }
                        }
                        else {
                             foreach($tagfiltersdiff as $tag => $status)
@@ -226,38 +237,40 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                                 return array($state, $data, $meta);
                             }
                             
-                            $basecomp = NULL;
-
-                            if(is_array($comparison)) {
+                            if(is_array($comparison)) { // returns array when there are inline <app>s
                                 
                                 list($basecomp,$others) = $comparison;
+
+                                $newcachefilename = $this->writeCacheFile($basecomp,$cachedir);
                                 $compared[] = $basecomp;
 
-                                $otherfiles = [];
+                                $otherfilenames = [];
                                 foreach($others as $other) {
-                                    $otherfilename = $cachedir . base_convert(uniqid(''),16,36).".xml";
-                                    $othercachefile = fopen($otherfilename, "w");
-                                    fwrite($othercachefile,$other);
-                                    fclose($othercachefile);
-                                    $othercomp = $upama->compare($thisfile,$otherfilename,$url);
+                                    $othercomp = $upama->compare_($thisfile,$other,$url);
                                     $compared[] = $othercomp;
+                                    $otherfilename = $this->writeCacheFile($othercomp,$cachedir);
+                                    $otherfilenames[] = $otherfilename;
                                 }
+
+                                $meta['plugin_upama']['cached'][$witness][] =
+                                    array('filename' => $newcachefilename,
+                                          'additional' => $otherfilenames,
+                                          'tagfilters' => $tagfiltersdiff,
+                                          'hidefilters' => $hidefiltersoff,
+                                          'subfilters' => $subfiltersoff
+                                          );
+
                             }
                             else {
-                                $basecomp = $comparison;
-                                $compared[] = $basecomp;
+                                $newcachefilename = $this->writeCacheFile($comparison,$cachedir);
+                                $compared[] = $comparison;
+                                $meta['plugin_upama']['cached'][$witness][] = 
+                                    array('filename' => $newcachefilename,
+                                          'tagfilters' => $tagfiltersdiff,
+                                          'hidefilters' => $hidefiltersoff,
+                                          'subfilters' => $subfiltersoff,
+                                        );
                             }
-
-                            $newcachefilename = $cachedir . base_convert(uniqid(''),16,36).".xml";
-                            $cachefile = fopen($newcachefilename, "w");
-                            fwrite($cachefile,$basecomp);
-                            fclose($cachefile);
-                            $meta['plugin_upama']['cached'][$witness][] = 
-                                array('filename' => $newcachefilename,
-                                      'tagfilters' => $tagfiltersdiff,
-                                      'hidefilters' => $hidefiltersoff,
-                                      'subfilters' => $subfiltersoff,
-                                    );
                        }
                    }
                    
@@ -307,6 +320,14 @@ $final = '';
           case DOKU_LEXER_EXIT :       return array($state, '', '');
         }
         return array();
+    }
+
+    function writeCacheFile($str,$cachedir) {
+        $fname = $cachedir . base_convert(uniqid(''),16,36).".xml";
+        $cachefile = fopen($fname, "w");
+        fwrite($cachefile,$str);
+        fclose($cachefile);
+        return $fname;
     }
 
     function renderXML($xml,$xslt) {
