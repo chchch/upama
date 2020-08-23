@@ -93,18 +93,18 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                           'subfilters' => $subfiltersoff,
                         );
 
-                 if($witnesses && !$version) {
-                       // if using POST data, check for existing cached version
-                       $version = array_search($settings,$versions);
+                if($witnesses && !$version) {
+                    // if using POST data, check for existing cached version
+                    $version = array_search($settings,$versions);
 
-                       // make a new version number if none exists
-                       if($version == false) {
-                           $version = base_convert(uniqid(''),16,36);
-                           $versions[$version] = $settings;
-                       }
-                   }
+                    // make a new version number if none exists
+                    if($version == false) {
+                       $version = base_convert(uniqid(''),16,36);
+                       $versions[$version] = $settings;
+                    }
+                }
 
-                   $cached_comparisons = isset($oldmeta['cached']) ? $oldmeta['cached'] : array();
+                $cached_comparisons = isset($oldmeta['cached']) ? $oldmeta['cached'] : array();
 
                  
                 // Set metadata to be rendered later
@@ -117,6 +117,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                     $data = $loaded;
                     return array($state, $data, $meta);
                 }
+                
                 list($xml,$xpath) = $loaded;
                 $siglum = $upama->getSiglum($xpath);
                 $meta['shorttitle'] = $siglum ? $upama->DOMinnerXML($siglum) : NULL;
@@ -246,7 +247,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
 
                                 $otherfilenames = [];
                                 foreach($others as $other) {
-                                    $othercomp = $upama->compare_($thisfile,$other,$url);
+                                    $othercomp = $upama->compareFileStr($thisfile,$other,$url);
                                     $compared[] = $othercomp;
                                     $otherfilename = $this->writeCacheFile($othercomp,$cachedir);
                                     $otherfilenames[] = $otherfilename;
@@ -287,7 +288,7 @@ $final = '';
                    else
                        $final = $compared[0];
 
-                    $data .= $upama->transform($final,DOKU_PLUGIN.'upama/xslt/with_apparatus.xsl');
+                   $data .= $upama->transform($final,DOKU_PLUGIN.'upama/xslt/with_apparatus.xsl');
                     
                  // FIXME?: saves a cache file even if no collation is done (i.e., there was only one witness compared)
                    $newcachefilename = $cachedir . $version . ".xml";

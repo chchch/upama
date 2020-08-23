@@ -64,7 +64,7 @@ class Upama
         return $this->docompare($text1,$text2,$url);
     }
 
-    public function compare_($file1,$text2,$basename) {
+    public function compareFileStr($file1,$text2,$basename) {
         $text1 = file_get_contents($file1);
         return $this->docompare($text1,$text2,$basename);
     }
