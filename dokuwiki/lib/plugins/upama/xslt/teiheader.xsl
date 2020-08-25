@@ -504,6 +504,8 @@
     </table>
 </xsl:template>
 
+<xsl:template match="x:listWit[not(@resp='upama')]" />
+
 <xsl:template match="x:additional"/>
 
 <xsl:template match="x:encodingDesc"/>
