@@ -314,6 +314,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                     }
                     $zipfile->addFromString($nodefilename,implode("\n\n",$strarr));
                 }
+                
+                $zipfile->close();
 
                 header('Content-Type: application/zip');
                 header('Content-Disposition: attachment; filename="'.$zipbasename.'"');
