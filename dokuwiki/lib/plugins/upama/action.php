@@ -292,18 +292,22 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
             }
             else {
                 $zipfile = new ZipArchive();
-                $zipfilename = $conf['cachedir'] . "/upama/" . $version . ".zip";
+                $zipbasename = basename($thisfile,'.txt').'-'.$version.'.zip';
+                $zipfilename = $conf['cachedir'] . "/upama/" . $zipbasename;
                 if($zipfile->open($zipfilename, ZipArchive::CREATE) !== TRUE) {
                     exit("cannot open <$zipfilename>\n");
                 }
                 
                 $witnesses = [$thisfile];
-                foreach($meta['versions'][$version]['witnesses'] as $add) {
-                    $witnesses[] = $thisdir . $add;
+                $addwitnesses = $meta['versions'][$version]['witnesses'];
+                if($addwitnesses) {
+                    foreach($addwitnesses as $add) {
+                        $witnesses[] = $thisdir . $add;
+                    }
                 }
 
                 foreach($selectednodes as $s) {
-                    $nodefilename = $s.".txt";
+                    $nodefilename = $s.".fas";
                     $strarr = [];
                     foreach($witnesses as $w) {
                         $strarr[] = $upama->fasta2($w,[$s],$optarr);
@@ -312,7 +316,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 }
 
                 header('Content-Type: application/zip');
-                header('Content-Disposition: attachment; filename="'.basename($thisfile,".txt").'-'.$version.'.zip"');
+                header('Content-Disposition: attachment; filename="'.$zipbasename.'"');
                 header('Content-Length: ' . filesize($zipfilename));
                 header('Pragma: no-cache');
                 header('Expires: 0');
