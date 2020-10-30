@@ -486,7 +486,7 @@ const upama = (function() {
         },
 
         toolTipsAndLemmata: function(e) {
-            const target = e.target.closest('[data-balloon]');
+            let target = e.target.closest('[data-balloon]');
             while(target && target.hasAttribute('data-balloon')) {
                 listener.toolTip(e,target);
                 target = target.parentNode;
@@ -1348,12 +1348,12 @@ outerTags: function(node) {
         var prevnode;
 
         function countSpaces(node) {
-            var re = /\s+/g;
+            const re = /\s+/g;
+            const stopnode = node.nextSibling || node.parentNode.nextSibling;
             var skipKids = false;
             var preIgnored = false;
             var spaces = 0;
-
-            for(let kid = node.firstChild;kid !== node.nextSibling;kid = getNextNode(kid,skipKids)) {
+            for(let kid = node.firstChild;kid !== stopnode;kid = getNextNode(kid,skipKids)) {
                 if(!kid) break;
 
                 skipKids = false;
@@ -1379,7 +1379,6 @@ outerTags: function(node) {
                     let space = re.exec(kidtext);
                     // if the variant starts at the beginning of the section
                     if(startpos === -1 && pos[0] === 0) {
-                  
                         if(!space || space.index > 0) {
                             if(preIgnored) {
                                 startnode = preIgnored;
@@ -1539,7 +1538,6 @@ outerTags: function(node) {
                     endpos = endnode.length;
                 }
             }
-
             // no endnode found
             return false;
         }
