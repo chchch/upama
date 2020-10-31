@@ -814,7 +814,7 @@
         <xsl:attribute name="class">embedded apparatus</xsl:attribute>
         <xsl:apply-templates select="x:lem"/>
         <xsl:element name="span">
-            <xsl:attribute name="class">embedded reading</xsl:attribute>
+            <xsl:attribute name="class">embedded reading ignored</xsl:attribute>
             <xsl:apply-templates select="x:rdg"/>
         </xsl:element>
     </xsl:element>
