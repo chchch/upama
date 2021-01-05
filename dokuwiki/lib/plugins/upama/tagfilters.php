@@ -8,6 +8,7 @@
 return array( 
             // core
             "add" => "-2",
+            "cb" => "-1",
             "choice" => "-2",
             "corr" => "-1",
             "del" => "-1",
