@@ -317,6 +317,22 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:cb">
+    <xsl:element name="span">
+        <xsl:choose>
+            <xsl:when test="@n">
+                <xsl:attribute name="data-balloon">column <xsl:value-of select="@n"/></xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="data-balloon">column break</xsl:attribute>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:attribute name="lang">en</xsl:attribute>
+        <xsl:attribute name="class">cb<xsl:call-template name="ignore" /></xsl:attribute>
+    <xsl:text>c</xsl:text>
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:pb">
     <xsl:variable name="pageno" select="@n"/>
     <xsl:variable name="facs" select="/x:TEI/x:facsimile/x:graphic[@n=$pageno]/@url"/>

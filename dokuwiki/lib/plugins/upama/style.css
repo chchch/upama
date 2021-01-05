@@ -355,6 +355,18 @@ a.pb:hover {
       text-decoration: none !important;
 }
 
+.cb {color:#FF9900;
+        letter-spacing:-0.1em;
+        font-size:85%;
+        line-height:1;
+        font-weight:normal;
+        font-family: sans-serif;
+        text-decoration: none;
+        vertical-align:bottom;
+        white-space: nowrap;
+        cursor: default;
+}
+
 span.gap {background-color: rgba(132,132,10,0.3);
           font-size: 85%;
           color: rgb(84,84,84);
