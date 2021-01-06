@@ -16,6 +16,7 @@ return array(
             "gap" => "-1",
             "hi" => "-2",
             "l" => "-2",
+            "label" => "-1",
             "lb" => "-1",
             "lg" => "-2",
             "milestone" => "-1",
