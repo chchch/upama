@@ -141,7 +141,7 @@ h3.upama_menu { font-size: 80% !important;
     background: #5C6170;
 }
 
-.codo_side_content {
+.side_content {
     position: relative;
     top: 100px;
     padding-left: 6px;
@@ -275,7 +275,7 @@ font-weight: bold;
     font-size: 18px;
 }
 
-.codowiki_west_header {
+.west_header {
     background: none;
 }
 
