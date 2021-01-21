@@ -301,7 +301,10 @@ $final = '';
                } // end if($witnesses) 
                
                else if(!$witnesses) { // if there are no witnesses to compare
-                   $data .= $this->renderXML($xml,DOKU_PLUGIN. 'upama/xslt/no_apparatus.xsl');
+                    if($xpath->query('//x:div2[@type="apparatus"]')->length > 0)
+                       $data .= $this->renderXML($xml,DOKU_PLUGIN. 'upama/xslt/with_apparatus2.xsl');
+                   else
+                       $data .= $this->renderXML($xml,DOKU_PLUGIN. 'upama/xslt/no_apparatus.xsl');
                //    $meta['plugin_upama']['current'] = 0;
                }
 

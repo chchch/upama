@@ -16,6 +16,10 @@
     width: 62%;
 }
 
+.maintext.no-apparatus {
+    width: 100%;
+}
+
 .section {
     max-width: 1200px;
 }
@@ -25,6 +29,10 @@
     max-width: 1200px;
     align-items: flex-start;
     justify-content: center;
+}
+
+.upama-block.no-apparatus {
+    max-width: 720px;
 }
 
 @media (max-width: 600px) {
@@ -38,6 +46,11 @@
     width: 97vw;
     min-width: 200px;
 }
+
+.upama-block.no-apparatus {
+    width: inherit;
+}
+
 span.varcontainer {
     white-space: normal;
     }

@@ -694,6 +694,7 @@ span.varcontainer.wrap {
 
 #__upama_summary {
 /*    max-width: 700px; */
+    max-width: 100% !important;
     hyphens: auto;
 }
 

@@ -25,6 +25,7 @@ $showSidebar = $hasSidebar && ($ACT=='show');
 <head>
     <meta charset="utf-8" />
     <title><?php tpl_pagetitle() ?> [<?php echo strip_tags($conf['title']) ?>]</title>
+    <!--?php echo tpl_js('analyticstracking.js'); ?-->
     <!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.2/es6-shim.min.js"></script-->
     <script type="text/javascript">
         if(!HTMLCollection.prototype.hasOwnProperty(Symbol.iterator)) {
@@ -34,18 +35,16 @@ $showSidebar = $hasSidebar && ($ACT=='show');
     }
     </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dom4/1.8.3/dom4.js"></script>
-    <!--script>(function(H){H.className=H.className.replace(/\bno-js\b/,'js')})(document.documentElement)</script-->
     <?php tpl_metaheaders() ?>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <?php echo tpl_favicon(array('favicon', 'mobile')) ?>
     <?php tpl_includeFile('meta.html') ?>
 
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
-<!--link href="<?php print DOKU_TPL; ?>css/ui.layout.css" rel="stylesheet"-->
-<?php
+<!--<?php
     if($INPUT->post->arr('upama_witnesses') || 
        $INPUT->get->str('upama_ver')) {
-?>   
+?>
 <link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet">
 <?php    
     }
@@ -54,60 +53,9 @@ $showSidebar = $hasSidebar && ($ACT=='show');
 <link href="<?php print DOKU_TPL; ?>css/no_apparatus.css" rel="stylesheet">
 <?php
     }
-?>
+?>-->
+<link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet">
 <?php echo tpl_js('layout.js'); ?>
-<!--script type="text/javascript">
-jQuery(function ()
-{
-var getvars = upama.getUrlVars();
-    var sideClosed = (getvars['sidebar'] == 'closed') || false;
-
-    upama.layout = jQuery('#container').layout({
-        maskContents: true,
-        applyDefaultStyles: false,
-        center: {
-        },
-        west: {
-            minSize: 300
-        },
-        west__onclose_start: upama.getViewPos,
-        west__onclose_end: upama.setViewPos,
-        west__onopen_start: upama.getViewPos,
-        west__onopen_end: upama.setViewPos,
-        west__initClosed: sideClosed,
-    });
-/*
-    jQuery('.ui-layout-pane').each(function () {
-        var el = jQuery(this);
-    });
-
-    jQuery(".codo_side_content [href]").each(function () {
-        if (this.href == window.location.href) {
-            jQuery(this).addClass("codo_active");
-        }
-    });
-
-    function apply_space(elem, times) {
-
-        jQuery(elem).find(">li>div>a").each(function()
-        {
-            jQuery(this).html(times + jQuery(this).html())
-
-        });
-
-        jQuery(elem).find(">li>ul").each(function()
-        {
-            apply_space(jQuery(this), times + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-        });
-
-    }
-
-    apply_space(jQuery('.codo_side_content >ul'), '&nbsp;');
-*/
-});
-
-</script-->
-
 </head>
 
 <body>
@@ -115,9 +63,7 @@ var getvars = upama.getUrlVars();
      <div id="container">
             <div class="ui-layout-center">
     
-    <!--[if lte IE 7 ]><div id="IE7"><![endif]--><!--[if IE 8 ]><div id="IE8"><![endif]-->
-    <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?> <?php
-        /*echo ($showSidebar) ? 'showSidebar' : '';*/ ?> <?php /* echo ($hasSidebar) ? 'hasSidebar' : '';*/ ?>">
+    <div id="dokuwiki__site"><div id="dokuwiki__top" class="site <?php echo tpl_classes(); ?>">
 
         <?php include('tpl_header.php') ?>
 
@@ -183,43 +129,29 @@ var getvars = upama.getUrlVars();
 
     <div class="no"><?php tpl_indexerWebBug() /* provide DokuWiki housekeeping, required in all templates */ ?></div>
     <div id="screen__mode" class="no"></div><?php /* helper to detect CSS media query in script.js */ ?>
-    <!--[if ( lte IE 7 | IE 8 ) ]></div><![endif]-->
     
     </div>
 <?php
     $sidebarclosed = $INPUT->get->str('sidebar') == 'closed';
     if($sidebarclosed) {
         ?>
-            <div class="ui-layout-west codowiki_west sidebar-shrink" id="sidebar-wrapper">
+            <div class="ui-layout-west sidebar-shrink" id="sidebar-wrapper">
                <div class="ui-layout-fixed sidebar-hide" id="sidebar"> 
 <?php
     }
     else {
         ?>
-            <div class="ui-layout-west codowiki_west" id="sidebar-wrapper">
+            <div class="ui-layout-west" id="sidebar-wrapper">
                <div class="ui-layout-fixed" id="sidebar"> 
 <?php 
     }
         ?>
-            <div class='codowiki_west_header'>
+            <div class='west_header'>
             <div class="headings group">
         <ul class="a11y skip">
             <li><a href="#dokuwiki__content"><?php echo $lang['skip_to_content']; ?></a></li>
         </ul>
-
-        <h1 class="logo"><?php
-            // get logo either out of the template images folder or data/media folder
-            $logoSize = array();
-            //$logo = tpl_getMediaFile(array(':wiki:logo.png', ':logo.png', 'images/codo_logo_s.png'), false, $logoSize);
-
-            // display logo and wiki title in a link to the home page
-            tpl_link(
-                wl(),
-                //'<img src="'.$logo.'" '.$logoSize[3].' alt="" /> <span>'.$conf['title'].'</span>',
-                'saktumIva',
-                'accesskey="h" title="saktumiva"'
-            );
-        ?></h1>
+        <h1 class="logo"><a href="/start" accesskey="h" title="saktumiva">saktumIva</a></h1>
         <?php if ($conf['tagline']): ?>
             <p class="claim"><?php echo $conf['tagline']; ?></p>
         <?php endif ?>
@@ -248,7 +180,7 @@ var getvars = upama.getUrlVars();
             
             
                 <!-- ********** ASIDE ********** -->
-                    <div class="codo_side_content">
+                    <div class="side_content">
                         <?php tpl_flush() ?>
                         <?php tpl_includeFile('sidebarheader.html') ?>
                 <?php if($showSidebar): ?>
