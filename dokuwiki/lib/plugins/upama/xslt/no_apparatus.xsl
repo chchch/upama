@@ -6,12 +6,24 @@
 
 <xsl:output omit-xml-declaration="yes"/>
 
+<xsl:template match="x:div1">
+    <div class="section no-apparatus">
+        <xsl:apply-templates />
+    </div>
+</xsl:template>
+
+<xsl:template match="x:div">
+    <div class="section no-apparatus">
+        <xsl:apply-templates />
+    </div>
+</xsl:template>
+
 <xsl:template match="x:p[@xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">para upama-block</xsl:attribute>
+        <xsl:attribute name="class">para upama-block no-apparatus</xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
-                <xsl:attribute name="class">maintext</xsl:attribute>
+                <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
                 <!--xsl:call-template name="lang"/-->
                 <xsl:comment>SECTION_START</xsl:comment>
                 <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -23,12 +35,12 @@
 
 <xsl:template match="x:lg[@type='verse' or @xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">verse upama-block</xsl:attribute>
+        <xsl:attribute name="class">verse upama-block no-apparatus</xsl:attribute>
         <xsl:if test="@xml:id">
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         </xsl:if>
         <xsl:element name="div">
-            <xsl:attribute name="class">maintext</xsl:attribute>
+            <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
             <!--xsl:call-template name="lang"/-->
             <xsl:comment>SECTION_START</xsl:comment>
             <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -40,12 +52,12 @@
 
 <xsl:template match="x:lg[@type='mangala']">
     <xsl:element name="div">
-        <xsl:attribute name="class">mangala upama-block</xsl:attribute>
+        <xsl:attribute name="class">mangala upama-block no-apparatus</xsl:attribute>
         <xsl:if test="@xml:id">
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         </xsl:if>
         <xsl:element name="div">
-            <xsl:attribute name="class">maintext</xsl:attribute>
+            <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
             <!--xsl:call-template name="lang"/-->
             <xsl:comment>SECTION_START</xsl:comment>
             <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -71,10 +83,10 @@
         <xsl:attribute name="class">apparatus</xsl:attribute>
         <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute> -->
         <xsl:element name="div">
-            <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
+            <xsl:attribute name="class">apparatus2 upama-block no-apparatus</xsl:attribute>
             <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
             <xsl:element name="div">
-                    <xsl:attribute name="class">maintext</xsl:attribute>
+                    <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
                     <!--xsl:call-template name="lang"/-->
                     <xsl:comment>SECTION_START</xsl:comment>
                     <xsl:comment><xsl:value-of select="@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -92,10 +104,10 @@
     <xsl:element name="div">
         <xsl:choose>
         <xsl:when test="@xml:id">
-        <xsl:attribute name="class">verseline upama-block</xsl:attribute>
+        <xsl:attribute name="class">verseline upama-block no-apparatus</xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
-            <xsl:attribute name="class">maintext</xsl:attribute>
+            <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
             <!--xsl:call-template name="lang"/-->
             <xsl:comment>SECTION_START</xsl:comment>
             <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>

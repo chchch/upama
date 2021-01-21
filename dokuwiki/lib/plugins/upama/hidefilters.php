@@ -11,6 +11,7 @@ return array(
             //"dandas with numbers" => '\s*\|+\s*[\d-]+\s*\|+\s*',
             //"dandas ⌜|⌟" => '\s+\|+|\|+\s*',
             "empty śirorekha ⌜¯⌟" => '¯',
+            "exclamation mark ⌜!⌟" => '!',
             "explicit hiatus ⌜_⌟" => '_',
             "hyphens and dashes" => array('\-','—','―','='),
             "line fillers ⌜¦⌟" => '¦',
