@@ -41,8 +41,10 @@ $showSidebar = $hasSidebar && ($ACT=='show');
     <?php tpl_includeFile('meta.html') ?>
 
 <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600' rel='stylesheet' type='text/css'>
-<!--<?php
-    if($INPUT->post->arr('upama_witnesses') || 
+<?php
+    $INFO = pageinfo();
+    if(p_get_metadata($INFO['id'],'plugin_upama',false) ||
+       $INPUT->post->arr('upama_witnesses') || 
        $INPUT->get->str('upama_ver')) {
 ?>
 <link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet">
@@ -53,8 +55,8 @@ $showSidebar = $hasSidebar && ($ACT=='show');
 <link href="<?php print DOKU_TPL; ?>css/no_apparatus.css" rel="stylesheet">
 <?php
     }
-?>-->
-<link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet">
+?>
+<!--link href="<?php print DOKU_TPL; ?>css/with_apparatus.css" rel="stylesheet"-->
 <?php echo tpl_js('layout.js'); ?>
 </head>
 
