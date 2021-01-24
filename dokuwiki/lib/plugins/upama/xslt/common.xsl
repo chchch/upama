@@ -838,6 +838,7 @@
 
 <xsl:template match="x:lem">
     <xsl:element name="span">
+        <xsl:attribute name="lang">sa</xsl:attribute>
         <xsl:attribute name="class">embedded lemma</xsl:attribute>
         <xsl:apply-templates />
     </xsl:element>
@@ -866,6 +867,7 @@
 <xsl:template match="x:rdg">
     <xsl:element name="span">
         <xsl:attribute name="class">embedded varcontainer</xsl:attribute>
+        <xsl:attribute name="lang">sa</xsl:attribute>
         <xsl:call-template name="splitwit"/><xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element>
