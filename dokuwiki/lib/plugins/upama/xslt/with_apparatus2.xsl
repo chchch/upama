@@ -21,8 +21,27 @@
         </xsl:element>
         <xsl:element name="div">
             <xsl:attribute name="class">apparatus</xsl:attribute>
-            <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
-
+            <!--xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute-->
+            
+            <xsl:if test="//x:app">
+                <xsl:element name="div">
+                    <xsl:attribute name="class">apparatus2</xsl:attribute>
+                    <xsl:for-each select="x:app">
+                        <xsl:element name="div">
+                            <xsl:attribute name="class">varcontainer</xsl:attribute>
+                            <xsl:if test="x:lem">
+                                <xsl:element name="span">
+                                    <xsl:attribute name="class">varlem</xsl:attribute>
+                                    <xsl:apply-templates select="x:lem"/>
+                                </xsl:element>
+                            </xsl:if>
+                            <xsl:for-each select="x:rdg">
+                                <xsl:apply-templates/>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:for-each>
+                </xsl:element>
+            </xsl:if>
             <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
             <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
             <xsl:if test="$app2">
@@ -65,7 +84,26 @@
         </xsl:element>
         <xsl:element name="div">
             <xsl:attribute name="class">apparatus</xsl:attribute>
-            <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
+            <!--xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute-->
+            <xsl:if test=".//x:app">
+                <xsl:element name="div">
+                    <xsl:attribute name="class">apparatus2</xsl:attribute>
+                    <xsl:for-each select=".//x:app">
+                        <xsl:element name="div">
+                            <xsl:attribute name="class">varcontainer</xsl:attribute>
+                            <xsl:apply-templates select="x:lem"/>
+                            <xsl:for-each select="x:rdg">
+                                <xsl:element name="span">
+                                    <xsl:attribute name="class">rdg</xsl:attribute>
+                                    <xsl:apply-templates/>
+                                    <xsl:call-template name="splitwit"/>
+                                </xsl:element>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:for-each>
+                </xsl:element>
+            </xsl:if>
+
 
             <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
             <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
