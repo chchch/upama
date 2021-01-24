@@ -194,8 +194,20 @@ span.embedded.lemma {
     cursor: default;
 }
 
+.varcontainer span.embedded.lemma::after {
+    content: ']';
+}
+
 span.embedded.reading {
     margin-left: 0.5em;
+}
+
+.varcontainer span.rdg {
+    margin-left: 0.5em;
+}
+
+.rdg .embedded.msid {
+    margin-left: 0.2em;
 }
 
 span.embedded.varcontainer {
