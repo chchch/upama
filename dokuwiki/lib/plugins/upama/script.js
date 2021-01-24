@@ -763,7 +763,7 @@ const upama = (function() {
         //   var middle = (init || inViewport(jQuery('#__upama_summary'))) ? null : findMiddleElement();
     
         //    var san = document.querySelectorAll("[lang=sa]");
-        const san = document.querySelectorAll('h2[lang=sa],h3[lang=sa],p[lang=sa], div.verse[lang=sa], div'+state.mainClass+'[lang=sa], span.varcontainer [lang=sa], li.apparatus2-item [lang=sa], #__upama_summary [lang=sa], .__upama_msItem [lang=sa], #__upama_physDesc [lang=sa], #__upama_history [lang=sa]');
+        const san = document.querySelectorAll('h2[lang=sa],h3[lang=sa],p[lang=sa], div.verse[lang=sa], div'+state.mainClass+'[lang=sa], .varcontainer [lang=sa], li.apparatus2-item [lang=sa], #__upama_summary [lang=sa], .__upama_msItem [lang=sa], #__upama_physDesc [lang=sa], #__upama_history [lang=sa]');
         for(const _this of san) {
             if(init) {
                 /*            let htmlstr = _this.innerHTML;
