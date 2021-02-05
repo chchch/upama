@@ -277,6 +277,7 @@ div.versebottompadding {padding-bottom: 1em;
     color: #000000;
     font-family: sans-serif;
     font-size: 0.7em;
+    white-space: nowrap;
 }
 
 .msid.exclude {
@@ -430,6 +431,23 @@ span.varbracket {color: #9933FF;
                  font-family: monospace;
                  line-height: 100%;
 /*                 font-weight: bold; */
+}
+
+.bracketopen::before {
+    content: '❲';
+    color: #9933FF;
+    font-size: 1.5em;
+    font-family: monospace;
+    line-height: 100%;
+    padding-right: 0.5em;
+}
+.bracketclose::after {
+    content: '❳';
+    color: #9933FF;
+    font-size: 1.5em;
+    font-family: monospace;
+    line-height: 100%;
+    padding-left: 0.5em;
 }
 
 span.variant {white-space: normal;
