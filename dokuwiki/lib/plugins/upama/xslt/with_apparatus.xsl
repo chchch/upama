@@ -64,15 +64,18 @@
             <xsl:attribute name="data-exclude">
                 <xsl:value-of select="translate(@exclude,'#','')"/>
             </xsl:attribute>        
-            <xsl:element name="span">
+            <!--xsl:element name="span">
                 <xsl:attribute name="class">varbracket</xsl:attribute>
                 <xsl:text>❲</xsl:text>
-            </xsl:element>
-            <xsl:call-template name="splitexclude"/>
+            </xsl:element-->
             <xsl:element name="span">
+                <xsl:attribute name="class">bracketopen bracketclose</xsl:attribute>
+                <xsl:call-template name="splitexclude"/>
+            </xsl:element>
+            <!--xsl:element name="span">
                 <xsl:attribute name="class">varbracket</xsl:attribute>
                 <xsl:text>❳</xsl:text>
-            </xsl:element>
+            </xsl:element-->
         </xsl:if>
         <xsl:text>
         </xsl:text>
@@ -180,12 +183,12 @@
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
-        <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:element name="span">
+        <xsl:attribute name="class">varcontainer bracketopen</xsl:attribute>
+        <!--xsl:element name="span">
             <xsl:attribute name="class">varbracket</xsl:attribute>
             <xsl:text>❲ </xsl:text>
-        </xsl:element>
-        <xsl:call-template name="split"/><xsl:text>: </xsl:text>
+        </xsl:element-->
+        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
@@ -195,13 +198,13 @@
         <xsl:attribute name="data-loc">
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
-        <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>: </xsl:text>
+        <xsl:attribute name="class">varcontainer bracketclose</xsl:attribute>
+        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
-        <xsl:element name="span">
+        <!--xsl:element name="span">
             <xsl:attribute name="class">varbracket</xsl:attribute>
             <xsl:text> ❳</xsl:text>
-        </xsl:element>
+        </xsl:element-->
     </xsl:element><xsl:text>
     </xsl:text>
 </xsl:template>
