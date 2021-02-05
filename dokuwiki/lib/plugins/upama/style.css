@@ -421,7 +421,7 @@ span.sub {vertical-align: -20%;
 }
 
 span.varcontainer {padding-right: 1em;
-                  white-space: nowrap;
+                  /*white-space: nowrap;*/
                   word-wrap: normal;
 }
 
