@@ -11,6 +11,16 @@
 </xsl:text>
 </xsl:template>
 
+<xsl:template match="/l">
+<xsl:text>
+\pstart
+</xsl:text>
+<xsl:apply-templates/><xsl:text>
+\pend
+
+</xsl:text>
+</xsl:template>
+
 <xsl:template match="lg">
 <xsl:text>
 \setstanzaindents{2,2,2,2,2}
@@ -55,6 +65,7 @@
 </xsl:template>
 
 <xsl:template match="milestone">
+<xsl:variable name="no" select="@n"/>
 <xsl:text>(From </xsl:text><xsl:value-of select="$no"/><xsl:text>)</xsl:text>
 </xsl:template>
 

@@ -1,6 +1,6 @@
 <?php
-#ini_set('display_errors','On');
-#ini_set('error_reporting', E_ALL);
+ini_set('display_errors','On');
+ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -309,6 +309,8 @@ class Upama
 \makeatother
 
 \begin{document}
+    \raggedright
+\input{sanskrit-hyphenations}
 
 \lineation{page}
 \begingroup
@@ -322,6 +324,10 @@ EOT;
             if(!$main)
               $main = $el; 
             
+            if($main->childNodes->length == 0) {
+                $main->appendChild($xml->createTextNode(' '));
+            }
+
             if($el->getAttribute('type') == 'apparatus')
                 continue;
         
@@ -354,12 +360,12 @@ EOT;
                 }
                 if(!array_key_exists($loc[1],$closebrackets))
                     $closebrackets[$loc[1]] = '';
-
+                
                 if($loc[1] - $loc[0] == 1) { // one-word lemma
                     $openbrackets[$loc[0]] = '\edtext{';
                     if($closebrackets[$loc[1]] != '')
                         $closebrackets[$loc[1]] .= '\lemma{' . $this->latexCleanLemma($mains[$loc[0]]) . '}';
-                    $closebrackets[$loc[1]] .= '\Afootnote{'.$note."}\n";
+                    $closebrackets[$loc[1]] .= '  \Afootnote{'.$note."}\n";
                 }
                 else { // multi-word lemma
                     if(!array_key_exists($loc[0],$edlabels)) {
@@ -376,12 +382,13 @@ EOT;
                     
                     $lemma = $this->latexCleanLemma($mains[$loc[0]] . $ldots . $mains[$loc[1]-1]);
 
-                    $closebrackets[$loc[1]] .= '\linenum{|\xlineref{'.$edlabels[$loc[0]].'}}\lemma{'.$lemma.'}\Afootnote{'.$note."}\n";
+                    $closebrackets[$loc[1]] .= '  \linenum{|\xlineref{'.$edlabels[$loc[0]].'}}\lemma{'.$lemma.'}\Afootnote{'.$note."}\n";
                 }
             }
             $sources = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='sources']/x:item",$el);
             $parallels = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='parallels']/x:item",$el);
             $testimonia = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='testimonia']/x:item",$el);
+            $notes = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='notes']/x:item",$el);
 
             $outstr = '';
             $closetag = false;
@@ -442,6 +449,11 @@ EOT;
                         $targ = ltrim($item->getAttribute('target'),'#');
                         if($targ == $anchorid)
                             $fnote .= '\footnoteC{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
+                    }
+                    foreach($notes as $item) {
+                        $targ = ltrim($item->getAttribute('target'),'#');
+                        if($targ == $anchorid)
+                            $fnote .= '\footnoteD{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
                     }
 
                     $maintrim = substr_replace($maintrim,'',$matchstart,$matchlen);
