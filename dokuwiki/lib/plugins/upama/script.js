@@ -93,6 +93,11 @@ const upama = (function() {
             state.mainClass = '.maintext';
         }
 
+        // put in a space so that highlighting works
+        for(const m of state.mains) {
+            if(m.childNodes.length === 0) m.append(' ');
+        }
+
         const witnesses = document.querySelectorAll('#__upama_listWit li');
         for(const w of witnesses) {
             if(w.getAttribute('data-source')) 
