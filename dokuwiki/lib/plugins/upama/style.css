@@ -546,6 +546,10 @@ span.metamark, span.num {
      color: #0000CC;
 }
 
+span.pc {
+    display: none;
+}
+
 span.locus {
     font-size: 70%;
     color: #A85110;

@@ -76,7 +76,7 @@
 
 <xsl:template match="x:milestone">
     <xsl:variable name="no" select="@n"/>
-    <xsl:variable name="facs" select="/x:TEI/x:facsimile/x:graphic[@n=$no]/@url"/>
+    <xsl:variable name="facs" select="/x:TEI/x:facsimile//x:graphic[@n=$no]/@url"/>
     <xsl:choose>
     <xsl:when test="string($facs)">
         <xsl:element name="a">
@@ -335,7 +335,7 @@
 
 <xsl:template match="x:pb">
     <xsl:variable name="pageno" select="@n"/>
-    <xsl:variable name="facs" select="/x:TEI/x:facsimile/x:graphic[@n=$pageno]/@url"/>
+    <xsl:variable name="facs" select="/x:TEI/x:facsimile//x:graphic[@n=$pageno]/@url"/>
     <xsl:choose>
     <xsl:when test="string($facs)">
         <xsl:element name="a">
@@ -898,6 +898,12 @@
             )"/>
 </xsl:template>
 
+<xsl:template match="x:pc">
+    <xsl:element name="span">
+        <xsl:attribute name="class">pc<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
 
 <xsl:template match="@*|node()">
     <xsl:copy><xsl:apply-templates select="@* | node()"/></xsl:copy>

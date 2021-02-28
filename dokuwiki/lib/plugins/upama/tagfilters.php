@@ -6,6 +6,8 @@
     const SHOW = 0;
 */
 return array( 
+            // analysis
+            "pc" => "-2",
             // core
             "add" => "-2",
             "cb" => "-1",
