@@ -48,8 +48,8 @@ const upama = (function() {
         }
         else return; // no upama data
    
-//       if(getvars['upama_script'] && 
-//       consts.scripts.indexOf(getvars['upama_script']) > -1) {
+        //if(getvars['upama_script'] && 
+        //consts.scripts.indexOf(getvars['upama_script']) > -1) {
         if(getvars.has('upama_script') &&
            consts.scripts.indexOf(getvars.get('upama_script')) > -1) {
             //state.script = getvars['upama_script'];
@@ -596,8 +596,9 @@ const upama = (function() {
             document.addEventListener('keydown',listener.unLowLight);
         },
 
-        scriptSelectorChange: function() {
-            const _this = this;
+        scriptSelectorChange: function(e) {
+            //const _this = this;
+            const _this = e.target;
             const script = _this.value;
             const hidden_sel = document.getElementById('__upama_hidden_script_selector');
             if(hidden_sel) hidden_sel.value = script;
@@ -607,8 +608,9 @@ const upama = (function() {
             else rewriteURL('',{upama_script: null});
         },
 
-        exportSelectorChange: function() {
-            const _this = this;
+        exportSelectorChange: function(e) {
+            //const _this = this;
+            const _this = e.target;
             const url = window.location.href;
             const prefix = url.indexOf('?') > -1 ? '&' : '?';
 
