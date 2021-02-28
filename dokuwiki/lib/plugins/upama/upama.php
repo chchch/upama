@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors','On');
-ini_set('error_reporting', E_ALL);
+//ini_set('display_errors','On');
+//ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -672,6 +672,8 @@ EOT;
             if($kid->nodeType !== 3) {
 
                 if($kid->getAttribute("ignored") == "TRUE") {
+                    // if it was preceded by a space, concat any spaces following this
+                    if($lastbit == '') $concatSpaces = true;
                     $lastbit = $lastbit . $kid->ownerDocument->saveXML($kid);
                 }
                 else { // recursively check nodes that aren't ignored
@@ -685,9 +687,16 @@ EOT;
                     else
                         $kidsplit = $this->latexSplit($kid,true);
                     
+
                     if(count($kidsplit) == 1) {
                         $kidcontent = $opentag . $kidsplit[0] . $closetag;
-                        if(preg_match('/<\/\w+>\s+/',$lastbit)) {
+
+                        // for <pc> </pc>
+                        if(trim($kidsplit[0]) == '') {
+                           $splitted[] = $lastbit . $opentag;
+                           $lastbit = $closetag;
+                        }
+                        else if(preg_match('/<\/\w+>\s+/',$lastbit)) {
                             $splitted[] = $lastbit;
                             $lastbit = $kidcontent;
                         } else
