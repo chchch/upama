@@ -1356,7 +1356,8 @@ outerTags: function(node) {
 
         function countSpaces(node) {
             const re = /\s+/g;
-            const stopnode = node.nextSibling || node.parentNode.nextSibling;
+            const stopnode = node.nextSibling || node.parentNode ? 
+                node.parentNode.nextSibling : null;
             var skipKids = false;
             var preIgnored = false;
             var spaces = 0;
@@ -1681,7 +1682,7 @@ outerTags: function(node) {
             if(node.nextSibling) return node.nextSibling;
             node = node.parentNode;
         }
-        //    return false;
+        return null;
     };
 
     /***** highlightNode(node): highlights a range by surrounding it with a span; this works as long as there are no divs in the range *****/
