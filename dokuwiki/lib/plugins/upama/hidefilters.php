@@ -13,7 +13,7 @@ return array(
             "empty śirorekha ⌜¯⌟" => '¯',
             "exclamation mark ⌜!⌟" => '!',
             "explicit hiatus ⌜_⌟" => '_',
-            "hyphens and dashes" => array('\-','—','―','='),
+            "hyphens and dashes" => array('\-','–','—','―','='),
             "line fillers ⌜¦⌟" => '¦',
             "middot ⌜·⌟" => '·',
             "numbers" => '\d',

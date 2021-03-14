@@ -89,6 +89,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         $deva_select = '';
         $mala_select = '';
         $telu_select = '';
+        $newa_select = '';
         $bali_select = '';
         switch($selected) {
             case 'devanagari':
@@ -99,6 +100,9 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 break;
             case 'telugu':
                 $telu_select = ' selected';
+                break;
+            case 'newa':
+                $newa_select = ' selected';
                 break;
             case 'balinese':
                 $bali_select = ' selected';
@@ -112,6 +116,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 '<option value="devanagari"'.$deva_select.'>Devanāgarī</option>' .
                 '<option value="malayalam"'.$mala_select.'>Malayālam</option>' .
                 '<option value="telugu"'.$telu_select.'>Telugu</option>' .
+                '<option value="newa"'.$newa_select.'>Newa</option>' .
                 '<option value="balinese"'.$bali_select.'>Balinese</option>' .
             '</select></span></a></li>'
             ) +

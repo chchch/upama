@@ -56,7 +56,13 @@
 @font-face {
     font-family: 'Tantular Bali';
     src: url('fonts/TantularBali.ttf');
-    unicode-range: ~"U+1B00-U+1B7F";
+    unicode-range: ~"U+1B00-1B7F";
+}
+
+@font-face {
+    font-family: 'Noto Sans Newa';
+    src: url('fonts/NotoSansNewa-Regular.otf');
+    unicode-range: ~"U+114400-1147F";
 }
 
 .aalt {
@@ -113,14 +119,14 @@ span.milestone {
     padding-right: 1em;
 }
 
-div.devanagari {font-size: 1.1em !important;
+div.devanagari, div.newa {font-size: 1.1em !important;
               line-height: 150%;
 }
 
-span.devanagari {font-size: 1em !important;
+span.devanagari, span.newa {font-size: 1em !important;
 }
 
-p.devanagari {font-size: 1.2em !important;
+p.devanagari, p.newa {font-size: 1.2em !important;
 }
 
 div.malayalam {font-size: 1.2em !important;
@@ -149,7 +155,7 @@ span.spacer {display: none;
 }
 
 :lang(sa) {
-    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Tantular Bali, serif;
+    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Tantular Bali', serif;
 }
 
 p:lang(sa) {
@@ -177,7 +183,7 @@ div.apparatus {
              flex: 0 0.5 auto;
              line-height: 1.1rem;
              padding: 0;
-             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Tantular Bali, sans-serif;
+             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Tantular Bali', sans-serif;
              text-align: left;
              vertical-align:top;
              font-size: 1em;
@@ -233,7 +239,7 @@ div.mangala div.verseline {
              font-size: 1.1em;
 }
 
-.devanagari .verseline {
+.devanagari .verseline, .newa .verseline {
                         line-height: 1.4em;
 }
 
@@ -326,7 +332,7 @@ span.lb {color:#FF9900;
         white-space: nowrap;
 }
 
-.devanagari span.lb {
+.devanagari span.lb, .newa span.lb {
         font-size: 100%;
 }
 .malayalam span.lb {
@@ -343,7 +349,7 @@ span.lb {color:#FF9900;
         vertical-align:bottom;
         white-space: nowrap;
 }
-.devanagari .pb {
+.devanagari .pb, .newa .pb {
                      font-size: 100%;
                      vertical-align: text-bottom;
 }
@@ -548,6 +554,14 @@ span.metamark, span.num {
 
 span.pc {
     display: none;
+}
+
+.variant span.pc {
+    display: inline;
+}
+
+.variant span.pc::before {
+    content: '°';
 }
 
 span.locus {

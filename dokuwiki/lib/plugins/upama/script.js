@@ -9,7 +9,7 @@ const upama = (function() {
         hyphen: String.fromCodePoint('0xAD'),
         hyphenRegex: new RegExp('\u00AD','g'),
         nbsp: String.fromCodePoint('0x0A0'),    
-        scripts: ['devanagari','malayalam','telugu','balinese'],
+        scripts: ['devanagari','malayalam','telugu','newa','balinese'],
         placeholder: String.fromCodePoint('0xFFFD'),
         vowelChars: 'aāiīuūṛṝḷḹeoêô',
     };
@@ -865,7 +865,24 @@ const upama = (function() {
 
             return text;
         },
-    
+        
+        newa: function(txt,placeholder) {
+            var text = txt;
+            text = text.replace(/ṙ/g, 'r')
+                .replace(/ḿ/g,'ṃ')
+                .replace(/î/g,'i') // no pṛṣṭhamātrās
+                .replace(/û/g,'u')
+                .replace(/ô/g,'o')
+                .replace(/ê/g,'e')
+                .replace(/(^|\s)_ā/,'$1\u093D\u200D\u093E')
+                .replace(/(^|\s)_r/,'$1\u093D\u200D\u0930\u094D');
+            text = to.smush(text, (placeholder || '') );
+            text = Sanscript.t(text,'iast','newa',to.options);
+
+            text = text.replace(/¯/g, 'ꣻ');
+            return text;
+        },
+
         malayalam: function(txt,placeholder) {
 
             var text = txt;
@@ -1238,6 +1255,7 @@ jiggle: function(node,script) {
                 kid.classList.add('aalt');
         
             switch (script) {
+            case 'newa':
             case 'devanagari':
                 if(txt === 'i') 
                     add_at_beginning.unshift(kid);
