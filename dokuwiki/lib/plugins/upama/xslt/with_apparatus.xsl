@@ -334,7 +334,9 @@
         <xsl:attribute name="class"><xsl:call-template name="ignore"/></xsl:attribute>
     </xsl:if>
     <xsl:element name="span">
+        <xsl:attribute name="data-balloon">caesura</xsl:attribute>
         <xsl:attribute name="class">ignored</xsl:attribute>
+        <xsl:attribute name="style">display: none;</xsl:attribute>
         <xsl:text>/</xsl:text>
     </xsl:element>
     </xsl:element>
