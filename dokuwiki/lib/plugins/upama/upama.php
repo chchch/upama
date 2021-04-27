@@ -1,6 +1,6 @@
 <?php
-//ini_set('display_errors','On');
-//ini_set('error_reporting', E_ALL);
+ini_set('display_errors','On');
+ini_set('error_reporting', E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -840,6 +840,7 @@ EOT;
                 $started = true;
                 $this->fastaFilter($n);
                 $ntext = $this->filterText($n->nodeValue)[0];
+                $ntext = normalizer_normalize($ntext,Normalizer::FORM_C);
                 $ntext = $this->slp1($ntext);
                 $ntext = preg_replace("/\s/u","",$ntext);
                 $filtered .= $ntext;
@@ -891,6 +892,7 @@ EOT;
             else {
                 $this->fastaFilter($n[0]);
                 $ntext = $dofilter ? $this->filterText($n[0]->nodeValue)[0] : $this->collapseSpaces($n[0]->nodeValue);
+                $ntext = normalizer_normalize($ntext,Normalizer::FORM_C);
                 $filtered .= $ntext;
             }
         }
