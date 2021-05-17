@@ -200,7 +200,7 @@ span.embedded.lemma {
     cursor: default;
 }
 
-.varcontainer span.embedded.lemma::after {
+.varcontainer span.lemma::after {
     content: ']';
 }
 

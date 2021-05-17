@@ -825,7 +825,7 @@
     </xsl:copy>
 </xsl:template-->
 
-<xsl:template match="x:app">
+<!--xsl:template match="x:app">
     <xsl:element name="span">
         <xsl:attribute name="class">embedded apparatus</xsl:attribute>
         <xsl:apply-templates select="x:lem"/>
@@ -842,6 +842,16 @@
         <xsl:attribute name="class">embedded lemma</xsl:attribute>
         <xsl:apply-templates />
     </xsl:element>
+</xsl:template-->
+
+<xsl:template match="x:app">
+    <xsl:apply-templates select="x:lem"/>
+</xsl:template>
+
+<xsl:template match="x:lem">
+    <span class="embedded lemma">
+        <xsl:apply-templates/>
+    </span>
 </xsl:template>
 
 <xsl:template name="splitwit">

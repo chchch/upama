@@ -496,11 +496,12 @@ const upama = (function() {
                 listener.toolTip(e,target);
                 target = target.parentNode;
             }
-            
+            /* 
             const lemma = e.target.classList.contains('lemma');
             if(lemma) listener.showReadings(e.target);
+            */
         },
-
+        /*
         showReadings: function(targ) {
             const apparatus = targ.closest('.apparatus');
             const rdgs = apparatus.querySelectorAll('.embedded.reading');
@@ -508,7 +509,7 @@ const upama = (function() {
                 rdg.style.display = 'inline';
             apparatus.addEventListener('mouseleave',listener.hideReadings);
         },
-
+        
         hideReadings: function(e) {
             const apparatus = e.target;
             const rdgs = apparatus.querySelectorAll('.embedded.reading');
@@ -516,7 +517,7 @@ const upama = (function() {
                 rdg.style.display = 'none';
             apparatus.removeEventListener('mouseleave',listener.hideReadings);
         },
-
+        */
         toolTip: function(e,target) {
             const tooltext = target.getAttribute('data-balloon');
             if(!tooltext) return;
