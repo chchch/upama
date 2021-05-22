@@ -23,6 +23,7 @@ const upama = (function() {
         permalit: [],
         highlit: null,
         lowlit: new Set(),
+        app2lit: null,
         script: 'iast',
         contentbox: null,
         listWit: [],
@@ -496,10 +497,40 @@ const upama = (function() {
                 listener.toolTip(e,target);
                 target = target.parentNode;
             }
-            /* 
             const lemma = e.target.classList.contains('lemma');
-            if(lemma) listener.showReadings(e.target);
-            */
+            if(lemma) {
+                if(e.target.classList.contains('embedded'))
+                    listener.showReadings(e.target);
+                else
+                    listener.showLemma(e.target);
+            }
+        },
+        showReadings(targ) {
+            const par = targ.closest('.upama-block');
+            const allleft = [...par.querySelectorAll('.embedded.lemma')];
+            const pos = allleft.indexOf(targ);
+            const right = par.parentElement.querySelector('.apparatus2');
+            const allright = right.querySelectorAll('.lemma');
+            const tolight = allright[pos];
+            tolight.classList.add('lowlight');
+            state.app2lit = tolight;
+            targ.addEventListener('mouseout',listener.hideReadings);
+        },
+        showLemma(targ) {
+            const par = targ.closest('.apparatus2');
+            const allright = [...par.querySelectorAll('.lemma')];
+            const pos = allright.indexOf(targ);
+            const left = par.closest('.upama-block').querySelector('.maintext');
+            const allleft = left.querySelectorAll('.embedded.lemma');
+            const tolight = allleft[pos];
+            tolight.classList.add('lowlight');
+            state.app2lit = tolight;
+            targ.addEventListener('mouseout',listener.hideReadings);
+        },
+        hideReadings(e) {
+            state.app2lit.classList.remove('lowlight');
+            state.app2lit = null;
+            e.target.removeEventListener('mouseout',listener.hideReadings);
         },
         /*
         showReadings: function(targ) {
