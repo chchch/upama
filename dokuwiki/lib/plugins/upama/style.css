@@ -197,11 +197,15 @@ span.embedded.lemma {
     text-decoration: underline;
     text-decoration-style: dotted;
     text-decoration-color: rgb(166,162,190);
-    cursor: default;
+    /*cursor: default;*/
 }
 
 .varcontainer span.lemma::after {
     content: ']';
+}
+
+span.lemma:hover {
+    background-color: rgba(255,250,0,0.5);
 }
 
 span.embedded.reading {
