@@ -86,10 +86,8 @@ const upama = (function() {
             apparatus.addEventListener('click',listener.appOnClick);
         } 
      
-        //state.mains = document.getElementsByClassName("sectiontext");
         state.mains = document.querySelectorAll('*:not(.apparatus2) > .maintext > .sectiontext');
         if(state.mains.length === 0) {
-        // state.mains = document.getElementsByClassName("maintext");
             state.mains = document.querySelectorAll('*:not(.apparatus2) > .maintext');
             state.mainClass = '.maintext';
         }
@@ -97,6 +95,8 @@ const upama = (function() {
         // put in a space so that highlighting works
         for(const m of state.mains) {
             if(m.childNodes.length === 0) m.append(' ');
+            else if(m.textContent.slice(-1) !== ' ')
+                m.append(' ');
         }
 
         const witnesses = document.querySelectorAll('#__upama_listWit li');
@@ -520,7 +520,7 @@ const upama = (function() {
             const par = targ.closest('.apparatus2');
             const allright = [...par.querySelectorAll('.lemma')];
             const pos = allright.indexOf(targ);
-            const left = par.closest('.upama-block').querySelector('.maintext');
+            const left = par.closest('.upama-block').querySelector(state.mainClass);
             const allleft = left.querySelectorAll('.embedded.lemma');
             const tolight = allleft[pos];
             tolight.classList.add('lowlight');
