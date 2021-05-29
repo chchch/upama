@@ -265,7 +265,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                     }
                 }
             }
-
+            /*
             $allnodes = $xpath->query("/x:TEI/x:text//*[@xml:id]");
             $selectednodes = [];
             $started = FALSE;
@@ -280,7 +280,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                     $selectednodes[] = $name; 
                     if($name === $endnode) break;
                 }
-            }
+            }*/
+            $selectednodes = $upama->getStartEnd($xpath,$startnode,$endnode);
 
 
             if(!$dozip) {

@@ -1,6 +1,6 @@
 <?php
 ini_set('display_errors','On');
-ini_set('error_reporting', E_ALL);
+error_reporting(E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -57,19 +57,19 @@ class Upama
         
     }
 
-    public function compare($file1,$file2,$basename = false) {
+    public function compare(string $file1, string $file2, bool $basename = false) {
         $text1 = file_get_contents($file1);
         $text2 = file_get_contents($file2);
         $url = $basename ?: $file2;
         return $this->docompare($text1,$text2,$url);
     }
 
-    public function compareFileStr($file1,$text2,$basename) {
+    public function compareFileStr(string $file1, string $text2, bool $basename) {
         $text1 = file_get_contents($file1);
         return $this->docompare($text1,$text2,$basename);
     }
 
-    public function docompare($str1,$str2,$basename) {
+    public function docompare(string $str1, string $str2,bool $basename) {
     
         $ret1 = $this->loadText($str1);
         if(is_array($ret1)) list($text1,$xpath1) = $ret1;
@@ -198,7 +198,7 @@ class Upama
             return array($text1->saveXML(),$witarr);
         }
     }
-    private function additionalWitness($str,$ref,$parref) {
+    private function additionalWitness(string $str, string $ref, string $parref): string {
         $ret = $this->loadText($str);
         if(is_array($ret)) list($text,$xpath) = $ret;
         else 
@@ -259,7 +259,7 @@ class Upama
         return $text->saveXML();
 }
 
-    public function latex($text,$xsl = 'latex.xsl') {
+    public function latex(string $text, string $xsl = 'latex.xsl'): string {
         $return = '';
         list($xml,$xpath) = $this->loadText($text);
         $this->mergeAdds($xml,$xpath);
@@ -379,7 +379,7 @@ EOT;
                         $ldots = ' ';
                     else
                         $ldots = '\ldots ';
-                    
+
                     $lemma = $this->latexCleanLemma($mains[$loc[0]] . $ldots . $mains[$loc[1]-1]);
 
                     $closebrackets[$loc[1]] .= '  \linenum{|\xlineref{'.$edlabels[$loc[0]].'}}\lemma{'.$lemma.'}\Afootnote{'.$note."}\n";
@@ -489,7 +489,7 @@ EOT;
         return $return;
     }
 
-    private function mergeAdds(&$xml,$xpath) {
+    private function mergeAdds(object &$xml, object $xpath): void {
         $rootNS = $xml->lookupNamespaceUri($xml->namespaceURI);
         $elements = $xpath->query("/x:TEI/x:text//*[@xml:id]");
         foreach($elements as $el) {
@@ -664,7 +664,7 @@ EOT;
     private function latexSplit($node,$concatSpaces = false,$tags = ['','']) {
         $kids = $node->childNodes;
         $splitted = array();
-        $lastbit = '';
+        $carryover = '';
 
         foreach ($kids as $kidno => $kid) {
             if($kid->nodeType === 8) continue; // remove comments
@@ -673,8 +673,8 @@ EOT;
 
                 if($kid->getAttribute("ignored") == "TRUE") {
                     // if it was preceded by a space, concat any spaces following this
-                    if($lastbit == '') $concatSpaces = true;
-                    $lastbit = $lastbit . $kid->ownerDocument->saveXML($kid);
+                    if($carryover == '') $concatSpaces = true;
+                    $carryover = $carryover . $kid->ownerDocument->saveXML($kid);
                 }
                 else { // recursively check nodes that aren't ignored
                     $opentag = "<".$kid->localName . $this->DOMAttributes($kid).">";
@@ -693,18 +693,18 @@ EOT;
 
                         // for <pc> </pc>
                         if(trim($kidsplit[0]) == '') {
-                           $splitted[] = $lastbit . $opentag;
-                           $lastbit = $closetag;
+                           $splitted[] = $carryover . $opentag;
+                           $carryover = $closetag;
                         }
-                        else if(preg_match('/<\/\w+>\s+/',$lastbit)) {
-                            $splitted[] = $lastbit;
-                            $lastbit = $kidcontent;
+                        else if(preg_match('/<\/\w+>\s+/',$carryover)) {
+                            $splitted[] = $carryover;
+                            $carryover = $kidcontent;
                         } else
-                            $lastbit = $lastbit . $kidcontent;
-/*                        if($lastbit == '') $lastbit = $kidcontent;
+                            $carryover = $carryover . $kidcontent;
+/*                        if($carryover == '') $carryover = $kidcontent;
                         else { 
-                            $splitted[] = $lastbit . $opentag . $kidsplit[0] . $closetag;
-                            $lastbit = '';
+                            $splitted[] = $carryover . $opentag . $kidsplit[0] . $closetag;
+                            $carryover = '';
                         } */
                     }
                     else {
@@ -712,15 +712,15 @@ EOT;
                         $kidend = array_pop($kidsplit);
                         if(trim($kidend) == '')
                             $kidend = array_pop($kidsplit) . $kidend;
-                        if(preg_match('/<\/\w+>\s+/',$lastbit)) {
-                            $splitted[] = $lastbit;
+                        if(preg_match('/<\/\w+>\s+/',$carryover)) {
+                            $splitted[] = $carryover;
                             $splitted[] = $kidstart;
                         } else
-                            $splitted[] = $lastbit . $kidstart;
+                            $splitted[] = $carryover . $kidstart;
                         
                         $splitted = array_merge($splitted, $kidsplit);
                         
-                        $lastbit = $kidend . $closetag;
+                        $carryover = $kidend . $closetag;
                     }
                 }
             }
@@ -728,19 +728,19 @@ EOT;
                 $text = $this->latexEnhance($kid->nodeValue);
                 
                 if(strlen($text) != 0 && trim($text) == '') {// space node
-                    if($lastbit != '') {
+                    if($carryover != '') {
                         if(!$concatSpaces) {
-                            $splitted[] = $tags[0] . $lastbit . $text . $tags[1];
-                            $lastbit = '';
+                            $splitted[] = $tags[0] . $carryover . $text . $tags[1];
+                            $carryover = '';
                         }
                         else {
-                            $lastbit .= $text;
+                            $carryover .= $text;
                         }
                     }
                     else {   
                         if(!$concatSpaces) $splitted[] = $tags[0] . $text . $tags[1];
                         else {
-                            $lastbit = $text;
+                            $carryover = $text;
                         }
                     } 
                     continue;
@@ -749,29 +749,30 @@ EOT;
                 else {
                     $textsplit = preg_split("/\s+/",$text);
                     if (count($textsplit) == 1) {
-                        $lastbit .= $textsplit[0]; 
+                        $carryover .= $textsplit[0]; 
                     }
                     else {
                         $firstsplit = array_shift($textsplit);
 
-//                        $splitted[] = $tags[0] . $lastbit . $firstsplit . $tags[1];
-
+//                        $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
+                        
                         if($concatSpaces) {
                             if(trim($firstsplit) == '') {
-                            //    if($lastbit != '')
-                                    $lastbit .= $firstsplit;
+                                if(trim($carryover) != '')
+                                //    $carryover .= $firstsplit;
+                                    $splitted[] = $tags[0] . $carryover . $tags[1];
                             }
                             else 
-                                $splitted[] = $tags[0] . $lastbit . $firstsplit . $tags[1];
+                                $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
                         }
                         else {
                             if(trim($firstsplit) == '') {
-                                if($lastbit != '')
-                                    $splitted[] = $tags[0] . $lastbit . $tags[1]; 
+                                if($carryover != '')
+                                    $splitted[] = $tags[0] . $carryover . $tags[1]; 
                                 if(count($splitted) == 0)
                                     $splitted[] = $tags[0] . $firstsplit . $tags[1];
                             }
-                            else $splitted[] = $tags[0] . $lastbit . $firstsplit . $tags[1];
+                            else $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
 
                         }
 
@@ -783,23 +784,47 @@ EOT;
                         
                         $splitted = array_merge($splitted, $textsplit);
                         if(trim($lastsplit) == '')
-                            $lastbit = '';
+                            $carryover = '';
                         else
-                            $lastbit = $lastsplit;
+                            $carryover = $lastsplit;
                     }
                 }
             }
             if($kidno == 0) $concatSpaces = false;
         }
-        if($lastbit != '') $splitted[] = $tags[0] . $lastbit . $tags[1];
+        if($carryover != '') $splitted[] = $tags[0] . $carryover . $tags[1];
         return $splitted;
     }
 
+    public function getStartEnd(object $xpath, ?string $startnode, ?string $endnode): array {
+        $allnodes = $xpath->query("/x:TEI/x:text//*[@xml:id]");
+        $started = false;
+        $selectednodes = [];
+
+        if($allnodes->length === 0) {
+            throw new Exception (";WARNING: no blocks with @xml:id attributes in ".$msid);
+        }
+
+        foreach($allnodes as $n) {
+            
+            if ($n->getAttribute("type") === "apparatus") continue;
+
+            $name = $n->getAttribute("xml:id");
+
+            if($started || !$startnode || $name === $startnode) {
+                $started = true;
+                $selectednodes[] = $name;
+                if($endnode && $name === $endnode) break;
+            }
+        }
+
+        return $selectednodes;
+    }
     // $node is the name of the first node
     // $endnode is the name of the last node; if $endnode is not specified, only the first node is returned
     // if both $node and $endnode are not specified, the whole document is returned
-    public function fasta($file,$node = NULL,$endnode = NULL) {
-         $ret = $this->loadFile($file);
+    public function fasta(string $file, ?object $startnode = NULL, ?object $endnode = NULL): void {
+        $ret = $this->loadFile($file);
         if(is_array($ret)) list($text,$xpath) = $ret;
         else
             throw new Exception($ret);
@@ -814,39 +839,26 @@ EOT;
             $msid = basename($file,'.txt');
         }
         else $msid = $msidnode->nodeValue;
-
-        $nodes = $xpath->query("/x:TEI/x:text//*[@xml:id]");
-
-        if($nodes->length === 0) {
-            echo ";WARNING: no blocks with @xml:id attributes in ".$msid;
-            return;
-        }
-
-        if(!$node) {
-            $node = $nodes->item(0)->getAttribute('xml:id');
-            if($endnode === NULL)
-                $endnode = $nodes->item($nodes->length-1);
-        }
         
+        $selected = $this->getStartEnd($xpath,$startnode,$endnode);
+
+        $filtered = $this->fastaLoop($selected,$xpath);
+        echo ">$msid\n";
+        echo $filtered;
+    }
+
+    private function fastaLoop(array $nodes, object $xpath): string {
+
         $filtered = '';
-        $started = false;
-        foreach($nodes as $n) {
-            
-            if ($n->getAttribute("type") === "apparatus") continue;
-
-            $name = $n->getAttribute("xml:id");
-
-            if($started || $name == $node) {
-                $started = true;
-                $this->fastaFilter($n);
-                $ntext = $this->filterText($n->nodeValue)[0];
-                $ntext = normalizer_normalize($ntext,Normalizer::FORM_C);
-                $ntext = $this->slp1($ntext);
-                $ntext = preg_replace("/\s/u","",$ntext);
-                $filtered .= $ntext;
-                
-                if($endnode === NULL || $name === $endnode) break;
-            }
+        foreach($nodes as $name) {
+            $n = $xpath->query("/x:TEI/x:text//*[@xml:id='".$name."']");
+            if(!$n || $n->length === 0) continue;
+            $this->fastaFilter($n[0]);
+            $ntext = $this->filterText($n[0]->nodeValue)[0];
+            $ntext = normalizer_normalize($ntext,Normalizer::FORM_C);
+            $ntext = $this->slp1($ntext);
+            $ntext = preg_replace("/\s/u","",$ntext);
+            $filtered .= $ntext;
         }
 
         $notallowed = "/[^aAiIuUefFxX3eE0oOM2HkKgGNcCjJYwWqQRtTdDnpPbBmyrlvSzshL\-]/";
@@ -860,11 +872,11 @@ EOT;
             echo "\n";
         }
         $filtered = preg_replace("/(.{70})/u","$1\n",$filtered);
-        echo ">$msid\n";
-        echo $filtered;
+        return $filtered;
+
     }
 
-     public function fasta2($file,$nodes,$options = NULL) {
+     public function fasta2(string $file, array $nodes, ?array $options = NULL) {
         $ret = $this->loadFile($file);
         if(is_array($ret)) list($text,$xpath) = $ret;
         else
@@ -884,8 +896,24 @@ EOT;
         }
         else $msid = $msidnode->nodeValue;
 
+        $filtered = ">$msid \n" . $this->fasta2Loop($nodes,$xpath,$dofilter);
+
+        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        if($otherwitnesses && $otherwitnesses->length > 0) {
+            $addwits = $xpath->query("./x:witness",$otherwitnesses->item(0));
+            foreach($addwits as $addwit) {
+                $witref = $addwit->getAttribute('xml:id');
+                $newfile = $this->additionalWitness(file_get_contents($file),$witref,$msid);
+                list($addtext,$addxpath) = $this->loadText($newfile);
+                $filtered .= "\n\n>$witref \n" . $this->fasta2Loop($nodes,$addxpath,$dofilter);
+            }
+        }
+
+        return $filtered;
+    }
+    
+    private function fasta2Loop(array $nodes, object $xpath, bool $dofilter): string {
         $filtered = '';
-        $started = false;
         foreach($nodes as $name) {
             $n = $xpath->query("/x:TEI/x:text//*[@xml:id='".$name."']");
             if(!$n || $n->length === 0) continue;
@@ -896,8 +924,7 @@ EOT;
                 $filtered .= $ntext;
             }
         }
-
-        return ">$msid\n" . $filtered;
+        return $filtered;
     }
 
     private function collapseSpaces($txt) {
