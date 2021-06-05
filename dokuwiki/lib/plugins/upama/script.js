@@ -5,6 +5,9 @@
 const upama = (function() {
 
     'use strict';
+    const jQuery = window.jQuery;
+    const Sanscript = window.Sanscript;
+    const DOKU_BASE = window.DOKU_BASE;
     const consts = {
         hyphen: String.fromCodePoint('0xAD'),
         hyphenRegex: new RegExp('\u00AD','g'),
@@ -36,7 +39,7 @@ const upama = (function() {
     
         const getvars = getUrlVars();
 
-//        if(getvars['do'] && getvars['do'] !== 'show') return;
+        //if(getvars['do'] && getvars['do'] !== 'show') return;
         if(getvars.has('do') && getvars.get('do') !== 'show') return;
         //    if(getvars['do'] == 'edit') return;
 
@@ -139,6 +142,7 @@ const upama = (function() {
         if(scrolltoN &&
        document.getElementById(scrolltoN)) {
             //        state.mains[scrolltoN].scrollIntoView({behavior: "smooth"});
+            /*
             jQuery(document).ready(function() {
                 if(jQuery(window).scrollTop() == '0') {
                     jQuery('html, body').animate({
@@ -146,7 +150,13 @@ const upama = (function() {
                     }, 2000);
                 }
             });
+            */
+            document.getElementById(scrolltoN).scrollIntoView({behavior: 'smooth',block: 'center'});
         }
+
+        for(const el of document.querySelectorAll('.lazyhide'))
+            el.style.display = 'unset';
+
     };
 
     const viewPos = {
@@ -712,10 +722,10 @@ const upama = (function() {
             }
         };
 
-    const blackout = document.createElement('div');
+        const blackout = document.createElement('div');
         blackout.id = '__upama_blackout';
         const frag = document.createRange().createContextualFragment(
-`<div id="exportoptions" class="popup">
+            `<div id="exportoptions" class="popup">
     <form id="exportform">
       <div style="font-weight: bold">Export to FASTT</div>
       <div>
@@ -756,7 +766,7 @@ const upama = (function() {
         const submit = blackout.querySelector('button');
         submit.addEventListener('click',submitClick);
         blackout.addEventListener('click',blackoutClick);
-     };
+    };
 
     const rewriteURL = function(getvars,morevars) {
         const vars = getvars || getUrlVars();
@@ -976,23 +986,23 @@ const upama = (function() {
         
         balinese: function(txt,placeholder) {
 
-        var text = txt;
-        const options = {skip_sgml: true};
+            var text = txt;
+            const options = {skip_sgml: true};
 
-        const presmush = text.toLowerCase()
-                             .replace(/ö/g, 'õ')
-                             .replace(/[əě]/g, 'ẽ')
-                             .replace(/ [ẽ]/g, ' hẽ')
-                             .replace(/ õ/g, ' hõ')
-                             .replace(/w/g, 'v');
+            const presmush = text.toLowerCase()
+                .replace(/ö/g, 'õ')
+                .replace(/[əě]/g, 'ẽ')
+                .replace(/ [ẽ]/g, ' hẽ')
+                .replace(/ õ/g, ' hõ')
+                .replace(/w/g, 'v');
 
-        const smushed = to.smush(presmush,(placeholder || ''));
+            const smushed = to.smush(presmush,(placeholder || ''));
 
-        return Sanscript.t(smushed,'iast','balinese',options)
-	       .replace(/ᬗ᭄(?![^\s,.:])/g,'ᬂ')
-               .replace(/ᬭ᭄(?![^\s,.:])/g,'ᬃ')
-               .replace(/ᬳ᭄(?![^\s,.:])/g,'ᬄ')
-    },
+            return Sanscript.t(smushed,'iast','balinese',options)
+                .replace(/ᬗ᭄(?![^\s,.:])/g,'ᬂ')
+                .replace(/ᬭ᭄(?![^\s,.:])/g,'ᬃ')
+                .replace(/ᬳ᭄(?![^\s,.:])/g,'ᬄ');
+        },
     }; // end to:
 
     /*
@@ -2580,7 +2590,8 @@ outerTags: function(node) {
     };
     
     const normalize = function(str) {
-        const re = /[|,.-?—―=_॰+¦·\(\)\[\]\/\\\d;¯꣸❈"'`“”‘’«»]/g;
+        //const re = /[|,.-?—―=_॰+¦·\(\)\[\]\/\\\d;¯꣸❈"'`“”‘’«»]/g;
+        const re = /[|,.-?—―=_॰+¦·()[\]/\\\d;¯꣸❈"'`“”‘’«»]/g;
         const matches = [...str.matchAll(re)];
         const strarr = str.split('');
         if(matches.length > 0) {

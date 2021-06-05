@@ -110,7 +110,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         };
         $event->data['items'] = array_slice($event->data['items'], 0, 1, true) +
         array('changescript' =>
-            '<li><a class="action changescript" title="Change display script"><span>'.
+            '<li class="lazyhide"><a class="action changescript" title="Change display script"><span>'.
             '<select id="__upama_script_selector">' .
                 '<option value="iast">IAST</option>' .
                 '<option value="devanagari"'.$deva_select.'>Devanāgarī</option>' .
@@ -124,7 +124,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         
         $event->data['items'] = array_slice($event->data['items'], 0, 4, true) + 
         array('upama_export' =>
-            '<li><a class="action upama_export" title="Export file"><span>'.
+            '<li class="lazyhide"><a class="action upama_export" title="Export file"><span>'.
             '<select id="__upama_export">'.
                 '<option value="default" selected>Export as...</option>'.
                 '<option value="tei">TEI XML</option>'.

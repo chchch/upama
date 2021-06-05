@@ -104,6 +104,10 @@
 }
 */
 
+.lazyhide {
+    display: none;
+}
+
 body {line-height: 1;}
 
 div.para {width:100%;
