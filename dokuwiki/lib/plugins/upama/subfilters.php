@@ -41,7 +41,7 @@ return array(
 
 //        "visarga aḥ + vowel" => array('aḥ(?=\s+[āiīeuūo])', "replace_with" => 'a'), 
 // this causes variants to be reported when there are none, i.e. 
-// "vacanaḥ sā..." vs "vacanaḥ ā..." becomes "vacano" and "vacana"
+// "vacanaḥ vā..." vs "vacanaḥ ā..." becomes "vacano" and "vacana"
     ["name" => "visarga āḥ variants",
      "find" => 'āḥ(?=\s[aāiīeêuūogjḍdbnmyrlvh])',
      "replace" => 'ā'],
@@ -105,18 +105,23 @@ return array(
      
      ["name" => "kcch/kś", // A 8.4.63
      "find" => 'k\s*(?:ś|c?ch)',
-     "replace" => 'kś'],
+     "replace" => 'kś',
+     "first" => true
+     ],
 //      "cch/ch" => array('(?<!\s)c(?:c| c|)h(?=\S)','(?<!\s)t ś(?=\S)'),
 
     ["name" => "cch/ch/cś/tś", // A 8.4.40
      "find" => ['c\s*(?:ch|ś)', 't\sś'],
-     "replace" => 'ch'],
+     "replace" => 'ch',
+     "first" => true
+     ],
 //        "ddh/dh" => array('ddh', "replace_with" => 'dh'),
 //        "jjh/jh" => array('jjh', "replace_with" => 'jh'),
 //        "t ś/c ch" => array('t(\s+)ś', 'c(\s+)ch', "replace_with" => '\1ch'),
     ["name" => "final t + voiced syllable", // t + h = ddh
      "find" => 'd(?=(?:\s[aāiīeuūogdbyrv]|\s*$))',
-     "replace" => 't'],
+     "replace" => 't'
+    ],
         
     ["name" => "final t + n/m",
      //"find" => 't(?=(?:\s+[nm]|\s*$))',
@@ -205,6 +210,11 @@ return array(
      "find" => 'bh(\s?)d(?!h)',
      "replace" => 'd\1bh',
      "first" => true,
+    ],
+    ["name" => "śa written as sa (some scripts)",
+     "include" => "//scriptNote[@xml:id='script-śa-sa']",
+     "find" => 'ś',
+     "replace" => 's'
     ],
 /*
     ["name" => "pṛṣṭhamātrās (Devanāgarī)",
