@@ -69,7 +69,7 @@ class Upama
         return $this->docompare($text1,$text2,$basename);
     }
 
-    public function docompare(string $str1, string $str2,bool $basename) {
+    public function docompare(string $str1, string $str2, string $basename) {
     
         $ret1 = $this->loadText($str1);
         if(is_array($ret1)) list($text1,$xpath1) = $ret1;
@@ -489,7 +489,7 @@ EOT;
         return $return;
     }
 
-    private function mergeAdds(object &$xml, object $xpath): void {
+    private function mergeAdds(&$xml, DOMXPath $xpath): void {
         $rootNS = $xml->lookupNamespaceUri($xml->namespaceURI);
         $elements = $xpath->query("/x:TEI/x:text//*[@xml:id]");
         foreach($elements as $el) {
@@ -796,7 +796,7 @@ EOT;
         return $splitted;
     }
 
-    public function getStartEnd(object $xpath, ?string $startnode, ?string $endnode): array {
+    public function getStartEnd(DOMXpath $xpath, ?string $startnode, ?string $endnode): array {
         $allnodes = $xpath->query("/x:TEI/x:text//*[@xml:id]");
         $started = false;
         $selectednodes = [];
@@ -842,12 +842,25 @@ EOT;
         
         $selected = $this->getStartEnd($xpath,$startnode,$endnode);
 
-        $filtered = $this->fastaLoop($selected,$xpath);
-        echo ">$msid\n";
+        $filtered = ">$msid\n" . $this->fastaLoop($selected,$xpath);
+
+
+        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        if($otherwitnesses && $otherwitnesses->length > 0) {
+            $addwits = $xpath->query("./x:witness",$otherwitnesses->item(0));
+            foreach($addwits as $addwit) {
+                $witref = $addwit->getAttribute('xml:id');
+                $newfile = $this->additionalWitness(file_get_contents($file),$witref,$msid);
+                list($addtext,$addxpath) = $this->loadText($newfile);
+                $addnodes = $this->getStartEnd($addxpath,$startnode,$endnode);
+                $filtered .= "\n\n>$witref\n" . $this->fastaLoop($addnodes,$addxpath);
+            }
+        }
+
         echo $filtered;
     }
 
-    private function fastaLoop(array $nodes, object $xpath): string {
+    private function fastaLoop(array $nodes, DOMXPath $xpath): string {
 
         $filtered = '';
         foreach($nodes as $name) {
@@ -896,7 +909,7 @@ EOT;
         }
         else $msid = $msidnode->nodeValue;
 
-        $filtered = ">$msid \n" . $this->fasta2Loop($nodes,$xpath,$dofilter);
+        $filtered = ">$msid\n" . $this->fasta2Loop($nodes,$xpath,$dofilter);
 
         $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
         if($otherwitnesses && $otherwitnesses->length > 0) {
@@ -905,14 +918,14 @@ EOT;
                 $witref = $addwit->getAttribute('xml:id');
                 $newfile = $this->additionalWitness(file_get_contents($file),$witref,$msid);
                 list($addtext,$addxpath) = $this->loadText($newfile);
-                $filtered .= "\n\n>$witref \n" . $this->fasta2Loop($nodes,$addxpath,$dofilter);
+                $filtered .= "\n\n>$witref\n" . $this->fasta2Loop($nodes,$addxpath,$dofilter);
             }
         }
 
         return $filtered;
     }
     
-    private function fasta2Loop(array $nodes, object $xpath, bool $dofilter): string {
+    private function fasta2Loop(array $nodes, DOMXPath $xpath, bool $dofilter): string {
         $filtered = '';
         foreach($nodes as $name) {
             $n = $xpath->query("/x:TEI/x:text//*[@xml:id='".$name."']");
@@ -927,14 +940,14 @@ EOT;
         return $filtered;
     }
 
-    private function collapseSpaces($txt) {
+    private function collapseSpaces(string $txt): string {
         $txt = preg_replace('/^\s+/u','',$txt);
         $txt = preg_replace('/\s+$/u',' ',$txt); // not right trim!!
         $txt = preg_replace('/\s\s+|[\n\t\f]/u',' ',$txt);
         return $txt;
     }
    
-    public function slp1($text) {
+    public function slp1(string $text): string {
         $iast2slp1 = array(
             "ā" => "A",
             "ai" => "E",
@@ -1020,7 +1033,7 @@ EOT;
         return $text;
 }
   */  
-    public function fastaFilter($node) {
+    public function fastaFilter(DOMElement $node): void {
 
         $children = $node->childNodes;
         $hidelist = array();
@@ -1053,7 +1066,7 @@ EOT;
         }
         foreach($hidelist as $el) $el->parentNode->removeChild($el);
     }
-
+/*
     public function oldcompare($text1,$xpath1,$text2,$xpath2,$msid) {
 
             $this->blockLevelNames = array('text','body','group','div','div1','div2','div3','div4','div5','div6','div7','p','l','lg','head');
@@ -1077,13 +1090,13 @@ EOT;
             $elements1->appendChild($frag);
             return $text1->saveXML();
     }
-
-    public function getSiglum($xpath) {
+*/
+    public function getSiglum(DOMXPath $xpath): DOMElement {
         $msidnode = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']")->item(0);
         return $msidnode;
     }
 
-    public function getTitle($xpath) {
+    public function getTitle(DOMXPath $xpath): string {
         return $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:titleStmt/x:title")->item(0)->nodeValue;
     }
     
