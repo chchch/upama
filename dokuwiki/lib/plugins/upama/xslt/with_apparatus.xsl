@@ -51,8 +51,47 @@
     <xsl:element name="div">
         <xsl:attribute name="class">apparatus</xsl:attribute>
         <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
+        <xsl:call-template name="app2"/>
         <xsl:apply-templates/>
     </xsl:element>
+</xsl:template>
+
+<xsl:template name="app2">
+    <xsl:variable name="target"><xsl:value-of select="translate(@target,'#','')"/></xsl:variable>
+    <xsl:if test="$target">
+        <div class="apparatus2">
+        <xsl:for-each select="//*[@xml:id=$target]/x:maintext//x:app">
+            <xsl:element name="div">
+                <xsl:attribute name="class">varcontainer</xsl:attribute>
+                <xsl:call-template name="lemma"/>
+                <xsl:for-each select="x:rdg">
+                    <xsl:element name="span">
+                        <xsl:attribute name="class">rdg</xsl:attribute>
+                        <xsl:attribute name="lang">sa</xsl:attribute>
+                        <xsl:apply-templates/>
+                        <xsl:call-template name="splitwit"/>
+                    </xsl:element>
+                </xsl:for-each>
+            </xsl:element>
+        </xsl:for-each>
+        </div>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template name="lemma">
+    <span>
+        <xsl:attribute name="class">lemma</xsl:attribute>
+        <xsl:apply-templates select="x:lem/node()"/>
+    </span>
+    <xsl:if test="x:lem/@wit">
+        <span>
+            <xsl:attribute name="class">lem-wit</xsl:attribute>
+            <xsl:call-template name="splitwit">
+                <xsl:with-param name="mss" select="x:lem/@wit"/>
+            </xsl:call-template>
+        </span>
+    </xsl:if>
+    <xsl:text> </xsl:text>
 </xsl:template>
 
 <xsl:template match="x:listApp">

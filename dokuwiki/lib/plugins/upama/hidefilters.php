@@ -14,7 +14,7 @@ return array(
             "exclamation mark ⌜!⌟" => '!',
             "explicit hiatus ⌜_⌟" => '_',
             "hyphens and dashes" => array('\-','–','—','―','='),
-            "line fillers ⌜¦⌟" => '¦',
+            "line fillers ⌜¦𑑛⌟" => array('¦','𑑛'),
             "middot ⌜·⌟" => '·',
             "numbers" => '\d',
             //"numbers" => '\s+[\d-]+|[\d-]+\s*',

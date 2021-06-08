@@ -36,7 +36,7 @@ return array(
     "replace" => 'n'],
 
     ["name" => "internal nasal variants",
-    "find" => '[mnñṇṅ](?=[pbmdtnṭḍcjkg])', 
+    "find" => '[mm̐nñṇṅ](?=[pbmdtnṭḍcjkg])', 
     "replace" => 'ṃ'],
 
 //        "visarga aḥ + vowel" => array('aḥ(?=\s+[āiīeuūo])', "replace_with" => 'a'), 
@@ -84,7 +84,7 @@ return array(
 
     ["name" => "final anusvāra variants", // A 8.4.59
      "exclude" => "//textLang[@mainLang='sa-Mlym']",
-     "find" => ['ṃ?[mṅ](?!\S)', '(?<=k[ai])n(?=\st)', 'ñ(?=\s[jc])'],
+     "find" => ['ṃ?[mm̐ṅ](?!\S)', '(?<=k[ai])n(?=\st)', 'ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
 //        "final anusvāra" => array('ṃ?[mṅ](?!\S)', 'n(?=\s+t[uūv])', "replace_with" => 'ṃ'),
         // final ṅ can be written as ṃ in "ohāṅ gatau"
@@ -93,7 +93,7 @@ return array(
 //        "kcch/kś" => 'k(?:[ c]ch| ?ś)',
     ["name" => "final anusvāra variants (Malayālam)",
      "include" => "//textLang[@mainLang='sa-Mlym']",
-     "find" => ['n(?=\s[tdn])','ṃ?[mṅ](?!\S)','ñ(?=\s[jc])'],
+     "find" => ['n(?=\s[tdn])','ṃ?[mm̐ṅ](?!\S)','ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
 
      ["name" => "sth written as sch (some scripts)",
