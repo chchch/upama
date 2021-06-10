@@ -13,157 +13,129 @@
     /* give the same space to the left to balance it out */
     padding-left: 40px;
 }
+
 .dokuwiki div.page {
     height: 190px;
     min-height: 190px; /* 30 (= height of icons) x 6 (= maximum number of possible tools) + 2x5 */
     height: auto;
 }
-#dokuwiki__usertools {
-    /* move the tools just outside of the site */
-    right: 40px;
-}
-[dir=rtl] #dokuwiki__usertools {
-    right: auto;
-    left: 40px;
-}
-
 
 #dokuwiki__pagetools {
+    @ico-width: 28px;
+    @ico-margin: 8px;
+    @item-width: (@ico-width + @ico-margin + @ico-margin);
+    @item-height: (@ico-width + @ico-margin);
+
     position: absolute;
+    /*right: (-1 * @item-width);*/
     right: 0px;
     /* on same vertical level as first headline, because .page has 2em padding */
     top: 2em;
-    width: 40px;
-}
-[dir=rtl] #dokuwiki__pagetools {
-    right: auto;
-    left: 0px;
+    width: @item-width;
+
+    div.tools {
+        position: fixed;
+        width: @item-width;
+
+        ul {
+            position: absolute;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            /* add transparent border to prevent jumping when proper border is added on hover */
+            border: 1px solid transparent;
+            z-index: 10;
+
+            li {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+                font-size: 0.875em;
+
+                a {
+
+                    display: flex;
+                    /* add transparent border to prevent jumping when proper border is added on focus */
+                    align-items: center;
+                    justify-content: flex-end;
+                    border: 1px solid transparent;
+                    white-space: nowrap;
+                    line-height: @item-height;
+                    vertical-align: middle;
+                    height: @item-height;
+
+                    span {
+                        display: none; // hide label until hover
+                        margin: 0 @ico-margin;
+                    }
+
+                    svg {
+                        width: @ico-width;
+                        height: @ico-width;
+                        margin: 0 @ico-margin;
+                        display: inline-block;
+                        vertical-align: middle;
+                        fill: @ini_border;
+                    }
+                }
+
+                a:after {
+                        display: inline-block;
+                        filter: brightness(0.8);
+                        height: @ico-width;
+                        width: @ico-width;
+                }
+                 
+                // on interaction show the full item
+                a:active,
+                a:focus,
+                a:hover {
+                    background-color: @ini_background_alt;
+                    text-decoration: none;
+
+                    span {
+                        display: inline-block;
+                    }
+                    &:after {
+                        filter: brightness(0.3);
+                    }
+
+                    svg {
+                        fill: @ini_link;
+                    }
+                }
+            }
+        }
+    }
+
+    [dir=rtl] & {
+        right: auto;
+        left: (-1 * @item-width);
+
+        div.tools {
+            ul {
+                right: auto;
+                left: 0;
+                text-align: left;
+            }
+        }
+    }
 }
 
-#dokuwiki__pagetools div.tools {
-    position: fixed;
-    width: 40px;
-}
+// on hover or focus show all items
+#dokuwiki__pagetools:hover, #dokuwiki__pagetools:focus-within {
+    div.tools ul {
+        background-color: @ini_background;
+        border-color: @ini_border;
+        border-radius: 2px;
+        box-shadow: 2px 2px 2px @ini_text_alt;
+	width: max-content;
 
-#dokuwiki__pagetools ul {
-    position: absolute;
-    right: 0;
-    text-align: right;
-    margin: 0;
-    padding: 0;
-    /* add transparent border to prevent jumping when proper border is added on hover */
-    border: 1px solid transparent;
-    z-index: 10;
+        li a span {
+            display: inline-block;
+        }
+    }
 }
-[dir=rtl] #dokuwiki__pagetools ul {
-    right: auto;
-    left: 0;
-    text-align: left;
-}
-
-#dokuwiki__pagetools ul li {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    font-size: 0.875em;
-}
-
-#dokuwiki__pagetools ul li a {
-    display: block;
-    min-height: 20px; /* 30 - 2x5 */
-    line-height: 20px;
-    padding: 0;
-    background-position: right 0;
-    background-repeat: no-repeat;
-    /* add transparent border to prevent jumping when proper border is added on focus */
-    border: 1px solid transparent;
-    white-space: nowrap;
-    width: 30px;
-    height: 30px;
-    overflow: hidden;
-    margin-left: auto; /* align right if the ul is larger because one item is focused */
-}
-
-#dokuwiki__pagetools ul li a:before {
-    content: url(images/pagetools-sprite.png?v=2);
-    display: inline-block;
-    font-size: 0;
-    line-height: 0;
-}
-
-[dir=rtl] #dokuwiki__pagetools ul li a {
-    background-position: left 0;
-    margin-right: auto;
-    margin-left: 0;
-}
-
-/* show all tools on hover and individual tools on focus */
-#dokuwiki__pagetools:hover ul,
-#dokuwiki__pagetools ul li a:focus,
-#dokuwiki__pagetools ul li a:active {
-    background-color: @ini_background;
-    border-color: @ini_border;
-    border-radius: 2px;
-    box-shadow: 2px 2px 2px @ini_text_alt;
-}
-
-#dokuwiki__pagetools:hover ul li a,
-#dokuwiki__pagetools ul li a:focus,
-#dokuwiki__pagetools ul li a:active {
-    width: auto;
-    height: auto;
-    overflow: visible;
-    padding: 5px 40px 5px 5px;
-    background-image: url(images/pagetools-sprite.png?v=2);
-}
-
-#dokuwiki__pagetools:hover ul li a:before,
-#dokuwiki__pagetools ul li a:focus:before {
-    content: none;
-}
-
-[dir=rtl] #dokuwiki__pagetools:hover ul,
-[dir=rtl] #dokuwiki__pagetools ul li a:focus {
-    box-shadow: -2px 2px 2px @ini_text_alt;
-}
-
-[dir=rtl] #dokuwiki__pagetools:hover li a,
-[dir=rtl] #dokuwiki__pagetools ul li a:focus,
-[dir=rtl] #dokuwiki__pagetools ul li a:active {
-    padding: 5px 5px 5px 40px;
-}
-
-/* IE7 fixes, doesn't work without images */
-
-#IE7 #dokuwiki__pagetools ul li a {
-    background-image: url(images/pagetools-sprite.png?v=2);
-}
-
-#IE7 #dokuwiki__pagetools:hover ul li a span,
-#IE7 #dokuwiki__pagetools ul li a:focus span,
-#IE7 #dokuwiki__pagetools ul li a:active span {
-    clip: auto;
-    display: inline;
-    position: static;
-}
-
-#IE7 #dokuwiki__pagetools ul li a span {
-    clip: rect(0 0 0 0);
-    position: absolute;
-}
-
-#dokuwiki__pagetools ul li a:hover,
-#dokuwiki__pagetools ul li a:active,
-#dokuwiki__pagetools ul li a:focus {
-    text-decoration: none;
-}
-#dokuwiki__pagetools ul li a:hover {
-    background-color: @ini_background_alt;
-}
-
-/*____________ all available icons in sprite ____________*/
-
-@pagetools_icon_space: -90px;
 
 /**
  * page tools without highlighting
@@ -172,27 +144,15 @@
  * @param int @position Position in the page tools sprite
  */
 .pagetools-item(@action, @position) {
-    @position-active: (@position+0.5);
 
     #dokuwiki__pagetools ul li a.@{action} {
-        background-position: right @pagetools_icon_space * @position;
 
-        &:before {
-            margin-top: @pagetools_icon_space * @position;
+        &:after {
+            content: url(images/pagetools/@{position});
         }
         &:hover,
         &:active,
         &:focus {
-            background-position: right @pagetools_icon_space * @position-active;
-        }
-    }
-    [dir=rtl] #dokuwiki__pagetools ul li a.@{action} {
-        background-position: left @pagetools_icon_space * @position;
-
-        &:hover,
-        &:active,
-        &:focus {
-            background-position: left @pagetools_icon_space * @position-active;
         }
     }
 }
@@ -206,30 +166,24 @@
  */
 .pagetools-item(@action, @position, @mode) {
   .pagetools-item(@action, @position);
-  @position-active: (@position+0.5);
 
   .mode_@{mode} #dokuwiki__pagetools ul li a.@{action} {
-    background-position: right @pagetools_icon_space * @position-active;
-    &:before {
-      margin-top: @pagetools_icon_space * @position-active;
+    &:after {
     }
-  }
-  [dir=rtl] .mode_@{mode} #dokuwiki__pagetools ul li a.@{action} {
-    background-position: left @pagetools_icon_space * @position-active;
   }
 }
 
-.pagetools-item(edit, 1);
-.pagetools-item(create, 2);
-.pagetools-item(show, 4);
-.pagetools-item(source, 5);
-.pagetools-item(draft, 3);
-.pagetools-item(revs, 7, revisions);
-.pagetools-item(backlink, 8, backlink);
-.pagetools-item(top, 10);
-.pagetools-item(revert, 6, revert);
-.pagetools-item(subscribe, 9, subscribe);
-.pagetools-item(mediaManager, 11);
-.pagetools-item(back, 12);
-.pagetools-item(changescript, 13);
-.pagetools-item(upama_export, 14);
+.pagetools-item(edit, '01_edit.png');
+.pagetools-item(create, '02_create.png');
+.pagetools-item(show, '04_show.png');
+.pagetools-item(source, '05_source.png');
+.pagetools-item(draft, '03_draft.png');
+.pagetools-item(revs, '07_revisions.png', revisions);
+.pagetools-item(backlink, '08_backlink.png', backlink);
+.pagetools-item(top, '10_top.png');
+.pagetools-item(revert, '06_revert.png', revert);
+.pagetools-item(subscribe, '09_subscribe.png', subscribe);
+.pagetools-item(mediaManager, '11_mediamanager.png');
+.pagetools-item(back, '12_back.png');
+.pagetools-item(changescript, '13_changescript.png');
+.pagetools-item(upama_export, '14-upama_export.png');
