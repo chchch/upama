@@ -12,7 +12,7 @@ const upama = (function() {
         hyphen: String.fromCodePoint('0xAD'),
         hyphenRegex: new RegExp('\u00AD','g'),
         nbsp: String.fromCodePoint('0x0A0'),    
-        scripts: ['devanagari','malayalam','telugu','newa','balinese'],
+        scripts: ['devanagari','malayalam','telugu','newa','sarada','balinese'],
         placeholder: String.fromCodePoint('0xFFFD'),
         vowelChars: 'aāiīuūṛṝḷḹeoêô',
     };
@@ -648,6 +648,7 @@ const upama = (function() {
             state.script = script;
             if(script !== 'iast') rewriteURL('',{upama_script: script});
             else rewriteURL('',{upama_script: null});
+            e.target.blur();
         },
 
         exportSelectorChange: function(e) {
@@ -920,6 +921,23 @@ const upama = (function() {
                 .replace(/(^|\s)_r/,'$1\u093D\u200D\u0930\u094D');
             text = to.smush(text, (placeholder || '') );
             text = Sanscript.t(text,'iast','newa',to.options);
+
+            text = text.replace(/¯/g, 'ꣻ');
+            return text;
+        },
+
+        sarada: function(txt,placeholder) {
+            var text = txt;
+            text = text.replace(/ṙ/g, 'r')
+                .replace(/ḿ/g,'ṃ')
+                .replace(/î/g,'i') // no pṛṣṭhamātrās
+                .replace(/û/g,'u')
+                .replace(/ô/g,'o')
+                .replace(/ê/g,'e')
+                .replace(/(^|\s)_ā/,'$1\u093D\u200D\u093E')
+                .replace(/(^|\s)_r/,'$1\u093D\u200D\u0930\u094D');
+            text = to.smush(text, (placeholder || '') );
+            text = Sanscript.t(text,'iast','sarada',to.options);
 
             text = text.replace(/¯/g, 'ꣻ');
             return text;
@@ -1298,6 +1316,7 @@ jiggle: function(node,script) {
         
             switch (script) {
             case 'newa':
+            case 'sarada':
             case 'devanagari':
                 if(txt === 'i') 
                     add_at_beginning.unshift(kid);

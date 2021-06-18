@@ -80,7 +80,7 @@
                     '','\u{1143E}','\u{1143F}',
                     '','\u{11440}','\u{11441}',
                 ],
-                other_marks: ['\u{11444}','\u{11445}','\u{11443}',''],
+                other_marks: ['\u{11444}','\u{11445}','\u{11443}','\u{11460}','\u{11461}',''],
                 virama: ['\u{11442}'],
                 consonants: ['\u{1140E}','\u{1140F}','\u{11410}','\u{11411}','\u{11412}',
                     '\u{11414}','\u{11415}','\u{11416}','\u{11417}','\u{11418}',
@@ -93,6 +93,39 @@
                 symbols: ['\u{11450}','\u{11451}','\u{11452}','\u{11453}','\u{11454}','\u{11455}','\u{11456}','\u{11457}','\u{11458}','\u{11459}',
                     '\u{11449}','\u{11447}','\u{1144B}','\u{1144C}']
 
+            },
+            
+            sarada: {
+            	vowels: ['\u{11183}','\u{11184}',
+            	'\u{11185}','\u{11186}',
+            	'\u{11187}','\u{11188}',
+            	'\u{11189}','\u{1118A}',
+            	'\u{1118B}','\u{1118C}',
+            	'','\u{1118D}','\u{1118E}',
+            	'','\u{1118F}','\u{11190}'
+            	],
+            	vowel_marks: ['\u{111B3}',
+            	'\u{111B4}','\u{111B5}',
+            	'\u{111B6}','\u{111B7}',
+            	'\u{111B8}','\u{111B9}',
+            	'\u{111BA}','\u{111BB}',
+            	'','\u{111BC}','\u{111BD}',
+            	'','\u{111BE}','\u{111BF}'
+            	],
+            	other_marks: ['\u{11181}','\u{11182}','\u{11180}','\u{111C1}','\u{111C2}'],
+            	virama: ['\u{111C0}'],
+            	consonants: ['\u{11191}','\u{11192}','\u{11193}','\u{11194}','\u{11195}',
+            	'\u{11196}','\u{11197}','\u{11198}','\u{11199}','\u{1119A}',
+            	'\u{1119B}','\u{1119C}','\u{1119D}','\u{1119E}','\u{1119F}',
+            	'\u{111A0}','\u{111A1}','\u{111A2}','\u{111A3}','\u{111A4}',
+            	'\u{111A5}','\u{111A6}','\u{111A7}','\u{111A8}','\u{111A9}',
+            	'\u{111AA}','\u{111AB}','\u{111AC}','\u{111AE}',
+            	'\u{111AF}','\u{111B0}','\u{111B1}','\u{111B2}',
+            	'\u{111AD}'
+            	],
+            	symbols: ['\u{111D0}','\u{111D1}','\u{111D2}','\u{111D3}','\u{111D4}','\u{111D5}',
+            	'\u{111D6}','\u{111D7}','\u{111D8}','\u{111D9}',
+            	'\u{111C4}','\u{111C1}','\u{111C5}','\u{111C6}']
             },
 
             /* Devanagari
@@ -110,7 +143,7 @@
                 vowel_marks: 'ा ि ी ु ू ृ ॄ ॢ ॣ ॆ े ै ॊ ो ौ ॎ ॎे ॎा ॎो ॆ ॏ'.split(' '),
 
                 // Miscellaneous marks, all of which are used in Sanskrit.
-                other_marks: 'ं ः ँ ꣽ'.split(' '),
+                other_marks: 'ं ः ँ ᳵ ᳶ ꣽ'.split(' '),
 
                 // In syllabic scripts like Devanagari, consonants have an inherent
                 // vowel that must be suppressed explicitly. We do so by putting a
@@ -119,7 +152,7 @@
 
                 // Various Sanskrit consonants and consonant clusters. Every token
                 // here has an explicit vowel. Thus "क" is "ka" instead of "k".
-                consonants: 'क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह ळ क्ष ज्ञ'.split(' '),
+                consonants: 'क ख ग घ ङ च छ ज झ ञ ट ठ ड ढ ण त थ द ध न प फ ब भ म य र ल व श ष स ह ळ'.split(' '),
 
                 // Numbers and punctuation
                 symbols: '० १ २ ३ ४ ५ ६ ७ ८ ९ ॐ ऽ । ॥'.split(' '),
@@ -155,7 +188,7 @@
                 vowel_marks: 'ા િ ી ુ ૂ ૃ ૄ ૢ ૣ  ે ૈ  ો ૌ'.split(' '),
                 other_marks: 'ં ઃ ઁ'.split(' '),
                 virama: ['્'],
-                consonants: 'ક ખ ગ ઘ ઙ ચ છ જ ઝ ઞ ટ ઠ ડ ઢ ણ ત થ દ ધ ન પ ફ બ ભ મ ય ર લ વ શ ષ સ હ ળ ક્ષ જ્ઞ'.split(' '),
+                consonants: 'ક ખ ગ ઘ ઙ ચ છ જ ઝ ઞ ટ ઠ ડ ઢ ણ ત થ દ ધ ન પ ફ બ ભ મ ય ર લ વ શ ષ સ હ ળ'.split(' '),
                 symbols: '૦ ૧ ૨ ૩ ૪ ૫ ૬ ૭ ૮ ૯ ૐ ઽ ૤ ૥'.split(' '),
                 candra: ['ૅ']
             },
@@ -169,7 +202,7 @@
                 vowel_marks: 'ਾ ਿ ੀ ੁ ੂ      ੇ ੈ  ੋ ੌ'.split(' '),
                 other_marks: 'ਂ ਃ ਁ'.split(' '),
                 virama: ['੍'],
-                consonants: 'ਕ ਖ ਗ ਘ ਙ ਚ ਛ ਜ ਝ ਞ ਟ ਠ ਡ ਢ ਣ ਤ ਥ ਦ ਧ ਨ ਪ ਫ ਬ ਭ ਮ ਯ ਰ ਲ ਵ ਸ਼ ਸ਼ ਸ ਹ ਲ਼ ਕ੍ਸ਼ ਜ੍ਞ'.split(' '),
+                consonants: 'ਕ ਖ ਗ ਘ ਙ ਚ ਛ ਜ ਝ ਞ ਟ ਠ ਡ ਢ ਣ ਤ ਥ ਦ ਧ ਨ ਪ ਫ ਬ ਭ ਮ ਯ ਰ ਲ ਵ ਸ਼ ਸ਼ ਸ ਹ ਲ਼'.split(' '),
                 symbols: '੦ ੧ ੨ ੩ ੪ ੫ ੬ ੭ ੮ ੯ ॐ ऽ । ॥'.split(' '),
                 other: ' ਖ ਗ ਜ ਡ  ਫ  '.split(' ')
             },
@@ -183,7 +216,7 @@
                 vowel_marks: 'ಾ ಿ ೀ ು ೂ ೃ ೄ ೢ ೣ ೆ ೇ ೈ ೊ ೋ ೌ'.split(' '),
                 other_marks: 'ಂ ಃ ँ'.split(' '),
                 virama: ['್'],
-                consonants: 'ಕ ಖ ಗ ಘ ಙ ಚ ಛ ಜ ಝ ಞ ಟ ಠ ಡ ಢ ಣ ತ ಥ ದ ಧ ನ ಪ ಫ ಬ ಭ ಮ ಯ ರ ಲ ವ ಶ ಷ ಸ ಹ ಳ ಕ್ಷ ಜ್ಞ'.split(' '),
+                consonants: 'ಕ ಖ ಗ ಘ ಙ ಚ ಛ ಜ ಝ ಞ ಟ ಠ ಡ ಢ ಣ ತ ಥ ದ ಧ ನ ಪ ಫ ಬ ಭ ಮ ಯ ರ ಲ ವ ಶ ಷ ಸ ಹ ಳ'.split(' '),
                 symbols: '೦ ೧ ೨ ೩ ೪ ೫ ೬ ೭ ೮ ೯ ಓಂ ಽ । ॥'.split(' '),
                 other: '      ಫ  ಱ'.split(' ')
             },
@@ -197,7 +230,7 @@
                 vowel_marks: 'ാ ി ീ ു ൂ ൃ ൄ ൢ ൣ െ േ ൈ ൊ ോ ൌ'.split(' '),
                 other_marks: 'ം ഃ ँ'.split(' '),
                 virama: ['്'],
-                consonants: 'ക ഖ ഗ ഘ ങ ച ഛ ജ ഝ ഞ ട ഠ ഡ ഢ ണ ത ഥ ദ ധ ന പ ഫ ബ ഭ മ യ ര ല വ ശ ഷ സ ഹ ള ക്ഷ ജ്ഞ'.split(' '),
+                consonants: 'ക ഖ ഗ ഘ ങ ച ഛ ജ ഝ ഞ ട ഠ ഡ ഢ ണ ത ഥ ദ ധ ന പ ഫ ബ ഭ മ യ ര ല വ ശ ഷ സ ഹ ള'.split(' '),
                 symbols: '൦ ൧ ൨ ൩ ൪ ൫ ൬ ൭ ൮ ൯ ഓം ഽ । ॥'.split(' '),
                 other: '        റ'.split(' ')
             },
@@ -211,7 +244,7 @@
                 vowel_marks: 'ା ି ୀ ୁ ୂ ୃ ୄ ୢ ୣ  େ ୈ  ୋ ୌ'.split(' '),
                 other_marks: 'ଂ ଃ ଁ'.split(' '),
                 virama: ['୍'],
-                consonants: 'କ ଖ ଗ ଘ ଙ ଚ ଛ ଜ ଝ ଞ ଟ ଠ ଡ ଢ ଣ ତ ଥ ଦ ଧ ନ ପ ଫ ବ ଭ ମ ଯ ର ଲ ଵ ଶ ଷ ସ ହ ଳ କ୍ଷ ଜ୍ଞ'.split(' '),
+                consonants: 'କ ଖ ଗ ଘ ଙ ଚ ଛ ଜ ଝ ଞ ଟ ଠ ଡ ଢ ଣ ତ ଥ ଦ ଧ ନ ପ ଫ ବ ଭ ମ ଯ ର ଲ ଵ ଶ ଷ ସ ହ ଳ'.split(' '),
                 symbols: '୦ ୧ ୨ ୩ ୪ ୫ ୬ ୭ ୮ ୯ ଓଂ ଽ । ॥'.split(' '),
                 other: '    ଡ ଢ  ଯ '.split(' ')
             },
@@ -226,7 +259,7 @@
                 vowel_marks: 'ா ி ீ ு ூ     ெ ே ை ொ ோ ௌ'.split(' '),
                 other_marks: 'ஂ ஃ '.split(' '),
                 virama: ['்'],
-                consonants: 'க க க க ங ச ச ஜ ச ஞ ட ட ட ட ண த த த த ந ப ப ப ப ம ய ர ல வ ஶ ஷ ஸ ஹ ள க்ஷ ஜ்ஞ'.split(' '),
+                consonants: 'க க க க ங ச ச ஜ ச ஞ ட ட ட ட ண த த த த ந ப ப ப ப ம ய ர ல வ ஶ ஷ ஸ ஹ ள'.split(' '),
                 symbols: '௦ ௧ ௨ ௩ ௪ ௫ ௬ ௭ ௮ ௯ ௐ ऽ । ॥'.split(' '),
                 other: '        ற'.split(' ')
             },
@@ -238,9 +271,9 @@
             telugu: {
                 vowels: 'అ ఆ ఇ ఈ ఉ ఊ ఋ ౠ ఌ ౡ ఎ ఏ ఐ ఒ ఓ ఔ'.split(' '),
                 vowel_marks: 'ా ి ీ ు ూ ృ ౄ ౢ ౣ ె ే ై ొ ో ౌ'.split(' '),
-                other_marks: 'ం ః ఁ'.split(' '),
+                other_marks: 'ం ః ఁ ᳲ ᳲ'.split(' '),
                 virama: ['్'],
-                consonants: 'క ఖ గ ఘ ఙ చ ఛ జ ఝ ఞ ట ఠ డ ఢ ణ త థ ద ధ న ప ఫ బ భ మ య ర ల వ శ ష స హ ళ క్ష జ్ఞ'.split(' '),
+                consonants: 'క ఖ గ ఘ ఙ చ ఛ జ ఝ ఞ ట ఠ డ ఢ ణ త థ ద ధ న ప ఫ బ భ మ య ర ల వ శ ష స హ ళ'.split(' '),
                 symbols: '౦ ౧ ౨ ౩ ౪ ౫ ౬ ౭ ౮ ౯ ఓం ఽ । ॥'.split(' '),
                 other: '        ఱ'.split(' ')
             },
@@ -252,10 +285,10 @@
             iast: {
                 vowels: 'a ā i ī u ū ṛ ṝ ḷ ḹ ẽ e ai õ o au ê aî ô aû'.split(' '),
                 //    other_marks: ['ṃ', 'ḥ', '~'],
-                other_marks: ['ṃ', 'ḥ', 'm̐', 'oḿ'],
+                other_marks: ['ṃ', 'ḥ', 'm̐', 'ẖ', 'ḫ', 'oḿ'],
                 virama: [''],
                 //skip: ['_'],
-                consonants: 'k kh g gh ṅ c ch j jh ñ ṭ ṭh ḍ ḍh ṇ t th d dh n p ph b bh m y r l v ś ṣ s h ḻ kṣ jñ'.split(' '),
+                consonants: 'k kh g gh ṅ c ch j jh ñ ṭ ṭh ḍ ḍh ṇ t th d dh n p ph b bh m y r l v ś ṣ s h ḻ'.split(' '),
                 symbols: '0 1 2 3 4 5 6 7 8 9 oṁ \' | ||'.split(' '),
             //symbols: "0 1 2 3 4 5 6 7 8 9 oṃ ' । ॥".split(' ')
             },

@@ -90,6 +90,7 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         $mala_select = '';
         $telu_select = '';
         $newa_select = '';
+        $sarada_select = '';
         $bali_select = '';
         switch($selected) {
             case 'devanagari':
@@ -104,6 +105,9 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
             case 'newa':
                 $newa_select = ' selected';
                 break;
+            case 'sarada':
+                $sarada_select = ' selected';
+                break;
             case 'balinese':
                 $bali_select = ' selected';
                 break;
@@ -117,7 +121,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
                 '<option value="malayalam"'.$mala_select.'>Malayālam</option>' .
                 '<option value="telugu"'.$telu_select.'>Telugu</option>' .
                 '<option value="newa"'.$newa_select.'>Newa</option>' .
-                '<option value="balinese"'.$bali_select.'>Balinese</option>' .
+                '<option value="sarada"'.$sarada_select.'>Śāradā</option>' .
+                '<option value="balinese"'.$bali_select.'>Aksara Bālī</option>' .
             '</select></span></a></li>'
             ) +
         array_slice($event->data['items'],1,null,true);
