@@ -960,8 +960,15 @@ const upama = (function() {
             //FIXME (replaced by chillu r right now)
 
             text = to.smush(text,(placeholder || ''));
-            text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
-                .replace(/[oô]/g,'õ') // same with o
+            
+            if(!document.querySelector('.scriptNote[data-scriptnote="script-all-long-vowels"]')) {
+                text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
+                    .replace(/[oô]/g,'õ') // same with o
+                    .replace(/ē/,'e')
+                    .replace(/ō/,'o');
+            }
+
+            text = text
                 .replace(/ṙ/g,'r') // no valapalagilaka
                 .replace(/ṁ/g,'ṃ') // no malayalam oṃkāra sign
                 .replace(/ḿ/g,'ṃ')
@@ -989,8 +996,14 @@ const upama = (function() {
             // FIXME: should be moved to the right of the following consonant
 
             text = to.smush(text,(placeholder || ''));        
-            text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
-                .replace(/[oô]/g,'õ') // same with o
+            if(!document.querySelector('.scriptNote[data-scriptnote="script-all-long-vowels"]')) {
+                text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
+                    .replace(/[oô]/g,'õ') // same with o
+                    .replace(/ē/,'e')
+                    .replace(/ō/,'o');
+            }
+
+            text = text
                 .replace(/ṙ/g,'r\u200D') // valapalagilaka
                 .replace(/ṁ/g,'ṃ') // no telugu oṃkāra sign
                 .replace(/ḿ/g,'ṃ')

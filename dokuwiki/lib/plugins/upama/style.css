@@ -65,6 +65,12 @@
     unicode-range: ~"U+114400-1147F";
 }
 
+@font-face {
+    font-family: 'Satisar Sharada';
+    src: url('fonts/Sharada.ttf');
+    unicode-range: ~"U+11180-111DF";
+}
+
 .aalt {
     font-feature-settings: "aalt" 1;
 }
@@ -159,7 +165,7 @@ span.spacer {display: none;
 }
 
 :lang(sa) {
-    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Tantular Bali', serif;
+    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', serif;
 }
 
 p:lang(sa) {
@@ -187,7 +193,7 @@ div.apparatus {
              flex: 0 0.5 auto;
              line-height: 1.1rem;
              padding: 0;
-             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Tantular Bali', sans-serif;
+             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', sans-serif;
              text-align: left;
              vertical-align:top;
              font-size: 1em;
