@@ -105,9 +105,11 @@ const upama = (function() {
         const witnesses = document.querySelectorAll('#__upama_listWit li');
         for(const w of witnesses) {
             if(w.getAttribute('data-source')) 
-                state.otherWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                //state.otherWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                state.otherWit.push([w.textContent,w.innerHTML]);
             else
-                state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                //state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                state.listWit.push([w.textContent,w.innerHTML]);
         }
 
         //if(state.script != 'iast') 

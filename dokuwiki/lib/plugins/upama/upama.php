@@ -57,14 +57,14 @@ class Upama
         
     }
 
-    public function compare(string $file1, string $file2, bool $basename = false) {
+    public function compare(string $file1, string $file2, string $basename) {
         $text1 = file_get_contents($file1);
         $text2 = file_get_contents($file2);
         $url = $basename ?: $file2;
         return $this->docompare($text1,$text2,$url);
     }
 
-    public function compareFileStr(string $file1, string $text2, bool $basename) {
+    public function compareFileStr(string $file1, string $text2, string $basename) {
         $text1 = file_get_contents($file1);
         return $this->docompare($text1,$text2,$basename);
     }
@@ -85,20 +85,19 @@ class Upama
         $this->optimizeHideFilters();
 
         $siglum = $this->getSiglum($xpath2);
-        $url = $basename;
 
         if(!$siglum) {
-            $msid = basename($url,'.txt');
+            $msid = basename($basename,'.txt');
             $msidnode = '<idno type="siglum">'.$msid.'</idno>';
         }
         else { 
             $msid = $siglum->nodeValue;
             $msidnode = $this->DOMouterXML($siglum);
         }
-
+        $msid = $this->sanitizeNCName($msid);
         $sourceDesc = $xpath1->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc")->item(0);
         $listWit = $text1->createDocumentFragment();
-        $listWit->appendXML("<listWit resp='upama'><witness xml:id='$msid' ref='$url'>$msidnode</witness></listWit>");
+        $listWit->appendXML("<listWit resp='upama'><witness xml:id='$msid' ref='$basename'>$msidnode</witness></listWit>");
         $sourceDesc->appendChild($listWit);
         $elements1 = $xpath1->query("/x:TEI/x:text//*[@xml:id]");
         $elements2 = $xpath2->query("/x:TEI/x:text//*[@xml:id]");
@@ -198,6 +197,12 @@ class Upama
             return array($text1->saveXML(),$witarr);
         }
     }
+    private function sanitizeNCName(string $str): string {
+        $newstr = preg_replace('/[^\w\-.]/','_',$str);
+        return preg_match('/^[A-Za-z]/',$newstr) ?
+            $newstr : "wit-$newstr";
+    }
+
     private function additionalWitness(string $str, string $ref, string $parref): string {
         $ret = $this->loadText($str);
         if(is_array($ret)) list($text,$xpath) = $ret;
@@ -207,15 +212,16 @@ class Upama
         $wit = $xpath->query("./x:witness[@xml:id='$ref']",$listWit)->item(0);
         $xmlid = '#' . $ref;
         $newsiglum = $xpath->query('./x:idno',$wit)->item(0);
+        $newsiglum = $newsiglum ? $this->DOMinnerXML($newsiglum) : $ref;
 
         $oldsiglum = $this->getSiglum($xpath);
         if(!$oldsiglum) {
             $msid = $parref . '-' . $ref;
-            $msidxml = $msid . '-' . $this->DOMinnerXML($newsiglum);
+            $msidxml = $msid . '-' . $newsiglum;
         }
         else {
             $msid = $oldsiglum->nodeValue . '-' . $ref;
-            $msidxml = $oldsiglum->nodeValue . '-' . $this->DOMinnerXML($newsiglum);
+            $msidxml = $oldsiglum->nodeValue . '-' . $newsiglum;
         }
 
         $sourceDesc = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc")->item(0);
@@ -1091,7 +1097,7 @@ EOT;
             return $text1->saveXML();
     }
 */
-    public function getSiglum(DOMXPath $xpath): DOMElement {
+    public function getSiglum(DOMXPath $xpath) {
         $msidnode = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']")->item(0);
         return $msidnode;
     }
@@ -1269,7 +1275,7 @@ EOT;
         $witnesses = array_map( function($s) { return $this->loadText($s); }, $strs);
         
         $edition = $witnesses[0];
-        
+       
         $this->implodeSubFilters([$edition[1]]);
         $this->optimizeHideFilters();
 
