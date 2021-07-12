@@ -598,6 +598,19 @@ span.anchor:hover {
     cursor: pointer;
 }
 
+span.expan {
+    text-decoration: none;
+    color: #0000CC;
+}
+
+span.abbr {
+    display: inline;
+    position: relative;
+    background-image: url(squiggle.png);
+    background-position: bottom 0.1em right 0;
+    background-repeat: repeat-x;
+}
+
 div.dokuwiki div.editbutton_plugin_upama {
     padding: 1.5em 0 1.5em 0;
     height: 1.5em;

@@ -196,6 +196,7 @@
 <xsl:template match="x:choice">
     <xsl:element name="span">
     <xsl:attribute name="class">choice<xsl:call-template name="ignore"/></xsl:attribute>
+    <xsl:attribute name="data-balloon">choice</xsl:attribute>
     <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
@@ -911,6 +912,25 @@
 <xsl:template match="x:pc">
     <xsl:element name="span">
         <xsl:attribute name="class">pc<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="x:expan">
+    <xsl:element name="span">
+        <xsl:call-template name="lang"/>
+        <xsl:attribute name="class">expan</xsl:attribute>
+        <xsl:attribute name="data-balloon">expansion</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+<xsl:template match="x:abbr">
+    <xsl:element name="span">
+        <xsl:call-template name="lang"/>
+        <xsl:attribute name="class">abbr</xsl:attribute>
+        <xsl:attribute name="data-balloon">abbreviation
+            <xsl:if test="@type"> (<xsl:value-of select="@type"/>)</xsl:if>
+        </xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>

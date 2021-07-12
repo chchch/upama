@@ -9,11 +9,13 @@ return array(
             // analysis
             "pc" => "-2",
             // core
+            "abbr" => "-1",
             "add" => "-2",
             "cb" => "-1",
             "choice" => "-2",
             "corr" => "-1",
             "del" => "-1",
+            "expan" => "-2",
             "foreign" => "-2",
             "gap" => "-1",
             "hi" => "-2",
