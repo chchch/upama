@@ -161,7 +161,11 @@
 </xsl:template>
 
 <xsl:template match="x:label">
-    <span class="editor" lang="en">[<xsl:apply-templates />]</span>
+    <xsl:element name="span">
+        <xsl:attribute name="class">editor<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="lang">en</xsl:attribute>
+        [<xsl:apply-templates />]
+    </xsl:element>
 </xsl:template>
 
 <xsl:template name="ignore">
@@ -919,7 +923,7 @@
 <xsl:template match="x:expan">
     <xsl:element name="span">
         <xsl:call-template name="lang"/>
-        <xsl:attribute name="class">expan</xsl:attribute>
+        <xsl:attribute name="class">expan<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:attribute name="data-balloon">expansion</xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
@@ -927,7 +931,7 @@
 <xsl:template match="x:abbr">
     <xsl:element name="span">
         <xsl:call-template name="lang"/>
-        <xsl:attribute name="class">abbr</xsl:attribute>
+        <xsl:attribute name="class">abbr<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:attribute name="data-balloon">abbreviation
             <xsl:if test="@type"> (<xsl:value-of select="@type"/>)</xsl:if>
         </xsl:attribute>
