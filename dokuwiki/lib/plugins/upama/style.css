@@ -603,6 +603,17 @@ span.expan {
     color: #0000CC;
 }
 
+span.ex::before {
+    content: "[";
+    color: #0000CC;
+    font-size: 0.8em;
+}
+span.ex::after {
+    content: "]";
+    color: #0000CC;
+    font-size: 0.8em;
+}
+
 span.abbr {
     display: inline;
     position: relative;

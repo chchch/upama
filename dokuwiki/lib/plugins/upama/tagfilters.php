@@ -15,6 +15,7 @@ return array(
             "choice" => "-2",
             "corr" => "-1",
             "del" => "-1",
+            "ex" => "-1",
             "expan" => "-2",
             "foreign" => "-2",
             "gap" => "-1",

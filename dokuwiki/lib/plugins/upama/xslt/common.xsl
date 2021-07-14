@@ -928,6 +928,14 @@
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>
+<xsl:template match="x:ex">
+    <xsl:element name="span">
+        <xsl:call-template name="lang"/>
+        <xsl:attribute name="class">ex<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="data-balloon">editorial expansion</xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
 <xsl:template match="x:abbr">
     <xsl:element name="span">
         <xsl:call-template name="lang"/>
