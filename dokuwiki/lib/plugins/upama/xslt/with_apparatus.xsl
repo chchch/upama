@@ -2,6 +2,7 @@
                 xmlns:x="http://www.tei-c.org/ns/1.0"
                 exclude-result-prefixes="x">
 
+<xsl:import href="definitions.xsl"/>
 <xsl:import href="common.xsl"/>
 
 <xsl:output omit-xml-declaration="yes" encoding="utf-8" method="html"/>

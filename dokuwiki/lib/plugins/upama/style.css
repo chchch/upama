@@ -61,7 +61,7 @@
 
 @font-face {
     font-family: 'Noto Sans Newa';
-    src: url('fonts/NotoSansNewa-Regular.otf');
+    src: url('fonts/NotoSansNewa-Regular-custom.otf');
     unicode-range: ~"U+114400-1147F";
 }
 
@@ -81,6 +81,10 @@
 
 .cv01 {
     font-feature-settings: "cv01" 1;
+}
+
+.trad {
+    font-feature-settings: "trad" 1;
 }
 
 /*

@@ -1,6 +1,8 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
                 xmlns:x="http://www.tei-c.org/ns/1.0"
-                exclude-result-prefixes="x">
+                xmlns:exsl="http://exslt.org/common"
+                xmlns:s="https://saktumiva.org"
+                exclude-result-prefixes="x s">
 <xsl:output method="html" indent="no" omit-xml-declaration="yes"/>
 
 <xsl:template match="x:teiHeader">
@@ -384,20 +386,31 @@
 
 <xsl:template match="x:g">
         <xsl:element name="span">
-            <xsl:attribute name="class">glyph<xsl:call-template name="ignore"/></xsl:attribute>
             <xsl:variable name="ref" select="translate(@ref,'#','')"/>
             <xsl:variable name="gdesc" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:desc"/>
             <xsl:variable name="devanagari" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:mapping[@type='devanagari']"/>
+            <xsl:variable name="cname" select="exsl:node-set($defRoot)//s:entityclasses/s:entry[@key=$ref]"/>
+            <xsl:variable name="ename" select="exsl:node-set($defRoot)//s:entitynames/s:entry[@key=$ref]"/>
+            <xsl:variable name="innertext" select="exsl:node-set($defRoot)//s:entities/s:entry[@key=$ref]"/>
+            
+            <xsl:attribute name="class">
+                <xsl:text>glyph</xsl:text>
+                <xsl:if test="$cname"><xsl:text> </xsl:text><xsl:value-of select="$cname"/></xsl:if>
+                <xsl:call-template name="ignore"/>
+            </xsl:attribute>
         <xsl:choose>
-        <xsl:when test="$gdesc">
-        <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="$gdesc"/>)</xsl:attribute>
-        </xsl:when>
-        <xsl:when test="@rend">
-            <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="@rend"/>)</xsl:attribute>
-        </xsl:when>
-        <xsl:otherwise>
-        <xsl:attribute name="data-balloon">special glyph</xsl:attribute>
-        </xsl:otherwise>
+            <xsl:when test="$ename">
+                <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="$ename"/>)</xsl:attribute>
+            </xsl:when>
+            <xsl:when test="$gdesc">
+            <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="$gdesc"/>)</xsl:attribute>
+            </xsl:when>
+            <xsl:when test="@rend">
+                <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="@rend"/>)</xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+            <xsl:attribute name="data-balloon">special glyph</xsl:attribute>
+            </xsl:otherwise>
         </xsl:choose>
         <xsl:if test="$devanagari">
             <xsl:variable name="font" select="$devanagari/@rend"/>
@@ -406,7 +419,8 @@
                 <xsl:attribute name="data-devanagari-font"><xsl:value-of select="$font"/></xsl:attribute>
             </xsl:if>
         </xsl:if>
-            <xsl:apply-templates />
+        <xsl:if test="$innertext"><xsl:value-of select="$innertext"/></xsl:if>
+        <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
 
