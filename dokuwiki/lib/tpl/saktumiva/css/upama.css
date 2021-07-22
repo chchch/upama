@@ -364,7 +364,7 @@ font-weight: bold;
 }
 
 .ui-layout-west .accordion-item-input:checked ~ .accordion-item-bd {
-    max-height: 1500px;
+    max-height: max-content;
     -webkit-transition: opacity .25s .1s, 
                         max-height .3s ease-in,
                         margin .3s ease-in, 
