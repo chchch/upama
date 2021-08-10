@@ -936,6 +936,7 @@ const upama = (function() {
                 .replace(/û/g,'u')
                 .replace(/ô/g,'o')
                 .replace(/ê/g,'e')
+                .replace(/([ḫẖ])\s+/,'$1')
                 .replace(/(^|\s)_ā/,'$1\u093D\u200D\u093E')
                 .replace(/(^|\s)_r/,'$1\u093D\u200D\u0930\u094D');
             text = to.smush(text, (placeholder || '') );
