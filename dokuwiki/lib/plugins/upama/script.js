@@ -423,7 +423,7 @@ const upama = (function() {
             }
             if(!varNode.hasOwnProperty('myOldReading'))
                 varNode.myOldReading = varNode.innerHTML;
-            varNode.innerHTML = container.querySelector('span[data-ms=\''+_this.textContent+'\']').innerHTML;
+            varNode.innerHTML = container.querySelector('span[data-ms=\''+_this.dataset.msid+'\']').innerHTML;
             varNode.classList.add('varreading');
             _this.addEventListener('mouseout',listener.msidMouseOut,{once: true});
         },
