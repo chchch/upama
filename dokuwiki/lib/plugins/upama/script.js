@@ -31,6 +31,8 @@ const upama = (function() {
         contentbox: null,
         listWit: [],
         otherWit: [],
+        groupWit: new Map(),
+        allWit: null,
         middle: null,
     //placeholder: "#",
     };
@@ -103,15 +105,21 @@ const upama = (function() {
         }
 
         const witnesses = document.querySelectorAll('#__upama_listWit li');
+        const groupWit = [];
         for(const w of witnesses) {
             if(w.getAttribute('data-source')) 
-                //state.otherWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
-                state.otherWit.push([w.textContent,w.innerHTML]);
+                state.otherWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                //state.otherWit.push([w.textContent,w.innerHTML]);
+            else if(w.getAttribute('data-corresp')) {
+                state.groupWit.set(w.dataset.msid,
+                    w.dataset.corresp.split(' ').map(s => s.replace(/^#/,'')) );
+                groupWit.push([w.dataset.msid,`<span class="msgroupname">${w.innerHTML}</span>`]);
+            }
             else
-                //state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
-                state.listWit.push([w.textContent,w.innerHTML]);
+                state.listWit.push([(w.getAttribute('data-msid')),w.innerHTML]);
+                //state.listWit.push([w.textContent,w.innerHTML]);
         }
-
+        state.allWit = new Map([...state.listWit,...state.otherWit,...groupWit]);
         //if(state.script != 'iast') 
         docSetScript(state.script,true);
     
@@ -226,14 +234,18 @@ const upama = (function() {
         },
 
         appMouseOver: function(e) {
-            var targ = e.target;
-            var closest = targ.closest('.mshover');
-            if(closest)
-                listener.msidMouseOver(closest);
-            else {
-                closest = targ.closest('.variant');
-                if(closest) listener.varMouseOver(closest);
+            const targ = e.target;
+            const mshover = targ.closest('.mshover');
+            if(mshover) {
+                listener.msidMouseOver(mshover);
+                return;
             }
+            if(targ.classList.contains('msgroupname')) {
+                listener.msgroupMouseOver(targ);
+                return;
+            }
+            const closest = targ.closest('.variant');
+            if(closest) listener.varMouseOver(closest);
         },
 
         appOnClick: function(e) {
@@ -392,7 +404,7 @@ const upama = (function() {
 
         msidMouseOver: function(target) {
             var _this = target;
-            let container = _this.parentNode;
+            let container = _this.closest('.varcontainer');
             //let varNode = container.getElementsByClassName("variant")[0];
             let varNode = container.querySelector('.variant');
             /*
@@ -417,7 +429,7 @@ const upama = (function() {
         },
 
         msidMouseOut: function() {
-            let container = this.parentNode;
+            let container = this.closest('.varcontainer');
             //let varNode = container.getElementsByClassName("variant")[0];
             let varNode = container.querySelector('.variant');
             //container.style.whiteSpace = 'nowrap';
@@ -426,6 +438,17 @@ const upama = (function() {
             container.classList.remove('wrap');
             varNode.innerHTML = varNode.myOldReading;
             varNode.classList.remove('varreading');
+        },
+        
+        msgroupMouseOver: function(target) {
+            const par = target.parentNode;
+            const msdetail = par.querySelector('span.msdetail');
+            msdetail.style.display = 'inline';
+            par.addEventListener('mouseleave',listener.msgroupMouseLeave,{once: true});
+        },
+
+        msgroupMouseLeave: function() {
+            this.querySelector('span.msdetail').style.display = 'none';
         },
 
         unPermaLight: function() {
@@ -2006,7 +2029,7 @@ outerTags: function(node) {
                     state.lowlit.add(vv);
                     const mm = v.getElementsByTagName('a');
                     for(const msid of mm) {
-                        msids.add(msid.textContent);           
+                        msids.add(msid.dataset.msid);           
                     }
                 }
             }
@@ -2102,27 +2125,61 @@ outerTags: function(node) {
     };
 
     const makePosApp = function(app,msids) {
-        if(msids.size === 0) {
+        if(msids.size === 0)
             return {text: 'no variants', appKeys: []};
-        }
-        else {
-            const exclude = app.getAttribute('data-exclude');
-            var excludeText = '';
-            if(exclude) {
-                const excludes = exclude.split(' ');
-                for(const x of excludes) msids.add(x);
-                excludeText = state.listWit.filter(x => excludes.includes(x[0])).map(y => y[1]).join(', ');
+        
+        const exclude = app.getAttribute('data-exclude');
+        //var excludeText = '';
+        if(exclude) {
+            const excludes = exclude.split(' ');
+            for(const x of excludes) {
+                if(state.groupWit.has(x)) {
+                    for(const xx of state.groupWit.get(x))
+                        msids.add(xx);
+                }
+                else
+                    msids.add(x);
             }
-            //const posApp = state.listWit.filter(([x,y]) => !msids.has(x));
-            const posApp = state.listWit.filter(x => !msids.has(x[0]));
-            const posAppKeys = posApp.map(n => n[0]);
-            var posText = posApp.map(n => n[1]).join(', ');
-            if(excludeText) posText += ' <del>'+excludeText+'</del>';
-            posText += '<span id="__upama_matrix_icon_span"><svg id="__upama_matrix_icon" viewBox="0 0 256 256"><path d="m22.16 22.16v42.67h211.68v-42.67h-211.68zm0 82.67v46.34h211.68v-46.34h-211.68zm0 86.34v42.67h211.68v-42.67h-211.68z" fill-rule="evenodd"/></svg></span>';
-            if(document.getElementById('__upama_stemma')) 
-                posText += ' <span id="__upama_stemma_icon_span"><svg id="__upama_stemma_icon" viewBox="0 0 20 20"><path d="M14.68,12.621c-0.9,0-1.702,0.43-2.216,1.09l-4.549-2.637c0.284-0.691,0.284-1.457,0-2.146l4.549-2.638c0.514,0.661,1.315,1.09,2.216,1.09c1.549,0,2.809-1.26,2.809-2.808c0-1.548-1.26-2.809-2.809-2.809c-1.548,0-2.808,1.26-2.808,2.809c0,0.38,0.076,0.741,0.214,1.073l-4.55,2.638c-0.515-0.661-1.316-1.09-2.217-1.09c-1.548,0-2.808,1.26-2.808,2.809s1.26,2.808,2.808,2.808c0.9,0,1.702-0.43,2.217-1.09l4.55,2.637c-0.138,0.332-0.214,0.693-0.214,1.074c0,1.549,1.26,2.809,2.808,2.809c1.549,0,2.809-1.26,2.809-2.809S16.229,12.621,14.68,12.621M14.68,2.512c1.136,0,2.06,0.923,2.06,2.06S15.815,6.63,14.68,6.63s-2.059-0.923-2.059-2.059S13.544,2.512,14.68,2.512M5.319,12.061c-1.136,0-2.06-0.924-2.06-2.06s0.923-2.059,2.06-2.059c1.135,0,2.06,0.923,2.06,2.059S6.454,12.061,5.319,12.061M14.68,17.488c-1.136,0-2.059-0.922-2.059-2.059s0.923-2.061,2.059-2.061s2.06,0.924,2.06,2.061S15.815,17.488,14.68,17.488"></path></svg></span>';
-            return {text: posText, appKeys: posAppKeys};
+        //    excludeText = ' <del>' + 
+        //        state.listWit.filter(x => excludes.includes(x[0])).map(y => y[1]).join(', ') +
+        //        '</del>';
         }
+        const excludeText = ' <del>' + [...app.querySelector('.excludebracket').children]
+            .map(el => el.innerHTML)
+            .join(', ') +
+            '</del>';
+        const posApp = state.listWit.filter((n) => !msids.has(n[0]));
+        const posAppKeys = posApp.map(n => n[0]);
+        const posAppFiltered = groupsDiff(state.groupWit,posAppKeys);
+        var posText = posAppFiltered.map(n => state.allWit.get(n)).join(', ');
+        posText += excludeText;
+        posText += '<span id="__upama_matrix_icon_span"><svg id="__upama_matrix_icon" viewBox="0 0 256 256"><path d="m22.16 22.16v42.67h211.68v-42.67h-211.68zm0 82.67v46.34h211.68v-46.34h-211.68zm0 86.34v42.67h211.68v-42.67h-211.68z" fill-rule="evenodd"/></svg></span>';
+        if(document.getElementById('__upama_stemma'))
+            posText += ' <span id="__upama_stemma_icon_span"><svg id="__upama_stemma_icon" viewBox="0 0 20 20"><path d="M14.68,12.621c-0.9,0-1.702,0.43-2.216,1.09l-4.549-2.637c0.284-0.691,0.284-1.457,0-2.146l4.549-2.638c0.514,0.661,1.315,1.09,2.216,1.09c1.549,0,2.809-1.26,2.809-2.808c0-1.548-1.26-2.809-2.809-2.809c-1.548,0-2.808,1.26-2.808,2.809c0,0.38,0.076,0.741,0.214,1.073l-4.55,2.638c-0.515-0.661-1.316-1.09-2.217-1.09c-1.548,0-2.808,1.26-2.808,2.809s1.26,2.808,2.808,2.808c0.9,0,1.702-0.43,2.217-1.09l4.55,2.637c-0.138,0.332-0.214,0.693-0.214,1.074c0,1.549,1.26,2.809,2.808,2.809c1.549,0,2.809-1.26,2.809-2.809S16.229,12.621,14.68,12.621M14.68,2.512c1.136,0,2.06,0.923,2.06,2.06S15.815,6.63,14.68,6.63s-2.059-0.923-2.059-2.059S13.544,2.512,14.68,2.512M5.319,12.061c-1.136,0-2.06-0.924-2.06-2.06s0.923-2.059,2.06-2.059c1.135,0,2.06,0.923,2.06,2.059S6.454,12.061,5.319,12.061M14.68,17.488c-1.136,0-2.059-0.922-2.059-2.059s0.923-2.061,2.059-2.061s2.06,0.924,2.06,2.061S15.815,17.488,14.68,17.488"></path></svg></span>';
+        return {text: posText, appKeys: posAppKeys};
+    };
+    
+    const groupsDiff = function(groups, mss) {
+        const go = function(key, ss, arr) {
+            const is = [];
+            for(const s of ss) {
+                const found = arr.indexOf(s);
+                if(found === -1) return false;
+                else {
+                    is.push(found);
+                    delete arr[found];
+                }
+            }
+            arr[Math.min(...is)] = key;
+            return arr;
+        };
+
+        var ret = mss;
+        for(const [key, group] of groups) {
+            const found = go(key,group,ret);
+            if(found) ret = found;
+        }
+        return ret.filter(() => true);
     };
 
     const showPosApp = function(data) {

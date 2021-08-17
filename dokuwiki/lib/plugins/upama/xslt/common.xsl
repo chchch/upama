@@ -2,7 +2,7 @@
                 xmlns:x="http://www.tei-c.org/ns/1.0"
                 xmlns:exsl="http://exslt.org/common"
                 xmlns:s="https://saktumiva.org"
-                exclude-result-prefixes="x s">
+                exclude-result-prefixes="x exsl s">
 <xsl:output method="html" indent="no" omit-xml-declaration="yes"/>
 
 <xsl:template match="x:teiHeader">
@@ -18,6 +18,9 @@
         <xsl:element name="li">
             <xsl:if test="x:idno/@source">
                 <xsl:attribute name="data-source"><xsl:value-of select="x:idno/@source"/></xsl:attribute>
+            </xsl:if>
+            <xsl:if test="@corresp">
+                <xsl:attribute name="data-corresp"><xsl:value-of select="@corresp"/></xsl:attribute>
             </xsl:if>
             <xsl:attribute name="data-msid"><xsl:value-of select="@xml:id"/></xsl:attribute>
             <xsl:attribute name="data-url"><xsl:value-of select="@ref"/></xsl:attribute>

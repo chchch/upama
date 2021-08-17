@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
-require_once("DiffMatchPatch/Match.php");
+require_once("DiffMatchPatch/Matcher.php");
 require_once("DiffMatchPatch/Patch.php");
 require_once("DiffMatchPatch/PatchObject.php");
 require_once("DiffMatchPatch/Utils.php");
@@ -98,6 +98,8 @@ class Upama
         $sourceDesc = $xpath1->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc")->item(0);
         $listWit = $text1->createDocumentFragment();
         $listWit->appendXML("<listWit resp='upama'><witness xml:id='$msid' ref='$basename'>$msidnode</witness></listWit>");
+        $listWit->appendXML($this->getFiliation($xpath2));
+
         $sourceDesc->appendChild($listWit);
         $elements1 = $xpath1->query("/x:TEI/x:text//*[@xml:id]");
         $elements2 = $xpath2->query("/x:TEI/x:text//*[@xml:id]");
@@ -138,10 +140,8 @@ class Upama
 
                $this->prefilterNode($newel);
                $el1->appendChild($newel);
-               
-               $appel = $text1->createElementNS($rootNS,'div');
-               $appel->setAttribute('type','apparatus');
-               $appel->setAttribute('target','#'.$elname);
+              
+               $appel = $this->makeAppDiv($text1,$rootNS,$elname);
                $emptyapp = $text1->createElementNS($rootNS,'listApp');
                $exattr = $text1->createAttribute('exclude');
                $exattr->value = '#' . $msid;
@@ -150,7 +150,7 @@ class Upama
                
                $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."']")->item(0);
                if($app2) $appel->appendChild($app2);
-               $el1->appendChild($appel);   
+               $el1->appendChild($appel);
             }
             else {
                 list($dom1text,$ignored1) = $this->filterNode($el1);
@@ -170,9 +170,7 @@ class Upama
                 $frag->appendXML($diffstring);
                 //$el1->nodeValue = '';
 
-                $appel = $text1->createElementNS($rootNS,'div');
-                $appel->setAttribute('type','apparatus');
-                $appel->setAttribute('target','#'.$elname);
+                $appel = $this->makeAppDiv($text1,$rootNS,$elname);
                 $appel->appendChild($frag);
                 $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."']")->item(0);
                 if($app2) $appel->appendChild($app2);
@@ -198,9 +196,28 @@ class Upama
         }
     }
     private function sanitizeNCName(string $str): string {
-        $newstr = preg_replace('/[^\w\-.]/','_',$str);
-        return preg_match('/^[A-Za-z]/',$newstr) ?
-            $newstr : "wit-$newstr";
+        $newstr = preg_replace('/[^\w\-.]/','_',urlencode($str));
+        return preg_match('/^[A-Za-z_]/',$newstr) ?
+            $newstr : "w$newstr";
+    }
+
+    private function makeAppDiv($doc,$ns,$name) {
+        $appel = $doc->createElementNS($ns,'div');
+        $appel->setAttribute('type','apparatus');
+        $appel->setAttribute('target','#'.$name);
+        return $appel;
+    }
+    
+    private function getFiliation($xpath) {
+        $fils = $xpath->query('//x:filiation');
+        if($fils->length === 0) return '';
+
+        $str = array_map(function($fil) {
+            $corresp = ltrim($fil->getAttribute('corresp'),'#');
+            $xml = $this->DOMinnerXML($fil);
+            return "<witness xml:id='$corresp'>$xml</witness>";
+        },iterator_to_array($fils));
+        return '<listWit resp="upama-groups">'.implode('',$str).'</listWit>';
     }
 
     private function additionalWitness(string $str, string $ref, string $parref): string {
@@ -266,7 +283,6 @@ class Upama
 }
 
     public function latex(string $text, string $xsl = 'latex.xsl'): string {
-        $return = '';
         list($xml,$xpath) = $this->loadText($text);
         $this->mergeAdds($xml,$xpath);
         $elements = $xpath->query("/x:TEI/x:text//*[@xml:id]");
@@ -277,7 +293,7 @@ class Upama
                 $this->DOMinnerXML($xpath->query("./x:idno",$wit)->item(0));
         }
         
-        $return .= <<<'EOT'
+        $return = <<<'EOT'
 \documentclass[14pt]{extarticle}
 \usepackage{polyglossia,fontspec,xunicode}
 \usepackage[normalem]{ulem}
@@ -901,7 +917,7 @@ EOT;
         else
             throw new Exception($ret);
         $dofilter = FALSE;
-        if($options['normalize'] === TRUE) {
+        if($options && $options['normalize'] === TRUE) {
             $this->implodeSubFilters([$xpath]);
                 //$this->setFilter("hidetext","spaces","\s");
             $this->optimizeHideFilters();
@@ -1159,13 +1175,13 @@ EOT;
     }
     
     public function removeFilter($type,$name) {
-        if($type == 'tag')
+        if($type === 'tag')
             unset($this->tagFILTERS[$name]);
-        elseif($type == 'hidetext') {
+        elseif($type === 'hidetext') {
             unset($this->origHideFILTERS[$name]);
             //$this->optimizeHideFilters(TRUE);
         }
-        elseif($type == 'subtext') {
+        elseif($type === 'subtext') {
             unset($this->origSubFILTERS[$name]);
             //$this->implodeSubFilters(TRUE);
         }
@@ -1244,10 +1260,10 @@ EOT;
             if(is_array($value)) {
                 $newfilter .= implode("",$value);
             }
-            elseif(mb_strlen($value) == 1) {
+            elseif(mb_strlen($value) === 1) {
                 $newfilter .= $value;
             }
-            elseif(mb_strlen($value) == 2 && substr($value,0,1) == "\\") {
+            elseif(mb_strlen($value) === 2 && substr($value,0,1) === "\\") {
                 $newfilter .= $value;
             }
             else $this->hideFILTERS[$key] = '/'.$value.'/u';
@@ -1258,7 +1274,7 @@ EOT;
         return 1;
     }
 
-    private function witnessList(&$ed,$wits) {
+    private function witnessList(array &$ed, array $wits, array $groups): void {
         $edlist = $ed[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']")->item(0);
         $edfrag = $ed[0]->createDocumentFragment();
         $witstr = '';
@@ -1266,29 +1282,47 @@ EOT;
             $witlist = $wit[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']")->item(0);
             $witstr .= $this->DOMinnerXML($witlist);
         }
+        foreach($groups as $key => $val) {
+            $corresp = implode(' ',$val['members']);
+            $witstr .= "<witness xml:id='$key' corresp='$corresp'><idno type='siglum'>{$val['name']}</idno></witness>";
+        }
         $edfrag->appendXML($witstr);
         $edlist->appendChild($edfrag);
     }
 
-    public function collate($strs) {
+    public function collate(array $strs): string {
         
-        $witnesses = array_map( function($s) { return $this->loadText($s); }, $strs);
-        
+        $witnesses = array_map( function($s) {return $this->loadText($s);}, $strs );
+
         $edition = $witnesses[0];
        
         $this->implodeSubFilters([$edition[1]]);
         $this->optimizeHideFilters();
-
-        $this->witnessList($edition,array_slice($witnesses,1));
+        
+        $otherwits = array_slice($witnesses,1);
+        $groups = $this->getWitGroups($witnesses);
+        $this->witnessList($edition,$otherwits,$groups);
 
         $mainapparati = $edition[1]->query("//x:listApp");
         
-        $apparati = array_map( function($w) { return $w[1]->query("//x:listApp"); },
-                                $witnesses);
+        $apparati = array_map( function($w) {return $w[1]->query("//x:listApp");}, $witnesses );
 
         $length = $mainapparati->length;
-        for($n=0;$n < $length;$n++) {
+        for($n=0; $n < $length; $n++) {
             $collated = array();
+            /* $collated: 
+            // [ '00x00' => // location of word(s)
+            //      [ // lemma
+            //          'mss'      => ['A','B','C'],
+            //          'location' => '00x00x00x00',
+            //          'content'  => '(normalized) reading',
+            //          'readings' => [
+                            'A' => 'variant reading',
+                            'C' => 'another variant reading'
+                        ]               '
+            //      ]
+            // ]
+            */
             $exclude = array();
             $parentnode = $mainapparati->item($n);
             foreach($witnesses as $m => $witness) {
@@ -1297,72 +1331,20 @@ EOT;
                 $apparatus = $apparati[$m]->item($n);
                 //if(!$apparatus) continue; 
                 if($apparatus->hasAttribute('exclude')) {
-                        if(!$parentWitness) {
-                            $exclude[] = $apparatus->getAttribute('exclude');
-                        }
+                    if(!$parentWitness) {
+                        $exclude[] = $apparatus->getAttribute('exclude');
+                    }
                     continue;
                  }
                 
                  $variants = $apparatus->childNodes;
                  foreach($variants as $variant) {
-                    $loc = $variant->getAttribute("loc");
-                    $arrkey = implode("x",
-                        array_slice(explode("x",$loc),0,2)
-                        );
-                    $newcontent = $this->DOMinnerXML($variant->firstChild);
-
-                    $ms = $variant->getAttribute("mss");
-                    //if(!array_key_exists($arrkey,$collated)) {
-                    if(!isset($collated[$arrkey])) {
-                        $collated[$arrkey] = 
-                            array( 
-                                array( 'mss' => array($ms),
-                                       'location' => $loc,
-                                       'content' => $newcontent
-                                )   
-                            );
-                    }
-                    else {
-                        $done = FALSE;
-                        foreach ($collated[$arrkey] as &$entry) {
-                            // $arrkey is less specific than $loc
-                            if($loc !== $entry['location']) continue;
-
-                            $oldcontent = $entry['content'];
-                            $oldms = $entry['mss'][0];
-                            $compared = $this->compareVariants($oldcontent,$newcontent);
-                            if($compared !== 0) {
-                               
-                               if($parentWitness && in_array($parentWitness,$entry['mss'])) {
-                                    $done = TRUE;
-                                    break;
-                                }
-                                
-                                $entry['mss'][] = $ms;
-                                if(!isset($entry['readings'])) {
-                                    $entry['readings'] = array();
-                                    $entry['readings'][$oldms] = $oldcontent;
-                                }
-                                $entry['readings'][$ms] = $newcontent;
-                                if(is_string($compared))
-                                    $entry['content'] = $compared;
-                                $done = TRUE;
-                                break;
-                            }
-                        }
-                        unset($entry);
-                        if(!$done)
-                            $collated[$arrkey][] = 
-                                array( 'mss' => array($ms), 
-                                       'location' => $loc,
-                                       'content' => $newcontent
-                                    );
-                    }
-                } // end foreach variant
-            } // end foreach witness
+                    $this->collateVarLoop($variant,$parentWitness,$collated); 
+                 }
+            }
 
             uksort($collated, function($i1,$i2) {
-                if($i1 == $i2) return 0; // this shouldn't be needed
+                if($i1 === $i2) return 0; // this shouldn't be needed
                 else {
                     $n1 = explode("x",$i1);
                     $n2 = explode("x",$i2);
@@ -1372,66 +1354,182 @@ EOT;
                     return $n1[1] < $n2[1] ? -1 : 1;
                 }
             });
-            
+
             $parentnode->nodeValue = '';
             if(count($exclude)) {
+                $filtered = $this->filterWitGroups($exclude, $groups);
                 $exattr = $edition[0]->createAttribute('exclude');
-                $exattr->value = implode(' ',$exclude);
+                $exattr->value = implode(' ',$filtered);
                 $parentnode->appendChild($exattr);
             }
 
             $fragment = $edition[0]->createDocumentFragment();
             foreach($collated as $entries) {
-                $newstr = '';
-                if(count($entries) > 1) {    
-                    $newstr .= '<rdgGrp>';
-                    
-                    // sort grouped variants
-                    usort($entries, function($i1,$i2) {
-                        if($i1 == $i2) return 0;
-                        $i1 = array_slice(explode("x",$i1['location']),2);
-                        $i2 = array_slice(explode("x",$i2['location']),2);
-                        
-                        // put full-length variants between prefixed and suffixed ones
-                        if(empty($i1))
-                            return (!isset($i2[1])) ? -1 : 1;
-                        if(empty($i2))
-                            return (!isset($i1[1])) ? 1 : -1;
-
-                        if($i1[0] < $i2[0]) return -1;
-                        if($i1[0] > $i2[0]) return 1;
-                        if(!isset($i2[1])) return -1;
-                        if(!isset($i1[1])) return 1;
-                        return ($i1[1] < $i2[1]) ? -1 : 1;
-                    });
-                }
-                foreach($entries as $entry) {
-                    $readings = '';
-                    $allmss = implode(" ",$entry['mss']);
-                    $nonmain = [];
-                    $main = [];
-                    if(isset($entry['readings'])) {
-                        foreach($entry['readings'] as $ms => $reading) {
-                            if($reading !== $entry['content']) {
-                                $readings .= '<rdg wit="'.$ms.'">'.$reading.'</rdg>'; 
-                                $nonmain[] = $ms;
-                            }
-                        }
-                    }
-                    $main = implode(" ",array_diff($entry['mss'],$nonmain));
-                    $newstr .= "<app loc='".$entry['location'].
-                    "' mss='".$allmss."'><rdg wit='$main' type='main'>".$entry['content']."</rdg>".$readings."</app>";
-                }
-                if(count($entries) > 1) $newstr .= '</rdgGrp>';
-                $newstr .= ' ';
+                $newstr = $this->printVarLoop($entries,$groups);
                 $fragment->appendXML($newstr);
             }
             if($fragment->hasChildNodes())
                 $parentnode->appendChild($fragment);
-        }
+        } // end for($n=0...
+
         return $edition[0]->saveXML($edition[0]);
     }
+
+    private function getWitGroups(array $wits) : array {
+        $groups = array();
+        foreach($wits as $wit) {
+            $xmlid = '#' . $wit[1]->query('//x:listWit[@resp="upama"]/x:witness')->item(0)->getAttribute('xml:id');
+            $fils = $wit[1]->query('//x:listWit[@resp="upama-groups"]/x:witness');
+            foreach($fils as $fil) {
+                $c = $fil->getAttribute('xml:id');
+                if(isset($groups[$c]))
+                    $groups[$c]['members'][] = $xmlid;
+                else
+                    $groups[$c] = [
+                        'name' => $this->DOMinnerXML($fil),
+                        'members' => array($xmlid)
+                    ];
+            }
+        }
+        uasort($groups, function($a, $b) {
+            $alen = $a['members']->length;
+            $blen = $b['members']->length;
+            if($alen === $blen) return 0;
+            return ($alen < $blen) ? 1 : -1;
+        });
+        return $groups;
+    }
+
+    private function filterWitGroups(array $mss, array $groups) : array {
+        $return = $mss;
+        $accepted = array();
+        foreach($groups as $key => $group) {
+            $found = $this->groupDiff($key,$group,$return);
+            if($found !== null) $return = $found;
+        }
+        ksort($return);
+        return $return;
+    }
     
+    private function groupDiff(string $key, array $group, array $mss) : ?array {
+        $is = array();
+        $leftover = $mss;
+        foreach($group['members'] as $m) {
+            $found = array_search($m,$leftover);
+            if($found === false) return null;
+            else {
+                $is[] = $found;
+                unset($leftover[$found]);
+            }
+        }
+        $leftover[min($is)] = "#$key";
+        return $leftover;
+    }
+
+    private function collateVarLoop(DOMElement $variant,?string $parentWitness,&$collated): void {
+        $loc = $variant->getAttribute("loc");
+        $arrkey = implode("x",
+            array_slice(explode("x",$loc),0,2)
+            );
+        $newcontent = $this->DOMinnerXML($variant->firstChild);
+
+        $ms = $variant->getAttribute("mss");
+        //if(!array_key_exists($arrkey,$collated)) {
+        if(!isset($collated[$arrkey])) {
+            $collated[$arrkey] = 
+                array( 
+                    array( 'mss' => array($ms),
+                           'location' => $loc,
+                           'content' => $newcontent
+                    )
+                );
+        }
+        else {
+            $done = FALSE;
+            foreach ($collated[$arrkey] as &$entry) {
+                // $arrkey is less specific than $loc
+                if($loc !== $entry['location']) continue;
+
+                $oldcontent = $entry['content'];
+                $oldms = $entry['mss'][0];
+                $compared = $this->compareVariants($oldcontent,$newcontent);
+                if($compared !== 0) {
+                   
+                   if($parentWitness && in_array($parentWitness,$entry['mss'])) {
+                        $done = TRUE;
+                        break;
+                    }
+                    
+                    $entry['mss'][] = $ms;
+                    if(!isset($entry['readings'])) {
+                        $entry['readings'] = array();
+                        $entry['readings'][$oldms] = $oldcontent;
+                    }
+                    $entry['readings'][$ms] = $newcontent;
+                    if(is_string($compared))
+                        $entry['content'] = $compared;
+                    $done = TRUE;
+                    break;
+                }
+            }
+            unset($entry);
+            if(!$done)
+                $collated[$arrkey][] = 
+                    array( 'mss' => array($ms), 
+                           'location' => $loc,
+                           'content' => $newcontent
+                        );
+        }
+    }
+
+    private function printVarLoop(array $entries,array $groups) : string {
+        $newstr = '';
+        if(count($entries) > 1) {    
+            $newstr .= '<rdgGrp>';
+
+            // sort grouped variants
+            usort($entries, function($i1,$i2) {
+                if($i1 == $i2) return 0;
+                $i1 = array_slice(explode("x",$i1['location']),2);
+                $i2 = array_slice(explode("x",$i2['location']),2);
+
+                // put full-length variants between prefixed and suffixed ones
+                if(empty($i1))
+                    return (!isset($i2[1])) ? -1 : 1;
+                if(empty($i2))
+                    return (!isset($i1[1])) ? 1 : -1;
+
+                if($i1[0] < $i2[0]) return -1;
+                if($i1[0] > $i2[0]) return 1;
+                if(!isset($i2[1])) return -1;
+                if(!isset($i1[1])) return 1;
+                return ($i1[1] < $i2[1]) ? -1 : 1;
+            });
+        }
+        foreach($entries as $entry) {
+            $readings = '';
+            $msswithgroups = $this->filterWitGroups($entry['mss'],$groups);
+            $allmss = implode(' ',$msswithgroups);
+            $nonmain = [];
+            $main = [];
+            if(isset($entry['readings'])) {
+                foreach($entry['readings'] as $ms => $reading) {
+                    if($reading !== $entry['content']) {
+                        $readings .= "<rdg wit='$ms'>$reading</rdg>"; 
+                        $nonmain[] = $ms;
+                    }
+                }
+            }
+            $main = implode(' ',array_diff($entry['mss'],$nonmain));
+            $newstr .= "<app loc='{$entry['location']}' mss='$allmss'>".
+                "<rdg wit='$main' type='main'>{$entry['content']}</rdg>".
+                "$readings</app>";
+        }
+        if(count($entries) > 1) $newstr .= '</rdgGrp>';
+        $newstr .= ' ';
+        return $newstr;
+    }
+
     private function compareVariants($str1,$str2) {
         if($str1 === $str2) return 1;
         else {

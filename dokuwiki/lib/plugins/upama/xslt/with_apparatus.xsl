@@ -96,26 +96,18 @@
 </xsl:template>
 
 <xsl:template match="x:listApp">
-    <!--td class="apparatus hyphenate"-->
     <xsl:element name="div">
-        <!--xsl:attribute name="class">apparatus</xsl:attribute-->
         <xsl:attribute name="class">variorum</xsl:attribute>
         <xsl:if test="@exclude">
             <xsl:attribute name="data-exclude">
                 <xsl:value-of select="translate(@exclude,'#','')"/>
             </xsl:attribute>        
-            <!--xsl:element name="span">
-                <xsl:attribute name="class">varbracket</xsl:attribute>
-                <xsl:text>❲</xsl:text>
-            </xsl:element-->
             <xsl:element name="span">
-                <xsl:attribute name="class">bracketopen bracketclose</xsl:attribute>
-                <xsl:call-template name="splitexclude"/>
+                <xsl:attribute name="class">bracketopen bracketclose excludebracket</xsl:attribute>
+                <xsl:call-template name="splitexclude">
+                    <xsl:with-param name="list" select="@exclude"/>
+                </xsl:call-template>
             </xsl:element>
-            <!--xsl:element name="span">
-                <xsl:attribute name="class">varbracket</xsl:attribute>
-                <xsl:text>❳</xsl:text>
-            </xsl:element-->
         </xsl:if>
         <xsl:text>
         </xsl:text>
@@ -127,44 +119,92 @@
 
 <xsl:template name="split">
     <xsl:param name="scrollid" select="ancestor::*[@xml:id]/@xml:id"/>
-    <xsl:param name="mss" select="@mss"/>
-        <xsl:if test="string-length($mss)">
-            <xsl:if test="not($mss=@mss)">, </xsl:if>
-            <xsl:element name="a">
-             <xsl:variable name="msstring" select="substring-before(
-                                        concat($mss,' '),
-                                      ' ')"/>
-             <xsl:choose>
-              <xsl:when test="./x:rdg[@wit=$msstring][not(@type='main')]">
-                <xsl:attribute name="class">msid mshover</xsl:attribute>
-              </xsl:when>
-              <xsl:otherwise>
+    <xsl:param name="list"/>
+    <xsl:param name="mss" select="$list"/>
+
+    <xsl:if test="string-length($mss)">
+        <xsl:if test="not($mss=$list)">, </xsl:if>
+        <xsl:variable name="msstring" select="substring-before(
+                                    concat($mss,' '),
+                                  ' ')"/>
+        <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
+        <xsl:variable name="witel" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]"/>
+
+        <xsl:choose>
+         <xsl:when test="$witel/@corresp">
+          <xsl:element name="span">
+            <xsl:attribute name="class">msid msgroup</xsl:attribute>
+            <span class="msgroupname">
+                <xsl:attribute name="data-msid"><xsl:value-of select="$cleanstr"/></xsl:attribute>
+                <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+            </span>
+            <span class="msdetail">
+                <xsl:text>(</xsl:text>
+                    <xsl:call-template name="split">
+                        <xsl:with-param name="list" select="$witel/@corresp"/>
+                    </xsl:call-template>
+                <xsl:text>)</xsl:text>
+            </span>
+          </xsl:element>
+         </xsl:when>
+         <xsl:otherwise>
+           <xsl:element name="a">
+            <xsl:attribute name="data-msid"><xsl:value-of select="$cleanstr"/></xsl:attribute>
+            <xsl:choose>
+             <xsl:when test="./x:rdg[@wit=$msstring][not(@type='main')]">
+              <xsl:attribute name="class">msid mshover</xsl:attribute>
+             </xsl:when>
+             <xsl:otherwise>
                 <xsl:attribute name="class">msid</xsl:attribute>
-              </xsl:otherwise>
-             </xsl:choose>
-             <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
-             <xsl:attribute name="href"><xsl:value-of select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
-             <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
-            </xsl:element>
-            <xsl:call-template name="split">
-                <xsl:with-param name="mss" select=
-                    "substring-after($mss, ' ')"/>
-            </xsl:call-template>
-        </xsl:if>
+             </xsl:otherwise>
+            </xsl:choose>
+            <xsl:attribute name="href"><xsl:value-of select="$witel/@ref"/><xsl:value-of disable-output-escaping="yes" select="$urlprefix"/>upama_scroll=<xsl:value-of select="$scrollid"/></xsl:attribute>
+            <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+           </xsl:element>
+         </xsl:otherwise>
+        </xsl:choose>
+        <xsl:call-template name="split">
+            <xsl:with-param name="mss" select=
+                "substring-after($mss, ' ')"/>
+        </xsl:call-template>
+    </xsl:if>
 </xsl:template>
 
 <xsl:template name="splitexclude">
-    <xsl:param name="mss" select="@exclude"/>
-        <xsl:if test="string-length($mss)">
-            <xsl:if test="not($mss=@exclude)">, </xsl:if>
-            <xsl:element name="span">
-                 <xsl:attribute name="class">msid exclude</xsl:attribute>
-                 <xsl:variable name="msstring" select="substring-before(
+    <xsl:param name="list"/>
+    <xsl:param name="mss" select="$list"/>
+    <xsl:variable name="msstring" select="substring-before(
                                             concat($mss,' '),
                                           ' ')"/>
-                 <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
+    <xsl:variable name="cleanstr" select="substring-after($msstring,'#')"/>
+    <xsl:variable name="witel" select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]"/>
+
+    <xsl:if test="string-length($mss)">
+        <xsl:if test="not($mss=$list)">, </xsl:if>
+    
+        <xsl:choose>
+         <xsl:when test="$witel/@corresp">
+          <xsl:element name="span">
+            <xsl:attribute name="class">msid exclude msgroup</xsl:attribute>
+            <span class="msgroupname">
+                <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
+            </span>
+            <span class="msdetail">
+                <xsl:text>(</xsl:text>
+                    <xsl:call-template name="splitexclude">
+                        <xsl:with-param name="list" select="$witel/@corresp"/>
+                    </xsl:call-template>
+                <xsl:text>)</xsl:text>
+            </span>
+          </xsl:element>
+         </xsl:when>
+         <xsl:otherwise>
+            <xsl:element name="span">
+                 <xsl:attribute name="class">msid exclude</xsl:attribute>
                  <xsl:apply-templates select="/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness[@xml:id=$cleanstr]/x:idno/node()"/>
             </xsl:element>
+           </xsl:otherwise>
+          </xsl:choose>
             <xsl:call-template name="splitexclude">
                 <xsl:with-param name="mss" select=
                     "substring-after($mss, ' ')"/>
@@ -201,7 +241,10 @@
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
         <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split">
+            <xsl:with-param name="list" select="@mss"/>
+        </xsl:call-template>
+        <xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text>
     </xsl:text>
@@ -213,7 +256,10 @@
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
         <xsl:attribute name="class">varcontainer</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split">
+            <xsl:with-param name="list" select="@mss"/>
+        </xsl:call-template>
+        <xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
@@ -228,7 +274,10 @@
             <xsl:attribute name="class">varbracket</xsl:attribute>
             <xsl:text>❲ </xsl:text>
         </xsl:element-->
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split">
+            <xsl:with-param name="list" select="@mss"/>
+        </xsl:call-template>
+        <xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element><xsl:text> </xsl:text>
 </xsl:template>
@@ -239,7 +288,10 @@
             <xsl:value-of select="@loc"/>
         </xsl:attribute>
         <xsl:attribute name="class">varcontainer bracketclose</xsl:attribute>
-        <xsl:call-template name="split"/><xsl:text>:&#160;</xsl:text>
+        <xsl:call-template name="split">
+            <xsl:with-param name="list" select="@mss"/>
+        </xsl:call-template>
+        <xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
         <!--xsl:element name="span">
             <xsl:attribute name="class">varbracket</xsl:attribute>
