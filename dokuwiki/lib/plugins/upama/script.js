@@ -2506,7 +2506,7 @@ outerTags: function(node) {
         }
         */
             for(const m of msids) {
-                const mname = m.textContent;
+                const mname = m.dataset.msid;
                 const varTextNode = m.classList.contains('mshover') ?
                     varcontainer.querySelector('span[data-ms=\''+mname+'\']') :
                     el;
