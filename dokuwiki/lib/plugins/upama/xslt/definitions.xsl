@@ -2,7 +2,7 @@
                 xmlns:exsl="http://exslt.org/common"
                 xmlns:x="http://www.tei-c.org/ns/1.0"
                 xmlns:s="https://saktumiva.org"
-                exclude-result-prefixes="x s">
+                exclude-result-prefixes="x exsl s">
 
 <xsl:output method="html" encoding="UTF-8" omit-xml-declaration="yes"/>
 
