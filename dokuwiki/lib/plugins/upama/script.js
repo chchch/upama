@@ -2144,10 +2144,10 @@ outerTags: function(node) {
         //        state.listWit.filter(x => excludes.includes(x[0])).map(y => y[1]).join(', ') +
         //        '</del>';
         }
-        const excludeText = ' <del>' + [...app.querySelector('.excludebracket').children]
-            .map(el => el.innerHTML)
-            .join(', ') +
-            '</del>';
+        const bracket = app.querySelector('.excludebracket');
+        const excludeText = bracket ? 
+            ' <del>' + [...bracket.children].map(el => el.innerHTML).join(', ') + '</del>' : 
+            '';
         const posApp = state.listWit.filter((n) => !msids.has(n[0]));
         const posAppKeys = posApp.map(n => n[0]);
         const posAppFiltered = groupsDiff(state.groupWit,posAppKeys);
