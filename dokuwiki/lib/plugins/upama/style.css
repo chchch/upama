@@ -222,8 +222,9 @@ span.lemma:hover {
     background-color: rgba(255,250,0,0.5);
 }
 
-span.embedded.reading {
-    margin-left: 0.5em;
+span.embedded.rdg {
+    /*margin-left: 0.5em;*/
+    display: none;
 }
 
 .varcontainer span.rdg {
@@ -437,6 +438,16 @@ span.editor {font-size: 0.8rem;
 */
 span.note {font-size:80%;
           margin-left: 0.5em;
+}
+
+span.label::before {
+    content: '[';
+}
+span.label::after {
+    content: ']';
+}
+span.label {
+    margin-right: 0.2em;
 }
 
 span.inline {margin-left: 0.5em;

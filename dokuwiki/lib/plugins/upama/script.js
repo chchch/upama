@@ -544,7 +544,7 @@ const upama = (function() {
             const par = targ.closest('.upama-block');
             const allleft = [...par.querySelectorAll('.embedded.lemma')];
             const pos = allleft.indexOf(targ);
-            const right = par.parentElement.querySelector('.apparatus2');
+            const right = par.querySelector('.apparatus2');
             const allright = right.querySelectorAll('.lemma');
             const tolight = allright[pos];
             tolight.classList.add('lowlight');

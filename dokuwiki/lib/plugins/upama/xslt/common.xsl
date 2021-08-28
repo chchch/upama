@@ -167,9 +167,9 @@
 
 <xsl:template match="x:label">
     <xsl:element name="span">
-        <xsl:attribute name="class">editor<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="class">editor label<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:attribute name="lang">en</xsl:attribute>
-        [<xsl:apply-templates />]
+        <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
 
@@ -867,13 +867,17 @@
 </xsl:template-->
 
 <xsl:template match="x:app">
-    <xsl:apply-templates select="x:lem"/>
+    <xsl:element name="span">
+        <xsl:attribute name="class"><xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="x:lem">
-    <span class="embedded lemma">
+    <xsl:element name="span">
+        <xsl:attribute name="class">embedded lemma<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:apply-templates/>
-    </span>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template name="splitwit">
@@ -898,7 +902,7 @@
 
 <xsl:template match="x:rdg">
     <xsl:element name="span">
-        <xsl:attribute name="class">embedded varcontainer</xsl:attribute>
+        <xsl:attribute name="class">embedded rdg<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:attribute name="lang">sa</xsl:attribute>
         <xsl:call-template name="splitwit"/><xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />

@@ -177,22 +177,66 @@
 <xsl:template match="x:l">
     <xsl:element name="div">
         <xsl:choose>
-        <xsl:when test="@xml:id">
-        <xsl:attribute name="class">verseline upama-block</xsl:attribute>
-        <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
-        <xsl:element name="div">
-            <xsl:attribute name="class">maintext</xsl:attribute>
-            <!--xsl:call-template name="lang"/-->
-            <xsl:comment>SECTION_START</xsl:comment>
-            <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
-            <xsl:apply-templates/>
-            <xsl:comment>SECTION_END</xsl:comment>
-        </xsl:element>
-        </xsl:when>
-        <xsl:otherwise>
-            <xsl:attribute name="class">verseline</xsl:attribute>
-            <xsl:apply-templates/>
-        </xsl:otherwise>
+            <xsl:when test="@xml:id">
+                <xsl:attribute name="class">verseline upama-block</xsl:attribute>
+                <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
+                <xsl:element name="div">
+                    <xsl:attribute name="class">maintext</xsl:attribute>
+                    <!--xsl:call-template name="lang"/-->
+                    <xsl:comment>SECTION_START</xsl:comment>
+                    <xsl:comment><xsl:value-of select="@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+                    <xsl:apply-templates/>
+                    <xsl:comment>SECTION_END</xsl:comment>
+                </xsl:element>
+
+                <xsl:element name="div">
+                    <xsl:attribute name="class">apparatus</xsl:attribute>
+                    <!--xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute-->
+                    <xsl:if test=".//x:app">
+                        <xsl:element name="div">
+                            <xsl:attribute name="class">apparatus2</xsl:attribute>
+                            <xsl:for-each select=".//x:app">
+                                <xsl:element name="div">
+                                    <xsl:attribute name="class">varcontainer</xsl:attribute>
+                                    <xsl:call-template name="lemma"/>
+                                    <xsl:for-each select="x:rdg">
+                                        <xsl:element name="span">
+                                            <xsl:attribute name="class">rdg</xsl:attribute>
+                                            <xsl:attribute name="lang">sa</xsl:attribute>
+                                            <xsl:apply-templates select="./node()"/>
+                                            <xsl:call-template name="splitwit"/>
+                                        </xsl:element>
+                                    </xsl:for-each>
+                                </xsl:element>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:if>
+
+
+                    <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
+                    <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
+                    <xsl:if test="$app2">
+                        <xsl:element name="div">
+                            <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
+                            <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
+                            <xsl:element name="div">
+                                <xsl:attribute name="class">maintext</xsl:attribute>
+                                <xsl:comment>SECTION_START</xsl:comment>
+                                <xsl:comment><xsl:value-of select="$id2"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
+                                <xsl:element name="ul">
+                                    <xsl:attribute name="class">accordion</xsl:attribute>
+                                    <xsl:apply-templates select="$app2/*"/>
+                                </xsl:element>
+                                <xsl:comment>SECTION_END</xsl:comment>
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:if>
+                </xsl:element>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:attribute name="class">verseline</xsl:attribute>
+                <xsl:apply-templates/>
+            </xsl:otherwise>
         </xsl:choose>
     </xsl:element>
 </xsl:template>
