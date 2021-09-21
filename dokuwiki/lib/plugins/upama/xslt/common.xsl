@@ -668,6 +668,7 @@
             <xsl:call-template name="ignore" />
         </xsl:attribute>
         <xsl:attribute name="data-balloon">note
+            <xsl:if test="@type"> (<xsl:value-of select="@type"/>)</xsl:if>
             <xsl:if test="@place"> (<xsl:value-of select="@place"/>)</xsl:if>
             <xsl:if test="@resp"> (by <xsl:value-of select="@resp"/>)</xsl:if>
         </xsl:attribute>
