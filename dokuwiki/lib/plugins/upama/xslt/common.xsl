@@ -741,8 +741,8 @@
 
 <!-- Apparatus items -->
 
-<xsl:template match="x:div2[@type='apparatus']//x:list">
-    <xsl:variable name="elid"><xsl:value-of select="ancestor::x:div2[1]/@xml:id"/>-<xsl:value-of select="@type"/></xsl:variable>
+<xsl:template match="x:div2[@type='apparatus']//x:list | x:ab[@type='apparatus']//x:list">
+    <xsl:variable name="elid"><xsl:value-of select="ancestor::x:div2[1]/@xml:id | ancestor::x:ab[1]/@xml:id"/>-<xsl:value-of select="@type"/></xsl:variable>
 
     <xsl:element name="li">
         <xsl:attribute name="class">accordion-item</xsl:attribute>
@@ -773,7 +773,8 @@
 <xsl:template match="x:list/x:item">
     <xsl:element name="li">
         <xsl:attribute name="class">apparatus2-item</xsl:attribute>
-        <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
+        <xsl:variable name="target" select="@target | @corresp"/>
+        <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
 </xsl:template>

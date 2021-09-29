@@ -302,6 +302,7 @@ $final = '';
                
                else if(!$witnesses) { // if there are no witnesses to compare
                     if($xpath->query('//x:div2[@type="apparatus"]')->length > 0 ||
+                       $xpath->query('//x:ab[@type="apparatus"]')->length > 0 ||
                        $xpath->query('//x:app')->length > 0)
                        $data .= $this->renderXML($xml,DOKU_PLUGIN. 'upama/xslt/with_apparatus2.xsl');
                    else

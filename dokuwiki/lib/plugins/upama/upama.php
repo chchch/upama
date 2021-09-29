@@ -148,7 +148,7 @@ class Upama
                $emptyapp->appendChild($exattr);
                $appel->appendChild($emptyapp);
                
-               $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."']")->item(0);
+               $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."'] | //x:ab[@type='apparatus' and @corresp='#".$elname."']")->item(0);
                if($app2) $appel->appendChild($app2);
                $el1->appendChild($appel);
             }
@@ -172,7 +172,7 @@ class Upama
 
                 $appel = $this->makeAppDiv($text1,$rootNS,$elname);
                 $appel->appendChild($frag);
-                $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."']")->item(0);
+                $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."'] | //x:ab[@type='apparatus' and @corresp='#".$elname."']")->item(0);
                 if($app2) $appel->appendChild($app2);
                 
                 $el1->appendChild($appel);
@@ -407,10 +407,10 @@ EOT;
                     $closebrackets[$loc[1]] .= '  \linenum{|\xlineref{'.$edlabels[$loc[0]].'}}\lemma{'.$lemma.'}\Afootnote{'.$note."}\n";
                 }
             }
-            $sources = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='sources']/x:item",$el);
-            $parallels = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='parallels']/x:item",$el);
-            $testimonia = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='testimonia']/x:item",$el);
-            $notes = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='notes']/x:item",$el);
+            $sources = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='sources']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='sources']/x:item",$el);
+            $parallels = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='parallels']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='parallels']/x:item",$el);
+            $testimonia = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='testimonia']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='testimonia']/x:item",$el);
+            $notes = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='notes']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='notes']/x:item",$el);
 
             $outstr = '';
             $closetag = false;

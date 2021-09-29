@@ -434,11 +434,12 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:div2[@type='apparatus']">
+<xsl:template match="x:div2[@type='apparatus'] | x:ab[@type='apparatus']">
     <xsl:element name="div">
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
-        <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute>
+        <xsl:variable name="target" select="@target | @corresp"/>
+        <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
         <xsl:element name="div">
             <xsl:attribute name="class">maintext</xsl:attribute>
             <xsl:comment>SECTION_START</xsl:comment>

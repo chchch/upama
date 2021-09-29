@@ -43,8 +43,8 @@
                 </xsl:element>
             </xsl:if>
 
-            <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
-            <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
+            <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)] | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]"/>
+            <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]/@xml:id"/>
             <xsl:if test="$app2">
                 <xsl:element name="div">
                     <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
@@ -66,7 +66,7 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:div2[@type='apparatus']"/>
+<xsl:template match="x:div2[@type='apparatus'] | x:ab[@type='apparatus']"/>
 
 <xsl:template match="x:lg[@type='verse' or @xml:id]">
     <xsl:element name="div">
@@ -107,8 +107,8 @@
             </xsl:if>
 
 
-            <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
-            <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
+            <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)] | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]"/>
+            <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]/@xml:id"/>
             <xsl:if test="$app2">
                 <xsl:element name="div">
                     <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
@@ -213,8 +213,8 @@
                     </xsl:if>
 
 
-                    <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]"/>
-                    <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id"/>
+                    <xsl:variable name="app2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)] | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]"/>
+                    <xsl:variable name="id2" select="//x:div2[@type='apparatus' and @target=concat('#',$xmlid)]/@xml:id | //x:ab[@type='apparatus' and @corresp=concat('#',$xmlid)]/@xml:id"/>
                     <xsl:if test="$app2">
                         <xsl:element name="div">
                             <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
