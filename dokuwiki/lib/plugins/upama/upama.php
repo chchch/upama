@@ -2055,7 +2055,7 @@ EOT;
         $xpath->registerNamespace("x", $rootNS);
         return array($text,$xpath);
     }
-    public function loadFile(string $filename): DOMDocument {
+    public function loadFile(string $filename) {
         $text = file_get_contents($filename);
         return $this->loadText($text,$filename);
     }
