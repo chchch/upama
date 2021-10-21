@@ -645,7 +645,7 @@ EOT;
         return $note;
     }
 
-    private function shorterLatexCriticalNote(?DOMNodeList $nodelist, array $witnesses, DOMXPath $xpath) : string {
+    private function shorterLatexCriticalNote(/*?DOMNodeList|DOMNode*/ $nodelist, array $witnesses, DOMXPath $xpath) : string {
         $note = '';
         if(!is_a($nodelist,'DOMNodeList')) {
             $nodelist = array($nodelist);
