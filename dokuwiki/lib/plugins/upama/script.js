@@ -647,7 +647,7 @@ const upama = (function() {
 
             const ref = el.getAttribute('data-anchor');
             const par_id = el.closest('.upama-block').getAttribute('id');
-            const app = document.getElementById(par_id+'-app');
+            const app = document.querySelector(`[data-target="${par_id}"]`);
             const app_items = app.getElementsByClassName('apparatus2-item');
             for(const item of app_items) {
                 if(item.getAttribute('data-target') === ref) {
