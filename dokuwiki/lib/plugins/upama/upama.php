@@ -459,13 +459,13 @@ EOT;
                     $anchorid = $matches[1][$m][0];
 
                     foreach($sources as $item)
-                        $fnote .= $this->makeNote($item,$anchorid,'footenoteA');
+                        $fnote .= $this->makeNote($item,$anchorid,'footnoteA');
                     foreach($parallels as $item)
-                        $fnote .= $this->makeNote($item,$anchorid,'footenoteB');
+                        $fnote .= $this->makeNote($item,$anchorid,'footnoteB');
                     foreach($testimonia as $item)
-                        $fnote .= $this->makeNote($item,$anchorid,'footenoteC');
+                        $fnote .= $this->makeNote($item,$anchorid,'footnoteC');
                     foreach($notes as $item)
-                        $fnote .= $this->makeNote($item,$anchorid,'footenoteD');
+                        $fnote .= $this->makeNote($item,$anchorid,'footnoteD');
 
                     $maintrim = substr_replace($maintrim,'',$matchstart,$matchlen);
                     $fullnote .= $fnote;
