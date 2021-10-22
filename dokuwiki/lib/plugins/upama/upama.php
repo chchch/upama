@@ -346,11 +346,11 @@ EOT;
             if(!$main)
               $main = $el; 
             
-            if($main->childNodes->length == 0) {
+            if($main->childNodes->length === 0) {
                 $main->appendChild($xml->createTextNode(' '));
             }
 
-            if($el->getAttribute('type') == 'apparatus')
+            if($el->getAttribute('type') === 'apparatus')
                 continue;
         
             $apps = $xpath->query("./x:div[@type='apparatus']/x:listApp/*",$el);
@@ -407,10 +407,11 @@ EOT;
                     $closebrackets[$loc[1]] .= '  \linenum{|\xlineref{'.$edlabels[$loc[0]].'}}\lemma{'.$lemma.'}\Afootnote{'.$note."}\n";
                 }
             }
-            $sources = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='sources']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='sources']/x:item",$el);
-            $parallels = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='parallels']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='parallels']/x:item",$el);
-            $testimonia = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='testimonia']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='testimonia']/x:item",$el);
-            $notes = $xpath->query("//x:div2[@target='#$xmlid']/x:list[@type='notes']/x:item | //x:ab[@corresp='#$xmlid']/x:list[@type='notes']/x:item",$el);
+            $app2 = $xpath->query("//x:div2[@target='#$xmlid'] | //x:ab[@corresp='#$xmlid']",$el)->item(0);
+            $sources = $app2 ? $xpath->query("//x:list[@type='sources']/x:item",$app2) : [];
+            $parallels = $app2 ? $xpath->query("//x:list[@type='parallels']/x:item",$app2) : [];
+            $testimonia = $app2 ? $xpath->query("//x:list[@type='testimonia']/x:item",$app2) : [];
+            $notes = $app2 ? $xpath->query("//x:list[@type='notes']/x:item",$app2) : [];
 
             $outstr = '';
             $closetag = false;
@@ -457,26 +458,14 @@ EOT;
                     $fnote = "\n";
                     $anchorid = $matches[1][$m][0];
 
-                    foreach($sources as $item) {
-                        $targ = ltrim($item->getAttribute('target'),'#');
-                        if($targ == $anchorid)
-                            $fnote .= '\footnoteA{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
-                    }
-                    foreach($parallels as $item) {
-                        $targ = ltrim($item->getAttribute('target'),'#');
-                        if($targ == $anchorid)
-                            $fnote .= '\footnoteB{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
-                    }
-                    foreach($testimonia as $item) {
-                        $targ = ltrim($item->getAttribute('target'),'#');
-                        if($targ == $anchorid)
-                            $fnote .= '\footnoteC{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
-                    }
-                    foreach($notes as $item) {
-                        $targ = ltrim($item->getAttribute('target'),'#');
-                        if($targ == $anchorid)
-                            $fnote .= '\footnoteD{'. $this->latexCleanLemma($this->DOMouterXML($item)) . "}\n";
-                    }
+                    foreach($sources as $item)
+                        $fnote .= $this->makeNote($item,$anchorid,'footenoteA');
+                    foreach($parallels as $item)
+                        $fnote .= $this->makeNote($item,$anchorid,'footenoteB');
+                    foreach($testimonia as $item)
+                        $fnote .= $this->makeNote($item,$anchorid,'footenoteC');
+                    foreach($notes as $item)
+                        $fnote .= $this->makeNote($item,$anchorid,'footenoteD');
 
                     $maintrim = substr_replace($maintrim,'',$matchstart,$matchlen);
                     $fullnote .= $fnote;
@@ -509,6 +498,17 @@ EOT;
         $return .= "\n\n\\endnumbering\n\\endgroup\n\\end{document}";
     
         return $return;
+    }
+    
+    private function makeNote(DOMElement $item, string $anchorid, string $n): string {
+        $targid = $item->getAttribute('target') ?: $item->getAttribute('corresp');
+        $targ = ltrim($targid,'#');
+        if($targ === $anchorid) {
+            return "\\".$n."{".$this->latexCleanLemma($this->DOMouterXML($item))."}\n";
+            
+        }
+        else
+            return '';
     }
 
     private function mergeAdds(DOMDocument &$xml, DOMXPath $xpath): void {
