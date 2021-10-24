@@ -272,15 +272,16 @@
 <xsl:template match="x:corr">
     <xsl:element name="ins">
         <xsl:attribute name="data-balloon">
-            <xsl:choose>
-                <xsl:when test="@evidence">
-                    <xsl:value-of select="@evidence"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text>corrected</xsl:text>
-                </xsl:otherwise>
-            </xsl:choose>
-            <xsl:choose>
+            <xsl:text>corrected</xsl:text>
+            <xsl:if test="@evidence">
+                <xsl:text> (</xsl:text><xsl:value-of select="@evidence"/><xsl:text>)</xsl:text>
+            </xsl:if>
+            <xsl:if test="@resp">
+                <xsl:text> (by </xsl:text>
+                <xsl:value-of select="@resp"/>
+                <xsl:text>)</xsl:text>
+            </xsl:if>
+            <!--xsl:choose>
             <xsl:when test="@resp">
                 <xsl:text> (by </xsl:text>
                 <xsl:value-of select="@resp"/>
@@ -289,7 +290,7 @@
             <xsl:otherwise>
                 <xsl:text> by the transcriber</xsl:text>
             </xsl:otherwise>
-            </xsl:choose>
+            </xsl:choose-->
         </xsl:attribute>
         <xsl:attribute name="class">corr<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:choose>
@@ -742,7 +743,7 @@
 <!-- Apparatus items -->
 
 <xsl:template match="x:div2[@type='apparatus']//x:list | x:ab[@type='apparatus']//x:list">
-    <xsl:variable name="elid"><xsl:value-of select="ancestor::x:div2[1]/@xml:id | ancestor::x:ab[1]/@xml:id"/>-<xsl:value-of select="@type"/></xsl:variable>
+    <xsl:variable name="elid"><xsl:value-of select="ancestor::x:div2[1]/@target | ancestor::x:ab[1]/@corresp"/>-<xsl:value-of select="@type"/></xsl:variable>
 
     <xsl:element name="li">
         <xsl:attribute name="class">accordion-item</xsl:attribute>
