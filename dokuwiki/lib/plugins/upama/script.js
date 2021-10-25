@@ -2423,7 +2423,7 @@ outerTags: function(node) {
                         const selloc = lempos - loc[0];
                         let n = 0;
                         let startpos = 0;
-                        while(n < selloc) {
+                        while(lemma_arr[n] && n < selloc) {
                             startpos += lemma_arr[n].length + 1;
                             n++;
                         }
