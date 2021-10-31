@@ -48,6 +48,8 @@
                 <xsl:variable name="id2" select="$app2/@xml:id"/>
                 <xsl:element name="div">
                     <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
+                    <xsl:variable name="target" select="$app2/@target | $app2/@corresp"/>
+                    <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
                     <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                     <xsl:element name="div">
                         <xsl:attribute name="class">maintext</xsl:attribute>
@@ -112,6 +114,8 @@
                 <xsl:variable name="id2" select="$app2/@xml:id"/>
                 <xsl:element name="div">
                     <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
+                    <xsl:variable name="target" select="$app2/@target | $app2/@corresp"/>
+                    <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
                     <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                     <xsl:element name="div">
                         <xsl:attribute name="class">maintext</xsl:attribute>
@@ -217,6 +221,8 @@
                     <xsl:if test="$app2">
                         <xsl:variable name="id2" select="$app2/@xml:id"/>
                         <xsl:element name="div">
+                            <xsl:variable name="target" select="$app2/@target | $app2/@corresp"/>
+                            <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
                             <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
                             <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                             <xsl:element name="div">

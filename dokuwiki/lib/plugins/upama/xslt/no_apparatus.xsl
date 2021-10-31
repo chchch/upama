@@ -85,6 +85,8 @@
         <xsl:attribute name="data-target"><xsl:value-of select="translate(@target,'#','')"/></xsl:attribute> -->
         <xsl:element name="div">
             <xsl:attribute name="class">apparatus2 upama-block no-apparatus</xsl:attribute>
+            <xsl:variable name="target" select="@target | @corresp"/>
+            <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
             <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
             <xsl:element name="div">
                     <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
