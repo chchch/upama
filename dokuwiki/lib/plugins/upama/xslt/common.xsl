@@ -711,8 +711,24 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:emph">
+    <xsl:element name="emph">
+        <xsl:attribute name="class"><xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:choose>
+        <xsl:when test="@rend">
+            <xsl:attribute name="data-balloon">emphasized by <xsl:value-of select="@rend"/></xsl:attribute>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:attribute name="data-balloon">emphasized</xsl:attribute>
+        </xsl:otherwise>
+        </xsl:choose>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:foreign">
     <xsl:element name="span">
+        <xsl:attribute name="class">foreign<xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:call-template name="lang"/>
         <xsl:apply-templates/>
     </xsl:element>

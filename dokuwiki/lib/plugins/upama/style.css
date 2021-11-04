@@ -565,6 +565,10 @@ span.surplus {
 span.hi {font-weight: bold;
 }
 
+span.foreign {
+    font-style: italic;
+}
+
 span.glyph {
     display: inline;
     position: relative;
