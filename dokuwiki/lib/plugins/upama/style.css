@@ -83,6 +83,10 @@
     font-feature-settings: "cv01" 1;
 }
 
+.cv02 {
+    font-feature-settings: "cv02" 1;
+}
+
 .trad {
     font-feature-settings: "trad" 1;
 }

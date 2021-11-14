@@ -15,13 +15,19 @@
     <s:entities>
         <s:entry key="newa-gap-filler">&#x1144E;</s:entry>
         <s:entry key="newa-old-gap-filler">&#x1144E;</s:entry>
+        <s:entry key="broken-danda">&#x964;</s:entry>
+        <s:entry key="danda-with-slash">&#x964;</s:entry>
     </s:entities>
     <s:entitynames>
         <s:entry key="newa-gap-filler">gap filler</s:entry>
         <s:entry key="newa-old-gap-filler">old-style gap filler</s:entry>
+        <s:entry key="broken-danda">broken daṇḍa</s:entry>
+        <s:entry key="danda-with-slash">daṇḍa with slash</s:entry>
     </s:entitynames>
     <s:entityclasses>
         <s:entry key="newa-old-gap-filler">trad</s:entry>
+        <s:entry key="broken-danda">cv01</s:entry>
+        <s:entry key="danda-with-slash">cv02</s:entry>
     </s:entityclasses>
 </xsl:variable>
 
