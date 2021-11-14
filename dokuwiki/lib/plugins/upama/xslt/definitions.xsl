@@ -25,7 +25,7 @@
         <s:entry key="danda-with-slash">daṇḍa with slash</s:entry>
     </s:entitynames>
     <s:entityclasses>
-        <s:entry key="newa-old-gap-filler">trad</s:entry>
+        <s:entry key="newa-old-gap-filler">cv01</s:entry>
         <s:entry key="broken-danda">cv01</s:entry>
         <s:entry key="danda-with-slash">cv02</s:entry>
     </s:entityclasses>
