@@ -250,30 +250,33 @@ div.variorum {
 }
 
 div.verse, div.mangala { 
-            width: 100%;
-            padding: 1em 0 0.5em 0;
+    width: 100%;
+    padding: 1em 0 0.5em 0;
 }
 
 div.verse div.verseline {
-                        font-size: 1.2em;
+    font-size: 1.2em;
 }
 
+div.verseline.upama-block {
+    font-size: 1.2em;
+}
 div.mangala div.verseline {
-             font-size: 1.1em;
+     font-size: 1.1em;
 }
 
 .devanagari .verseline, .newa .verseline {
-                        line-height: 1.4em;
+    line-height: 1.4em;
 }
 
 .malayalam .verseline {
-                        line-height: 1.3em;
+    line-height: 1.3em;
 }
 
 div.quotedverse {
-                padding: 2% 0 2% 2%;
-                vertical-align:top;
-                /*background-color: inherit; */
+    padding: 2% 0 2% 2%;
+    vertical-align:top;
+    /*background-color: inherit; */
 }
 
 /*.apparatus2-item*/ span.quote::before {
