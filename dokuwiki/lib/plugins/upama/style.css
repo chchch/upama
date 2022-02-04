@@ -258,8 +258,8 @@ div.verse div.verseline {
     font-size: 1.2em;
 }
 
-div.verseline.upama-block {
-    font-size: 1.2em;
+div.verseline.upama-block .maintext {
+    font-size: 1.3em;
 }
 div.mangala div.verseline {
      font-size: 1.1em;
