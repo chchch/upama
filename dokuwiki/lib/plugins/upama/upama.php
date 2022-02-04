@@ -770,7 +770,7 @@ EOT;
                 
                 else {
                     $textsplit = preg_split("/\s+/",$text);
-                    if (count($textsplit) == 1) {
+                    if (count($textsplit) === 1) {
                         $carryover .= $textsplit[0]; 
                     }
                     else {
@@ -779,17 +779,18 @@ EOT;
 //                        $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
                         
                         if($concatSpaces) {
-                            if(trim($firstsplit) == '') {
-                                if(trim($carryover) != '')
-                                //    $carryover .= $firstsplit;
-                                    $splitted[] = $tags[0] . $carryover . $tags[1];
+                            if(trim($firstsplit) === '' && trim($carryover) !== '') {
+                                // e.g. budhaḥ <caesura/> tato
+                                // we want ['budhaḥ <caesura/>','tato']
+                                $poppedout = array_pop($splitted);
+                                $splitted[] = $poppedout . $tags[0] . $carryover . $tags[1];
                             }
                             else 
                                 $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
                         }
                         else {
-                            if(trim($firstsplit) == '') {
-                                if($carryover != '')
+                            if(trim($firstsplit) === '') {
+                                if($carryover !== '')
                                     $splitted[] = $tags[0] . $carryover . $tags[1]; 
                                 if(count($splitted) == 0)
                                     $splitted[] = $tags[0] . $firstsplit . $tags[1];
