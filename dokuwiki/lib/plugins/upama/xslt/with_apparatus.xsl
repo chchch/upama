@@ -335,7 +335,7 @@
 
 <xsl:template match="x:l[@xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">verseline upama-block</xsl:attribute>
+        <xsl:attribute name="class">verse upama-block</xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>

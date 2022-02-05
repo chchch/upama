@@ -249,27 +249,24 @@ div.variorum {
     width: 100%;
 }
 
-div.verse, div.mangala { 
+.verse, .mangala { 
     width: 100%;
     padding: 1em 0 0.5em 0;
 }
 
-div.verse div.verseline {
-    font-size: 1.2em;
-}
-
-div.verseline.upama-block .maintext {
+.verse > .maintext {
     font-size: 1.3em;
 }
-div.mangala div.verseline {
-     font-size: 1.1em;
+
+.mangala > .maintext {
+     font-size: 1.2em;
 }
 
-.devanagari .verseline, .newa .verseline {
+.verse .devanagari, .verse .newa {
     line-height: 1.4em;
 }
 
-.malayalam .verseline {
+.verse .malayalam {
     line-height: 1.3em;
 }
 

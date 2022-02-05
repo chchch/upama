@@ -107,7 +107,7 @@
     <xsl:element name="div">
         <xsl:choose>
         <xsl:when test="@xml:id">
-        <xsl:attribute name="class">verseline upama-block no-apparatus</xsl:attribute>
+        <xsl:attribute name="class">verse upama-block no-apparatus</xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
             <xsl:attribute name="class">maintext no-apparatus</xsl:attribute>
