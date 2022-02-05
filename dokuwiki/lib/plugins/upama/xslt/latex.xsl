@@ -212,6 +212,14 @@
     <xsl:text>)}</xsl:text>
 </xsl:template>
 
+<xsl:template match="caesura">
+<xsl:variable name="pretext" select="preceding::text()[1]"/>
+<xsl:if test="normalize-space(substring($pretext,string-length($pretext))) != ''">
+    <xsl:text>\-</xsl:text>
+</xsl:if>
+    <xsl:text>\caesura</xsl:text>
+</xsl:template>
+
 <xsl:template match="note">
     <xsl:text>\emph{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>

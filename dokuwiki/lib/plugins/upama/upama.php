@@ -306,6 +306,7 @@ class Upama
 \arrangementX[C]{paragraph}
 \renewcommand*{\thefootnoteC}{\roman{footnoteC}}
 
+\newcommand*{\caesura}{\linebreak}
 
 \Xarrangement[A]{paragraph}
 \Xnotenumfont[A]{\bfseries}
@@ -611,6 +612,7 @@ EOT;
         $lemma = preg_replace('/<lg .*>/','',$lemma);
         $lemma = preg_replace('/<lg>/','',$lemma);
         $lemma = preg_replace('/<\/lg>/','',$lemma);
+        $lemma = preg_replace('/<caesura ignored="TRUE"\/>/','',$lemma);
         $lemma = $this->latexEnhance($lemma);
         return $lemma;
     }
@@ -783,7 +785,7 @@ EOT;
                                 // e.g. budhaḥ <caesura/> tato
                                 // we want ['budhaḥ <caesura/>','tato']
                                 $poppedout = array_pop($splitted);
-                                $splitted[] = $poppedout . $tags[0] . $carryover . $tags[1];
+                                $splitted[] = "$poppedout $tags[0]$carryover$tags[1]";
                             }
                             else 
                                 $splitted[] = $tags[0] . $carryover . $firstsplit . $tags[1];
