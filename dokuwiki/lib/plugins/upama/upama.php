@@ -8,6 +8,7 @@ require_once("DiffMatchPatch/Matcher.php");
 require_once("DiffMatchPatch/Patch.php");
 require_once("DiffMatchPatch/PatchObject.php");
 require_once("DiffMatchPatch/Utils.php");
+require_once("affinealign.php");
 
 use DiffMatchPatch\DiffMatchPatch;
 
@@ -104,15 +105,6 @@ class Upama
         $elements1 = $xpath1->query("/x:TEI/x:text//*[@xml:id]");
         $elements2 = $xpath2->query("/x:TEI/x:text//*[@xml:id]");
       
-        // the old compare function is really out of date now
-        /*
-        if($elements1->length == 0 || $elements2->length == 0) {
-            // no xml:id's, revert to stepping through all elements
-            return $this->oldcompare($text1,$xpath1,$text2,$xpath2,$msid);
-    
-        }
-        */
-
         $el2indexed = array();
         foreach($elements2 as $el2) {
             $elname = $el2->getAttribute("xml:id");
@@ -1017,47 +1009,6 @@ EOT;
         );
         return str_replace(array_keys($iast2slp1),array_values($iast2slp1),$text);
 }
-/*    public function slp1($text) {
-        $text = preg_replace("/ā/u","A",$text);
-        $text = preg_replace("/i/u","1",$text);
-        $text = preg_replace("/ī/u","2",$text); // I not allowed
-        $text = preg_replace("/ū/u","U",$text);
-        $text = preg_replace("/ṛ/u","f",$text);
-        $text = preg_replace("/ṝ/u","F",$text);
-        $text = preg_replace("/ṃ/u","M",$text);
-        $text = preg_replace("/ḥ/u","H",$text);
-        $text = preg_replace("/o/u","0",$text); // o not allowed
-
-        $text = preg_replace("/kh/u","K",$text);
-        $text = preg_replace("/gh/u","G",$text);
-        $text = preg_replace("/ṅ/u","N",$text);
-
-        $text = preg_replace("/ch/u","C",$text);
-        $text = preg_replace("/jh/u","J",$text);
-        $text = preg_replace("/ñ/u","Y",$text);
-
-        $text = preg_replace("/ṭh/u","W",$text);
-        $text = preg_replace("/ṭ/u","w",$text);
-        $text = preg_replace("/ḍh/u","Q",$text);
-        $text = preg_replace("/ḍ/u","q",$text);
-        $text = preg_replace("/ṇ/u","R",$text);
-
-        $text = preg_replace("/th/u","T",$text);
-        $text = preg_replace("/dh/u","D",$text);
-
-        $text = preg_replace("/ph/u","P",$text);
-        $text = preg_replace("/bh/u","B",$text);
-
-        $text = preg_replace("/ś/u","S",$text);
-        $text = preg_replace("/ṣ/u","z",$text);
-
-        $text = preg_replace("/[lḻ]/u","8",$text); // l not allowed
-        $text = preg_replace("/ḷ/u","9",$text);
-        $text = preg_replace("/‾/u","-",$text);
-//        $text = preg_replace("/✗/u","",$text);
-        return $text;
-}
-  */  
     public function fastaFilter(DOMElement $node): void {
 
         $children = $node->childNodes;
@@ -1091,31 +1042,6 @@ EOT;
         }
         foreach($hidelist as $el) $el->parentNode->removeChild($el);
     }
-/*
-    public function oldcompare($text1,$xpath1,$text2,$xpath2,$msid) {
-
-            $this->blockLevelNames = array('text','body','group','div','div1','div2','div3','div4','div5','div6','div7','p','l','lg','head');
-    
-            // Xpaths need prefix
-            foreach($this->blockLevelNames as $name) {
-            $this->blockLevelElements .= './x:'.$name;
-            if($name !== end($this->blockLevelNames))
-                $this->blockLevelElements .= '|';
-            }
-            $return = '';
-            $xpathpath = "/x:TEI/x:text";
-            $elements1 = $xpath1->query($xpathpath)->item(0);
-            $elements2 = $xpath2->query($xpathpath)->item(0);
-                    
-            $this->recurse_elements($elements1,$elements2,$xpath1,$xpath2,$msid,$return);
-            
-            $elements1->nodeValue = '';
-            $frag = $text1->createDocumentFragment();
-            $frag->appendXML($return);
-            $elements1->appendChild($frag);
-            return $text1->saveXML();
-    }
-*/
     public function getSiglum(DOMXPath $xpath) : DOMNode {
         $msidnode = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:msDesc/x:msIdentifier/x:idno[@type='siglum']")->item(0);
         return $msidnode;
@@ -1595,49 +1521,6 @@ EOT;
     public function DOMouterXML(DOMNode $element): string {
         return $element->ownerDocument->saveXML($element);
     }
-/*
-    private function oldcheckTagFilters(DOMNode $element) {
-        $XMLstring = $this->DOMouterXML($element);
-        if($element->nodeType == 3) { // textNode, no tags
-                return array($XMLstring);
-        }
-        else {
-
-            $tagName = $element->localName ?: $element->nodeName;
-            if(isset($this->tagFILTERS[$tagName])) {
-                $status = $this->tagFILTERS[$tagName];
-            }
-            else
-                $status = self::SHOW;
-
-            if($status == self::IGNORE) {
-                $ignoreattr = $element->ownerDocument->createAttribute('ignored');
-                $ignoreattr->value = 'TRUE';
-                $element->appendChild($ignoreattr);
-                $XMLstring = $this->DOMouterXML($element);
-                return array( array($status, $XMLstring) );
-            
-            }
-            elseif(!$element->hasChildNodes()) { // SHOW or HIDE, empty tag
-                return array( array($status,$XMLstring) );
-            }
-            elseif($status != self::HIDE) { // SHOW or IGNORETAG
-                $opentag = "<".$tagName . $this->DOMAttributes($element).">";
-                $allels = array( array($status,$opentag) );
-                foreach($element->childNodes as $ell) {
-                    $others = $this->oldcheckTagFilters($ell);
-                    $allels = array_merge($allels,$others);
-                }
-                $closetag = "</".$tagName.">";
-                $allels[] = array($status, $closetag);
-                return $allels;
-            } 
-            else { // HIDE on a non-empty tag
-                return array( array( $status, $XMLstring ) );
-            }
-        }
-    } 
-*/
     private function filterTextLoop(string $text, array $filters): array {
         $results = array();
         
@@ -1923,52 +1806,6 @@ EOT;
         }
         foreach($hidelist as $el) $el->parentNode->removeChild($el);
     }
-/*
-    private function oldfilterNode(DOMNode $element) {
-        $finalXML = "";
-        $subarray = array();
-        $ignoredTags = array();
-        $ignoredText = array();
-        
-        $children = $element->childNodes;
-
-        // Trims any space at the beginning and end of the block
-        //if($children->length != 0) {
-        //    if($element->firstChild->nodeType == 3)
-        //        $element->firstChild->nodeValue = ltrim($element->firstChild->nodeValue);
-        //    if($element->lastChild->nodeType == 3)
-        //        $element->lastChild->nodeValue = rtrim($element->lastChild->nodeValue);
-        //}
-        $startpos = 0;
-        foreach($children as $child) { // check each node, whether tag or text, within the element
-            $filter = $this->oldcheckTagFilters($child);
-            foreach($filter as $el) {
-                if(is_string($el)) {
-                    $finalXML .= $el;
-                    $startpos += strlen($el);
-                }
-                elseif($el[0] == self::IGNORETAG || $el[0] == self::IGNORE) {
-                    // in the case of IGNORETAG, $el[1] is just the tag; but in the case if IGNORE, $el[1] is the outerXML including tags and content
-                    $this->ignoreTag($startpos,$el[1],$ignoredTags);
-                }
-                elseif($el[0] == self::SHOW) {
-                    $subchar = $this->unicodeReplace();
-                    $subarray[$subchar] = $el[1];
-                    $finalXML .= $subchar;
-                    $startpos += strlen($subchar);
-                }
-                        // else hide
-            }
-        } // end foreach
-        
-        list($finalXML,$ignoredText) = $this->filterText($finalXML);
-        $ignored = array( "tags" => $ignoredTags,
-                          "text" => $ignoredText,
-                          "subs" => $subarray,
-                          );
-        return array($finalXML,$ignored);
-    }
-*/
     public function unicodeChar(int $code): string {
         $key = json_decode('"\u'.dechex($code).'"');
         $key = iconv('UTF-8', mb_internal_encoding(), $key);
@@ -2310,6 +2147,46 @@ EOT;
         return $sections;
     }
 
+    private function diffsToWords($el) {
+        $maintext = '';
+        $vartext = '';
+        $sharedtext = '';
+        foreach($el as $sec) {
+            if($sec[0] === -1) $maintext .= $sec[1];
+            elseif($sec[0] === 1) $vartext .= $sec[1];
+            else {
+               $maintext .= $sec[1];
+               $vartext .= $sec[1];
+               $sharedtext .= $sec[1];
+            }
+        }
+        $eq = trim($maintext) === trim($vartext);
+        // this covers sections like dvayasiddhau<d> </d>
+        $jiggled = null;
+        $trimvar = rtrim($vartext);
+        $trimmain = trim($maintext);
+        if(!$eq &&
+            // if they're not equal
+            ($trimvar !== '' && $trimmain !== '') &&
+            // and if they're not both empty
+            (strpos($trimvar,' ') !== false || 
+            // and if there's a space, not counting the space at the end
+            strpos($trimmain,' ') !== false) ) {
+            // or if there's a space in the main text (this finds some really short common affixes though -- fix??)
+            $aa = new AffineAlign();
+            $jiggled = $aa->jiggle($maintext,$vartext);
+        }
+
+        if($jiggled)
+            return $jiggled;
+        else
+            return array(
+                "maintext" => $eq ? '' : $maintext,
+                "vartext" => $eq ? '' : $vartext,
+                "sharedtext" => $sharedtext
+            );
+    }
+
     private function diffToXml(array $diffs,array $ignored1,array $ignored2,string $msid): string {
         $xmlstring = '';
         $counters1 = array(
@@ -2325,7 +2202,18 @@ EOT;
                            );
         $postcount = false;
         $precount = false;
-        $spaceSplit = $this->splitDiffs($diffs);
+        $spaceSplit = array_reduce($this->splitDiffs($diffs),
+            function($acc,$cur) {
+                $mapped = $this->diffsToWords($cur);
+                if(array_key_exists("maintext",$mapped))
+                    $acc[] = $mapped;
+                else {
+                    foreach($mapped as $m)
+                        $acc[] = $m;
+                }
+                return $acc;
+            },
+            []);
         $lastsection = count($spaceSplit) - 1;
         $apparatus = "<listApp>";
         $atlast = false;
@@ -2334,11 +2222,14 @@ EOT;
            $charpos = false;
            $startspace = -1;
            $endspace = -1;
+           $maintext = $section["maintext"];
+           $vartext = $section["vartext"];
+           $sharedtext = $section["sharedtext"];
+           /*
            $maintext = '';
            $vartext = '';
            $sharedtext = '';
 
-           if($key === $lastsection) $atlast = true;
            foreach($section as $sec) {
                if($sec[0] === -1) $maintext .= $sec[1];
                elseif($sec[0] === 1) $vartext .= $sec[1];
@@ -2348,19 +2239,22 @@ EOT;
                    $sharedtext .= $sec[1];
                }
            }
+            */
+
+            if($key === $lastsection) $atlast = true;
 
             if($maintext|$vartext) {
-                
+           /*     
                 if(trim($maintext) === trim($vartext)) {
                     // this covers sections like dvayasiddhau<d> </d>
-                    /*$maintext = */$this->unfilterText($maintext,$counters1,$ignored1,$atlast);
+                    $this->unfilterText($maintext,$counters1,$ignored1,$atlast);
                     
                     if(!$atlast) {
                         $this->unfilterText($vartext,$counters2,$ignored2);
                     }
                     continue;
                 }
-                
+           */     
                 $vartexts = false;
                 $cleanmain = '';
                 $main1 = '';
@@ -2372,7 +2266,7 @@ EOT;
                     ($varlen && strpos(trim($maintext),' ') !== false) // or if there's a space in the main text (this finds some really short common affixes though -- fix??)
                         )
                     ) {
-                    $vartexts = $this->findAffixes($maintext,$vartext,$section);
+                    $vartexts = $this->findAffixes($maintext,$vartext/*,$section*/);
                 }
 
                 if(isset($vartexts["prefix"])) {
@@ -3030,7 +2924,7 @@ EOT;
         return $aksaras;
     }
     
-    private function findAffixes(string $text1,string $text2,array $diffs): ?array {
+    private function findAffixes(string $text1,string $text2/*,array $diffs*/): ?array {
 //        if($text1 = '' || $text2 = '') return false;
         $arr1 = $this->aksaraSplit($text1);
         $arr2 = $this->aksaraSplit($text2);
