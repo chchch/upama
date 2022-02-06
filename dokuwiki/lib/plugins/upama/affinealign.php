@@ -198,9 +198,9 @@ class AffineAlign {
         return null;
     }
 }
-
+/*
 $aa = new AffineAlign();
 $strs = $aa->jiggle("pṛthivy āpas tejo vāyur iti tattvāni tatsamudāye śarīrendriyaviṣaya","śaktirindriyaviṣaya");
 print_r($strs);
-
+*/
 ?>
