@@ -2160,17 +2160,17 @@ EOT;
                $sharedtext .= $sec[1];
             }
         }
-        $eq = trim($maintext) === trim($vartext);
+        $trimvar = trim($vartext); // why rtrim?
+        $trimmain = trim($maintext);
+        $eq = $trimvar === $trimmain;
         // this covers sections like dvayasiddhau<d> </d>
         $jiggled = null;
-        $trimvar = rtrim($vartext);
-        $trimmain = trim($maintext);
         if(!$eq &&
             // if they're not equal
             ($trimvar !== '' && $trimmain !== '') &&
             // and if they're not both empty
             (strpos($trimvar,' ') !== false || 
-            // and if there's a space, not counting the space at the end
+            // and if there's a space, not counting the space at the (beginning and) end
             strpos($trimmain,' ') !== false) ) {
             // or if there's a space in the main text (this finds some really short common affixes though -- fix??)
             $aa = new AffineAlign();
@@ -2225,45 +2225,20 @@ EOT;
            $maintext = $section["maintext"];
            $vartext = $section["vartext"];
            $sharedtext = $section["sharedtext"];
-           /*
-           $maintext = '';
-           $vartext = '';
-           $sharedtext = '';
-
-           foreach($section as $sec) {
-               if($sec[0] === -1) $maintext .= $sec[1];
-               elseif($sec[0] === 1) $vartext .= $sec[1];
-               else {
-                   $maintext .= $sec[1];
-                   $vartext .= $sec[1];
-                   $sharedtext .= $sec[1];
-               }
-           }
-            */
 
             if($key === $lastsection) $atlast = true;
 
             if($maintext|$vartext) {
-           /*     
-                if(trim($maintext) === trim($vartext)) {
-                    // this covers sections like dvayasiddhau<d> </d>
-                    $this->unfilterText($maintext,$counters1,$ignored1,$atlast);
-                    
-                    if(!$atlast) {
-                        $this->unfilterText($vartext,$counters2,$ignored2);
-                    }
-                    continue;
-                }
-           */     
+
                 $vartexts = false;
                 $cleanmain = '';
                 $main1 = '';
                 $main2 = '';
                 $varlen = strlen($vartext);
                 if( $maintext && (
-                    ($varlen > $this->affixlemmata) || // if the variant is long
-                    ($varlen && strpos(rtrim($vartext),' ') !== false) || // or there's a space, not counting the space at the end
-                    ($varlen && strpos(trim($maintext),' ') !== false) // or if there's a space in the main text (this finds some really short common affixes though -- fix??)
+                    ($varlen > $this->affixlemmata) //|| // if the variant is long
+                    //($varlen && strpos(rtrim($vartext),' ') !== false) || // or there's a space, not counting the space at the end
+                    //($varlen && strpos(trim($maintext),' ') !== false) // or if there's a space in the main text (this finds some really short common affixes though -- fix??)
                         )
                     ) {
                     $vartexts = $this->findAffixes($maintext,$vartext/*,$section*/);

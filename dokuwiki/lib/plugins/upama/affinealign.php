@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors','On');
-error_reporting(E_ALL);
-
 class Trace {
     public $direc;
     public $score;
@@ -18,7 +15,7 @@ class AffineTrace {
     public $lgap;
     public $rgap;
     
-    public function __construct(int $d, float $m, float $l, float $r) {
+    public function __construct(int $d, float $m, ?float $l, ?float $r) {
         $this->direc = $d;
         $this->max = $m;
         $this->lgap = $l;
@@ -60,12 +57,13 @@ class AffineAlign {
                     if($i === $j)
                         $mat[-1][-1] = new AffineTrace(self::UP,0,0,0);
                     else if($i === -1) {
-                        $score = $this->gap_open + $this->gap_ex * ($j+1);
-                        $mat[$i][$j] = new AffineTrace(self::UP,$score,$score,$score);
+                        // no gap opening penalty at the beginning
+                        $score = /*$this->gap_open + */$this->gap_ex * ($j+1);
+                        $mat[$i][$j] = new AffineTrace(self::UP,$score,null,$score);
                     }
                     else {
-                        $score = $this->gap_open + $this->gap_ex * ($i+1);
-                        $mat[$i][$j] = new AffineTrace(self::LEFT,$score,$score,$score);
+                        $score = /*$this->gap_open + */$this->gap_ex * ($i+1);
+                        $mat[$i][$j] = new AffineTrace(self::LEFT,$score,$score,null);
                     }
                 }
                 else {
@@ -73,13 +71,27 @@ class AffineAlign {
                         ($s1arr[$i] === $s2arr[$j]) ? 
                             $this->match : $this->mismatch);
 
-                    $lgap1 = $mat[$i-1][$j]->max + $this->gap_open + $this->gap_ex;
-                    $lgap2 = $mat[$i-1][$j]->lgap + $this->gap_ex;
-                    $lgapmax = max($lgap1,$lgap2);
+                    // no gap opening penalty at the end
+                    $lastcol = ($i === $s1len - 1);
+                    $bottomrow = ($j === $s2len - 1);
+
+                    $lgapopen = $mat[$i-1][$j]->max;
+                    if(!$bottomrow) $lgapopen += $this->gap_open;
+
+                    $prevlgap = $mat[$i-1][$j]->lgap;
+                    $lgapmax = ($prevlgap !== null) ?
+                        max($lgapopen,$prevlgap) : $lgapopen;
                     
-                    $rgap1 = $mat[$i][$j-1]->max + $this->gap_open + $this->gap_ex;
-                    $rgap2 = $mat[$i][$j-1]->rgap + $this->gap_ex;
-                    $rgapmax = max($rgap1, $rgap2);
+                    $lgapmax += $this->gap_ex;
+
+                    $rgapopen = $mat[$i][$j-1]->max;
+                    if(!$lastcol) $rgapopen += $this->gap_open;
+
+                    $prevrgap = $mat[$i][$j-1]->rgap;
+                    $rgapmax = ($prevrgap !== null) ?
+                        max($rgapopen,$prevrgap) : $rgapopen;
+                    
+                    $rgapmax += $this->gap_ex;
 
                     $max = max($diag,$lgapmax,$rgapmax);
                     
@@ -154,6 +166,8 @@ class AffineAlign {
     }
 
     public function jiggle(string $s1, string $s2): ?array {
+        if(substr($s1,-1) !== ' ') $s1 .= ' ';
+        if(substr($s2,-1) !== ' ') $s2 .= ' ';
         $strs = $this->align($s1,$s2);
         $len = count($strs[0]);
         $breaks = [];
@@ -176,29 +190,65 @@ class AffineAlign {
         if(count($breaks) > 0) {
             $start = 0;
             $breaks[] = $len-1;
+            $adds = null;
             foreach($breaks as $break) {
                 $str1 = implode(array_slice($strs[0],$start,$break + 1 - $start));
                 $str2 = implode(array_slice($strs[1],$start,$break + 1 - $start));
-                if($str1 === $str2)
+                if($str1 === $str2) {
+                    if($adds !== null) {
+                        $ret[] = [
+                            "maintext" => '',
+                            "vartext" => $adds,
+                            "sharedtext" => ''
+                        ];
+                        $adds = null;
+                    }
                     $ret[] = [
                         "maintext" => '',
                         "vartext" => '',
                         "sharedtext" => $str1
                     ];
-                else
-                    $ret[] = [
-                        "maintext" => $str1, 
-                        "vartext" => $str2,
-                        "sharedtext" => ''
-                    ];
+                }
+                else {
+                    if($str1 === '') {
+                        $adds ? $adds .= $str2 : $adds = $str2;
+                    }
+                    else {
+                        if($adds) {
+                            $ret[] = [
+                                "maintext" => '',
+                                "vartext" => $adds,
+                                "sharedtext" => ''
+                            ];
+                            $adds = null;
+                        }
+                        $ret[] = [
+                            "maintext" => $str1, 
+                            "vartext" => $str2,
+                            "sharedtext" => ''
+                        ];
+                    }
+                }
                 $start = $break + 1;
+            } // end foreach
+            // catch any leftovers
+            if($adds) {
+                $ret[] = [
+                    "maintext" => '',
+                    "vartext" => $adds,
+                    "sharedtext" => ''
+                ];
+                $adds = null;
             }
             return $ret;
-        }
+        } // end if(count($breaks) > 0)
         return null;
     }
 }
 /*
+ini_set('display_errors','On');
+error_reporting(E_ALL);
+
 $aa = new AffineAlign();
 $strs = $aa->jiggle("pṛthivy āpas tejo vāyur iti tattvāni tatsamudāye śarīrendriyaviṣaya","śaktirindriyaviṣaya");
 print_r($strs);
