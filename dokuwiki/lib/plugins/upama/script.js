@@ -12,7 +12,7 @@ const upama = (function() {
         hyphen: String.fromCodePoint('0xAD'),
         hyphenRegex: new RegExp('\u00AD','g'),
         nbsp: String.fromCodePoint('0x0A0'),    
-        scripts: ['devanagari','malayalam','telugu','newa','sarada','balinese'],
+        scripts: ['devanagari','balinese','bengali','malayalam','newa','sarada','telugu'],
         placeholder: String.fromCodePoint('0xFFFD'),
         vowelChars: 'aāiīuūṛṝḷḹeoêô',
     };
@@ -1041,6 +1041,22 @@ const upama = (function() {
             return text;
         },
         
+        bengali: function(txt,placeholder) {
+
+            const pretext = txt.replace(/ṙ/g, 'r')
+                .replace(/ẽ/g,'e')
+                .replace(/õ/g,'o')
+                .replace(/(^|\s)_ā/g,'$1\u093D\u200D\u093E')
+                .replace(/(^|\s)_r/g,'$1\u093D\u200D\u0930\u094D');
+
+            const smushed = to.smush(pretext, (placeholder || '') );
+
+            const text = Sanscript.t(smushed,'iast','bengali')
+                .replace(/¯/g, 'ꣻ')
+                .replace(/ত্(?=\s)|ত্$/g,'ৎ');
+            return text;
+        },
+
         balinese: function(txt,placeholder) {
 
             var text = txt;
