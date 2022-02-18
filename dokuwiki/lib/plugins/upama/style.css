@@ -71,6 +71,12 @@
     unicode-range: ~"U+11180-111DF";
 }
 
+@font-face {
+    font-family: 'Bangla';
+    src: url('fonts/Bangla-custom.woff');
+    unicode-range: U+0980-09FF;
+}
+
 .aalt {
     font-feature-settings: "aalt" 1;
 }
@@ -164,6 +170,19 @@ span.telugu {font-size: 1.1em !important;
 p.telugu {font-size: 1.3em !important;
 }
 
+div.bengali {
+    font-size: 1.3em !important;
+    line-height: 150%;
+}
+span.bengali {
+    font-size: 1.2em !important;
+    line-height: 120%;
+}
+
+p.bengali {
+    font-size: 1.3em !important;
+}
+
 .balinese {font-size: 1.1em !important;
            line-height: 200%;
 }
@@ -173,7 +192,7 @@ span.spacer {display: none;
 }
 
 :lang(sa) {
-    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', serif;
+    font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Bangla, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', serif;
 }
 
 p:lang(sa) {
@@ -201,7 +220,7 @@ div.apparatus {
              flex: 0 0.5 auto;
              line-height: 1.1rem;
              padding: 0;
-             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', sans-serif;
+             font-family: Brill, PedanticDevanagari, PedanticMalayalam, PedanticTelugu, Bangla, 'Noto Sans Newa', 'Satisar Sharada', 'Tantular Bali', sans-serif;
              text-align: left;
              vertical-align:top;
              font-size: 1em;
