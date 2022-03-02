@@ -1865,7 +1865,7 @@ EOT;
         else return '';
     }
 
-    public function loadText(string $str,string $filename = '',bool $fixerrors = false): array {
+    public function loadText(string $str,string $filename = '',bool $fixerrors = false)/*: array|string*/ {
         $text = new DomDocument('1,0','UTF-8');
         libxml_use_internal_errors(true);
         if($fixerrors) {
