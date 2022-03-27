@@ -146,7 +146,7 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:l">
+<xsl:template match="x:l[not(@xml:id)]">
     <xsl:element name="div">
         <xsl:attribute name="class">verseline</xsl:attribute>
         <xsl:apply-templates/>
@@ -430,7 +430,7 @@
 
 <xsl:template match="x:ptr">
     <xsl:variable name="targetname" select="translate(@target,'#','')"/>
-    <xsl:variable name="target" select="//*[@id=$targetname]"/>
+    <xsl:variable name="target" select="//*[@id=$targetname or @xml:id=$targetname]"/>
     <xsl:element name="span">
         <xsl:attribute name="class">pointer<xsl:call-template name="ignore"/></xsl:attribute>
         <xsl:if test="@id">
