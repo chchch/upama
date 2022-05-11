@@ -926,7 +926,7 @@
         <xsl:call-template name="splitwit"/><xsl:text>:&#160;</xsl:text>
         <xsl:apply-templates />
     </xsl:element>
-    <xsl:text> </xsl:text>
+    <!--xsl:text> </xsl:text-->
 </xsl:template>
 
 <xsl:template match="x:app//x:anchor"/>
