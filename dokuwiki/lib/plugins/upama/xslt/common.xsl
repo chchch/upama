@@ -389,19 +389,19 @@
 </xsl:template>
 
 <xsl:template match="x:g">
-        <xsl:element name="span">
-            <xsl:variable name="ref" select="translate(@ref,'#','')"/>
-            <xsl:variable name="gdesc" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:desc"/>
-            <xsl:variable name="devanagari" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:mapping[@type='devanagari']"/>
-            <xsl:variable name="cname" select="exsl:node-set($defRoot)//s:entityclasses/s:entry[@key=$ref]"/>
-            <xsl:variable name="ename" select="exsl:node-set($defRoot)//s:entitynames/s:entry[@key=$ref]"/>
-            <xsl:variable name="innertext" select="exsl:node-set($defRoot)//s:entities/s:entry[@key=$ref]"/>
-            
-            <xsl:attribute name="class">
-                <xsl:text>glyph</xsl:text>
-                <xsl:if test="$cname"><xsl:text> </xsl:text><xsl:value-of select="$cname"/></xsl:if>
+    <xsl:element name="span">
+        <xsl:variable name="ref" select="translate(@ref,'#','')"/>
+        <xsl:variable name="gdesc" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:desc"/>
+        <xsl:variable name="devanagari" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:mapping[@type='devanagari']"/>
+        <xsl:variable name="cname" select="exsl:node-set($defRoot)//s:entityclasses/s:entry[@key=$ref]"/>
+        <xsl:variable name="ename" select="exsl:node-set($defRoot)//s:entitynames/s:entry[@key=$ref]"/>
+        <xsl:variable name="innertext" select="exsl:node-set($defRoot)//s:entities/s:entry[@key=$ref]"/>
+        
+        <xsl:attribute name="class">
+            <xsl:text>glyph</xsl:text>
+            <xsl:if test="$cname"><xsl:text> </xsl:text><xsl:value-of select="$cname"/></xsl:if>
                 <xsl:call-template name="ignore"/>
-            </xsl:attribute>
+        </xsl:attribute>
         <xsl:choose>
             <xsl:when test="$ename">
                 <xsl:attribute name="data-balloon">glyph (<xsl:value-of select="$ename"/>)</xsl:attribute>
@@ -423,7 +423,9 @@
                 <xsl:attribute name="data-devanagari-font"><xsl:value-of select="$font"/></xsl:attribute>
             </xsl:if>
         </xsl:if>
-        <xsl:if test="$innertext"><xsl:value-of select="$innertext"/></xsl:if>
+        <xsl:if test="$innertext">
+            <xsl:attribute name="data-before"><xsl:value-of select="$innertext"/></xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates />
     </xsl:element>
 </xsl:template>

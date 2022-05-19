@@ -13,12 +13,14 @@
 <!-- definitions -->
 <xsl:variable name="defRoot">
     <s:entities>
+        <s:entry key="newa-siddhi">&#x1144A;</s:entry>
         <s:entry key="newa-gap-filler">&#x1144E;</s:entry>
         <s:entry key="newa-old-gap-filler">&#x1144E;</s:entry>
         <s:entry key="broken-danda">&#x964;</s:entry>
         <s:entry key="danda-with-slash">&#x964;</s:entry>
     </s:entities>
     <s:entitynames>
+        <s:entry key="newa-siddhi">siddhi</s:entry>
         <s:entry key="newa-gap-filler">gap filler</s:entry>
         <s:entry key="newa-old-gap-filler">old-style gap filler</s:entry>
         <s:entry key="broken-danda">broken daṇḍa</s:entry>

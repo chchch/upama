@@ -599,6 +599,9 @@ span.glyph {
     background-position: bottom 0.1em right 0;
     background-repeat: repeat-x;
 }
+span.glyph[data-before]::before {
+    content: attr(data-before);
+}
 
 span.pointer {
     opacity: 0.6;
