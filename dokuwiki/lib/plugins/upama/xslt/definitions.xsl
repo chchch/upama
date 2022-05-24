@@ -16,13 +16,21 @@
         <s:entry key="newa-siddhi">&#x1144A;</s:entry>
         <s:entry key="newa-gap-filler">&#x1144E;</s:entry>
         <s:entry key="newa-old-gap-filler">&#x1144E;</s:entry>
+
+        <s:entry key="sarada-ekam">&#x11DA;</s:entry>
+        <s:entry key="sarada-siddhi">&#x11DB;</s:entry>
+
         <s:entry key="broken-danda">&#x964;</s:entry>
         <s:entry key="danda-with-slash">&#x964;</s:entry>
     </s:entities>
     <s:entitynames>
-        <s:entry key="newa-siddhi">siddhi</s:entry>
+        <s:entry key="newa-siddhi">newa siddhi</s:entry>
         <s:entry key="newa-gap-filler">gap filler</s:entry>
         <s:entry key="newa-old-gap-filler">old-style gap filler</s:entry>
+
+        <s:entry key="sarada-ekam">śāradā ekam</s:entry>
+        <s:entry key="sarada-siddhi">śāradā siddhi</s:entry>
+        
         <s:entry key="broken-danda">broken daṇḍa</s:entry>
         <s:entry key="danda-with-slash">daṇḍa with slash</s:entry>
     </s:entitynames>
