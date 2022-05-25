@@ -153,13 +153,13 @@
     </xsl:element>
 </xsl:template>
 
-<xsl:template match="x:sub">
+<xsl:template match="x:sub | x:g[@rend='subscript']">
     <sub>
         <xsl:apply-templates/>
     </sub>
 </xsl:template>
 
-<xsl:template match="x:sup">
+<xsl:template match="x:sup | x:g[@rend='superscript']">
     <sup>
         <xsl:apply-templates/>
     </sup>
