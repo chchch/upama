@@ -2177,19 +2177,20 @@ outerTags: function(node) {
     
     const groupsDiff = function(groups, mss) {
         const go = function(key, ss, arr) {
+            // need to clone the array because of delete
+            const filtered = [...arr];
             const is = [];
             for(const s of ss) {
-                const found = arr.indexOf(s);
+                const found = filtered.indexOf(s);
                 if(found === -1) return false;
                 else {
                     is.push(found);
-                    delete arr[found];
+                    delete filtered[found];
                 }
             }
-            arr[Math.min(...is)] = key;
-            return arr;
+            filtered[Math.min(...is)] = key;
+            return filtered;
         };
-
         var ret = mss;
         for(const [key, group] of groups) {
             const found = go(key,group,ret);

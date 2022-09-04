@@ -1,6 +1,6 @@
 <?php
-ini_set('display_errors','On');
-error_reporting(E_ALL);
+//ini_set('display_errors','On');
+//error_reporting(E_ALL);
 require_once("DiffMatchPatch/DiffMatchPatch.php");
 require_once("DiffMatchPatch/Diff.php");
 require_once("DiffMatchPatch/DiffToolkit.php");
@@ -172,7 +172,7 @@ class Upama
             }
         }
 
-        $otherwitnesses = $xpath2->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        $otherwitnesses = $xpath2->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama') and not(@resp='upama-groups')]");
         if(!$otherwitnesses || $otherwitnesses->length === 0) {
             return $text1->saveXML();
             // outputting as text fixes namespace issues
@@ -217,7 +217,7 @@ class Upama
         if(is_array($ret)) list($text,$xpath) = $ret;
         else 
             throw new Exception($ret);
-        $listWit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]")->item(0);
+        $listWit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama') and not(@resp='upama-groups')]")->item(0);
         $wit = $xpath->query("./x:witness[@xml:id='$ref']",$listWit)->item(0);
         $xmlid = '#' . $ref;
         $newsiglum = $xpath->query('./x:idno',$wit)->item(0);
@@ -485,7 +485,8 @@ EOT;
 //            $outstr .= $fullnote;
 
             $outertag = $el->nodeName;
-            list($out,$outq) = $this->loadText("<".$outertag.">$outstr</".$outertag.">",'',true);
+            $ret = $this->loadText("<$outertag>$outstr</$outertag>",'',true);
+            $out = $ret[0];
             $return .= $this->transform($out->saveXML(),$xsl);
         } //end foreach $elements
         $return .= "\n\n\\endnumbering\n\\endgroup\n\\end{document}";
@@ -678,6 +679,7 @@ EOT;
     }    
     
     private function latexSplit(DOMNode $node,bool $concatSpaces = false, array $tags = ['','']) : array {
+        $troublesometags = ['hi','unclear','add','corr','supplied'];
         $kids = $node->childNodes;
         $splitted = array();
         $carryover = '';
@@ -695,7 +697,7 @@ EOT;
                 else { // recursively check nodes that aren't ignored
                     $opentag = "<".$kid->localName . $this->DOMAttributes($kid).">";
                     $closetag = "</".$kid->localName.">";
-                    if(in_array($kid->localName,['hi','unclear','add','corr','supplied'])) {
+                    if(in_array($kid->localName,$troublesometags)) {
                         $kidsplit = $this->latexSplit($kid,true,[$opentag,$closetag]);
                         $opentag = '';
                         $closetag = '';
@@ -862,7 +864,7 @@ EOT;
         $filtered = ">$msid\n" . $this->fastaLoop($selected,$xpath);
 
 
-        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama') and not(@resp='upama-groups')]");
         if($otherwitnesses && $otherwitnesses->length > 0) {
             $addwits = $xpath->query("./x:witness",$otherwitnesses->item(0));
             foreach($addwits as $addwit) {
@@ -928,7 +930,7 @@ EOT;
 
         $filtered = ">$msid\n" . $this->fasta2Loop($nodes,$xpath,$dofilter);
 
-        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama')]");
+        $otherwitnesses = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[not(@resp='upama') and not(@resp='upama-groups')]");
         if($otherwitnesses && $otherwitnesses->length > 0) {
             $addwits = $xpath->query("./x:witness",$otherwitnesses->item(0));
             foreach($addwits as $addwit) {
@@ -1217,6 +1219,10 @@ EOT;
         }
         $edfrag->appendXML($witstr);
         $edlist->appendChild($edfrag);
+
+        // remove useless upama-groups from edition
+        $edwitgroups = $ed[1]->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama-groups']")->item(0);
+        if($edwitgroups) $edwitgroups->parentNode->removeChild($edwitgroups);
     }
 
     public function collate(array $strs): string {
@@ -1321,8 +1327,8 @@ EOT;
             }
         }
         uasort($groups, function($a, $b) {
-            $alen = $a['members']->length;
-            $blen = $b['members']->length;
+            $alen = count($a['members']);
+            $blen = count($b['members']);
             if($alen === $blen) return 0;
             return ($alen < $blen) ? 1 : -1;
         });
@@ -1870,7 +1876,7 @@ EOT;
         libxml_use_internal_errors(true);
         if($fixerrors) {
             $text2 = new DomDocument('1.0','UTF-8');
-            $text2->loadHTML('<?xml version="1.0" encoding="UTF-8"><xml_tags>'.$str."</xml_tags>");
+            $text2->loadHTML('<?xml version="1.0" encoding="UTF-8"><xml_tags>'.$str.'</xml_tags>');
             libxml_clear_errors();
             $str = $this->DOMinnerXML($text2->getElementsByTagName('xml_tags')->item(0));
         }
@@ -1948,6 +1954,15 @@ EOT;
         $unwrap = array();
 //        if(!empty(libxml_get_errors()) ) {
             libxml_clear_errors();
+            $tagnames = ['lg','l'];
+            foreach($tagnames as $tagname) {
+                foreach($doc->getElementsByTagName($tagname) as $el) {
+                    if(trim($el->textContent) === '')
+                        $el->parentNode->removeChild($el);
+                    else $unwrap[] = $el;
+                }
+            }
+            /*
             foreach($doc->getElementsByTagName('lg') as $el) {
                 if(trim($el->textContent) === '')
                     $el->parentNode->removeChild($el);
@@ -1958,6 +1973,7 @@ EOT;
                     $el->parentNode->removeChild($el);
                 else $unwrap[] = $el;
             }
+            */
             foreach($unwrap as $el) {
                 while($el->hasChildNodes())
                     //$el->parentNode->appendChild($el->childNodes->item(0));
