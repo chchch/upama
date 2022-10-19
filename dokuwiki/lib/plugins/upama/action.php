@@ -11,7 +11,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         $controller->register_hook('PARSER_CACHE_USE', 'BEFORE', $this, '_stop_cache');
 //        $controller->register_hook('DOKUWIKI_STARTED', 'AFTER', $this, '_add_jsinfo');
 //        $controller->register_hook('HTML_SECEDIT_BUTTON', 'BEFORE', $this, 'secedit_button');
-        $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'upama_section_edit');
+//        $controller->register_hook('HTML_EDIT_FORMSELECTION', 'BEFORE', $this, 'upama_section_edit');
+        $controller->register_hook('EDIT_FORM_ADDTEXTAREA', 'BEFORE', $this, 'upama_section_edit');
         
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'upama_export');
         $controller->register_hook('TEMPLATE_PAGETOOLS_DISPLAY', 'BEFORE', $this, 'upama_addbutton');
