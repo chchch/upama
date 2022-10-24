@@ -74,7 +74,7 @@
 @font-face {
     font-family: 'Bangla';
     src: url('fonts/Bangla-custom.woff');
-    unicode-range: U+0980-09FF;
+    unicode-range: ~"U+0980-09FF";
 }
 
 .aalt {
@@ -883,4 +883,9 @@ span.varcontainer.wrap {
 
 #__upama_history :lang(sa) {
     font-family: inherit;
+}
+
+.__upama_shadow {
+    box-shadow: 5px 5px 7px 0px rgba(71, 88, 135, 0.80), 15px 20px 22px -7px rgba(148, 149, 150, 0.50);
+
 }

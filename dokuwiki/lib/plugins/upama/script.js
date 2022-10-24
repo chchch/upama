@@ -149,8 +149,8 @@ const upama = (function() {
 
         //const scrolltoN = getvars['upama_scroll'];
         const scrolltoN = getvars.get('upama_scroll');
-        if(scrolltoN &&
-       document.getElementById(scrolltoN)) {
+        const scrollEl = scrolltoN ? document.getElementById(scrolltoN) : null;
+        if(scrolltoN && scrollEl) {
             //        state.mains[scrolltoN].scrollIntoView({behavior: "smooth"});
             /*
             jQuery(document).ready(function() {
@@ -161,7 +161,11 @@ const upama = (function() {
                 }
             });
             */
-            document.getElementById(scrolltoN).scrollIntoView({behavior: 'smooth',block: 'center'});
+            scrollEl.classList.add('__upama_shadow');
+            scrollEl.scrollIntoView({behavior: 'smooth',block: 'center'});
+            document.addEventListener('click',() => {
+               scrollEl.classList.remove('__upama_shadow'); 
+            },{once: true});
         }
 
         for(const el of document.querySelectorAll('.lazyhide'))
