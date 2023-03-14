@@ -16,6 +16,8 @@
         <s:entry key="newa-siddhi">&#x1144A;</s:entry>
         <s:entry key="newa-gap-filler">&#x1144E;</s:entry>
         <s:entry key="newa-old-gap-filler">&#x1144E;</s:entry>
+        <s:entry key="newa-comma">&#x1144D;</s:entry>
+        <s:entry key="newa-double-comma">&#x1145A;</s:entry>
 
         <s:entry key="sarada-ekam">&#x11DA;</s:entry>
         <s:entry key="sarada-siddhi">&#x11DB;</s:entry>
