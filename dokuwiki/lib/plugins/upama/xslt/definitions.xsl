@@ -23,7 +23,9 @@
         <s:entry key="sarada-siddhi">&#x11DB;</s:entry><!-- deprecated -->
         <s:entry key="sharada-ekam">&#x11DA;</s:entry>
         <s:entry key="sharada-sign-siddham">&#x11DB;</s:entry>
+        <s:entry key="sharada-continuation-sign">&#x111DD;</s:entry>
         <s:entry key="sharada-section-mark-1">&#x111DE;</s:entry>
+        <s:entry key="sharada-section-mark-2">&#x111DF;</s:entry>
 
         <s:entry key="broken-danda">&#x964;</s:entry>
         <s:entry key="danda-with-slash">&#x964;</s:entry>
@@ -37,7 +39,9 @@
         <s:entry key="sarada-siddhi">śāradā siddhi</s:entry><!-- deprecated -->
         <s:entry key="sharada-ekam">śāradā ekam</s:entry>
         <s:entry key="sharada-sign-siddham">śāradā siddham</s:entry>
+        <s:entry key="sharada-continuation-sign">śāradā continuation sign</s:entry>
         <s:entry key="sharada-section-mark-1">śāradā section mark-1</s:entry>
+        <s:entry key="sharada-section-mark-2">śāradā section mark-2</s:entry>
         
         <s:entry key="broken-danda">broken daṇḍa</s:entry>
         <s:entry key="danda-with-slash">daṇḍa with slash</s:entry>
