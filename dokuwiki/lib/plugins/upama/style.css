@@ -340,6 +340,7 @@ div.versebottompadding {padding-bottom: 1em;
 .msdetail {
     display: none;
     margin-left: 0.2em;
+    white-space: break-spaces;
 }
 
 /*
