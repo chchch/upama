@@ -847,7 +847,10 @@
 <xsl:template match="x:anchor">
    
     <xsl:element name="span">
-        <xsl:attribute name="class">anchor ignored</xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>anchor ignored</xsl:text>
+            <xsl:if test="@rend='none'"> invisible</xsl:if>
+        </xsl:attribute>
         <xsl:attribute name="data-anchor"><xsl:value-of select="@n"/></xsl:attribute>
         <xsl:text>*</xsl:text>
     </xsl:element>

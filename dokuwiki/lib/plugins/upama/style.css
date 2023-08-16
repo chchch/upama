@@ -652,6 +652,9 @@ span.anchor:hover {
     color: #FF9900;
     cursor: pointer;
 }
+span.anchor.invisible {
+    display: none;
+}
 
 span.expan {
     text-decoration: none;
