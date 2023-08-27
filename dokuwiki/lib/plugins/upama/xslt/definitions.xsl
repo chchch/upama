@@ -26,6 +26,7 @@
         <s:entry key="sharada-continuation-sign">&#x111DD;</s:entry>
         <s:entry key="sharada-section-mark-1">&#x111DE;</s:entry>
         <s:entry key="sharada-section-mark-2">&#x111DF;</s:entry>
+        <s:entry key="sharada-separator">&#x111C8;</s:entry>
 
         <s:entry key="broken-danda">&#x964;</s:entry>
         <s:entry key="danda-with-slash">&#x964;</s:entry>
