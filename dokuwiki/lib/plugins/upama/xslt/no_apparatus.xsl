@@ -21,7 +21,9 @@
 
 <xsl:template match="x:p[@xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">para upama-block no-apparatus</xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>para upama-block no-apparatus</xsl:text>
+        </xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
             <xsl:attribute name="class">
@@ -103,9 +105,6 @@
             <xsl:element name="div">
                 <xsl:attribute name="class">
                     <xsl:text>maintext no-apparatus</xsl:text>
-                    <xsl:if test="@style">
-                        <xsl:text> </xsl:text><xsl:value-of select="@style"/>
-                    </xsl:if>
                 </xsl:attribute>
                     <!--xsl:call-template name="lang"/-->
                     <xsl:comment>SECTION_START</xsl:comment>
@@ -124,7 +123,9 @@
     <xsl:element name="div">
         <xsl:choose>
         <xsl:when test="@xml:id">
-        <xsl:attribute name="class">verse upama-block no-apparatus</xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>verse upama-block no-apparatus</xsl:text>
+        </xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:element name="div">
             <xsl:attribute name="class">

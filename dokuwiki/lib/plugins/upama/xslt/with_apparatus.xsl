@@ -17,7 +17,9 @@
 
 <xsl:template match="x:p[@xml:id]">
         <xsl:element name="div">
-            <xsl:attribute name="class">para upama-block</xsl:attribute>
+            <xsl:attribute name="class">
+                <xsl:text>para upama-block</xsl:text>
+            </xsl:attribute>
             <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
             <xsl:apply-templates />
         </xsl:element>
@@ -29,8 +31,8 @@
     <div>
         <xsl:attribute name="class">
             <xsl:text>maintext</xsl:text>
-            <xsl:if test="@style">
-                <xsl:text> </xsl:text><xsl:value-of select="@style"/>
+            <xsl:if test="../@style">
+                <xsl:text> </xsl:text><xsl:value-of select="../@style"/>
             </xsl:if>
         </xsl:attribute>
     <xsl:comment>SECTION_START</xsl:comment>
@@ -336,13 +338,10 @@
     <div>
         <xsl:attribute name="class">
             <xsl:text>maintext</xsl:text>
-            <xsl:if test="@style">
-                <xsl:text> </xsl:text><xsl:value-of select="@style"/>
+            <xsl:if test="../@style">
+                <xsl:text> </xsl:text><xsl:value-of select="../@style"/>
             </xsl:if>
         </xsl:attribute>
-        <xsl:if test="@style">
-            <xsl:attribute name="class"><xsl:value-of select="@style"/></xsl:attribute>
-        </xsl:if>
         <xsl:comment>SECTION_START</xsl:comment>
         <xsl:comment><xsl:value-of select="../@xml:id"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
         <xsl:apply-templates />
@@ -353,7 +352,9 @@
 
 <xsl:template match="x:l[@xml:id]">
     <xsl:element name="div">
-        <xsl:attribute name="class">verse upama-block</xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>verse upama-block</xsl:text>
+        </xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@xml:id"/></xsl:attribute>
         <xsl:apply-templates/>
     </xsl:element>
@@ -465,9 +466,6 @@
         <xsl:element name="div">
             <xsl:attribute name="class">
                 <xsl:text>maintext</xsl:text>
-                <xsl:if test="@style">
-                    <xsl:text> </xsl:text><xsl:value-of select="@style"/>
-                </xsl:if>
             </xsl:attribute>
             <xsl:comment>SECTION_START</xsl:comment>
             <xsl:comment><xsl:value-of select="@xml:id"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>

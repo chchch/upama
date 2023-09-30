@@ -10,7 +10,9 @@
 <xsl:template match="x:p[@xml:id]">
     <xsl:variable name="xmlid" select="@xml:id"/>
     <xsl:element name="div">
-        <xsl:attribute name="class">para upama-block</xsl:attribute>
+        <xsl:attribute name="class">
+            <xsl:text>para upama-block</xsl:text>
+        </xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="$xmlid"/></xsl:attribute>
         <xsl:element name="div">
             <xsl:attribute name="class">
@@ -19,7 +21,6 @@
                     <xsl:text> </xsl:text><xsl:value-of select="@style"/>
                 </xsl:if>
             </xsl:attribute>
-                <xsl:attribute name="class">maintext</xsl:attribute>
                 <!--xsl:call-template name="lang"/-->
                 <xsl:comment>SECTION_START</xsl:comment>
                 <xsl:comment><xsl:value-of select="$xmlid"/>=sa<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -58,12 +59,7 @@
                     <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
                     <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                     <xsl:element name="div">
-                        <xsl:attribute name="class">
-                            <xsl:text>maintext</xsl:text>
-                            <xsl:if test="@style">
-                                <xsl:text> </xsl:text><xsl:value-of select="@style"/>
-                            </xsl:if>
-                        </xsl:attribute>
+                        <xsl:attribute name="class">maintext</xsl:attribute>
                         <!--xsl:call-template name="lang"/-->
                         <xsl:comment>SECTION_START</xsl:comment>
                         <xsl:comment><xsl:value-of select="$id2"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
@@ -137,12 +133,7 @@
                     <xsl:attribute name="data-target"><xsl:value-of select="translate($target,'#','')"/></xsl:attribute>
                     <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                     <xsl:element name="div">
-                        <xsl:attribute name="class">
-                            <xsl:text>maintext</xsl:text>
-                            <xsl:if test="@style">
-                                <xsl:text> </xsl:text><xsl:value-of select="@style"/>
-                            </xsl:if>
-                        </xsl:attribute>
+                        <xsl:attribute name="class">maintext</xsl:attribute>
                         <xsl:comment>SECTION_START</xsl:comment>
                         <xsl:comment><xsl:value-of select="$id2"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
                         <xsl:element name="ul">
@@ -254,12 +245,7 @@
                             <xsl:attribute name="class">apparatus2 upama-block</xsl:attribute>
                             <xsl:attribute name="id"><xsl:value-of select="$id2"/></xsl:attribute>
                             <xsl:element name="div">
-                                <xsl:attribute name="class">
-                                    <xsl:text>maintext</xsl:text>
-                                    <xsl:if test="@style">
-                                        <xsl:text> </xsl:text><xsl:value-of select="@style"/>
-                                    </xsl:if>
-                                </xsl:attribute>
+                                <xsl:attribute name="class">maintext</xsl:attribute>
                                 <xsl:comment>SECTION_START</xsl:comment>
                                 <xsl:comment><xsl:value-of select="$id2"/>=en<xsl:text>=UPAMA_SECTION</xsl:text></xsl:comment>
                                 <xsl:element name="ul">
