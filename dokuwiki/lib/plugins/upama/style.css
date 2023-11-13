@@ -621,12 +621,12 @@ span.choice span.seg:first-child::before {
     content: '<';
 }
 
-span.choice span.seg:last-child::after {
-    content: '>';
+span.choice span.seg:not(:first-child)::before {
+    content: '/<';
 }
 
-span.choice span.seg:not(:first-child)::before {
-    content: '/';
+span.choice span.seg::after {
+    content: '>';
 }
 
 span.surplus {

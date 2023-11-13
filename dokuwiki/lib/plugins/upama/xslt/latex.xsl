@@ -96,9 +96,10 @@
 <xsl:template match="choice/seg[1]">
     <xsl:text>&lt;</xsl:text>
     <xsl:apply-templates/>
-    <xsl:text>/</xsl:text>
+    <xsl:text>&gt;</xsl:text>
 </xsl:template>
-<xsl:template match="choice/seg[last()]">
+<xsl:template match="choice/seg[not(1)]">
+    <xsl:text>/&lt;</xsl:text>
     <xsl:apply-templates/>
     <xsl:text>&gt;</xsl:text>
 </xsl:template>
