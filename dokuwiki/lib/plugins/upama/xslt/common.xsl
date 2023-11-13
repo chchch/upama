@@ -210,6 +210,13 @@
     </xsl:element>
 </xsl:template>
 
+<xsl:template match="x:seg">
+    <xsl:element name="span">
+    <xsl:attribute name="class">seg</xsl:attribute>
+    <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
 <xsl:template match="x:del">
     <xsl:element name="del">
         <xsl:attribute name="data-balloon">

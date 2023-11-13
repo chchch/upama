@@ -93,6 +93,16 @@
     <xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="choice/seg[1]">
+    <xsl:text>&lt;</xsl:text>
+    <xsl:apply-templates/>
+    <xsl:text>/</xsl:text>
+</xsl:template>
+<xsl:template match="choice/seg[last()]">
+    <xsl:apply-templates/>
+    <xsl:text>&gt;</xsl:text>
+</xsl:template>
+
 <xsl:template match="del">
     <xsl:text>\uuline{</xsl:text><xsl:apply-templates /><xsl:text>}</xsl:text>
 </xsl:template>
@@ -224,6 +234,10 @@
     <xsl:text>\emph{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>
 
+<xsl:template match="head[@type='sub']">
+    <xsl:text>\textbf{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
+</xsl:template>
+
 <xsl:template match="hi">
     <xsl:text>\textbf{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>
@@ -259,5 +273,9 @@
 <xsl:template match="item/title">
     <xsl:text>\emph{</xsl:text><xsl:apply-templates/><xsl:text>}</xsl:text>
 </xsl:template>
+
+<!--xsl:template match="pc">
+    <xsl:text>&#173;</xsl:text>
+</xsl:template-->
 
 </xsl:stylesheet>

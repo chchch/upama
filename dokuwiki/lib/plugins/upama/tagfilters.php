@@ -20,6 +20,7 @@ return array(
             "expan" => "-2",
             "foreign" => "-2",
             "gap" => "-1",
+            "head" => "-2",
             "hi" => "-2",
             "l" => "-2",
             "label" => "-1",
@@ -30,6 +31,7 @@ return array(
             "num" => "-1",
             "pb" => "-1",
             "ptr" => "-1",
+            "seg" => "-2",
             "unclear" => "-2",
             // gaiji
             "g" => "-2",

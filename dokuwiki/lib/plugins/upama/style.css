@@ -617,6 +617,18 @@ span.sic {
     background-repeat: repeat-x;
 }
 
+span.choice span.seg:first-child::before {
+    content: '<';
+}
+
+span.choice span.seg:last-child::after {
+    content: '>';
+}
+
+span.choice span.seg:not(:first-child)::before {
+    content: '/';
+}
+
 span.surplus {
     display: inline;
     position: relative;
