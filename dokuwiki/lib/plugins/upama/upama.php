@@ -982,6 +982,8 @@ EOT;
             "ṃ" => "M",
             "ḥ" => "H",
             "m̐" => "2", // this is ~ in SLP1
+            "ṁ" => "2", // this is ~ in SLP1
+            "ḿ" => "2", // this is ~ in SLP1
             "o" => "o", // was 0
             "ô" => "o",
             "kh" => "K",
