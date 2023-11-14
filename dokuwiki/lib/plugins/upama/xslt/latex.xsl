@@ -98,7 +98,7 @@
     <xsl:apply-templates/>
     <xsl:text>&gt;</xsl:text>
 </xsl:template>
-<xsl:template match="choice/seg[not(1)]">
+<xsl:template match="choice/seg[position() > 1]">
     <xsl:text>/&lt;</xsl:text>
     <xsl:apply-templates/>
     <xsl:text>&gt;</xsl:text>
