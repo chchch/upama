@@ -619,14 +619,17 @@ span.sic {
 
 span.choice span.seg:first-child::before {
     content: '<';
+    color: #0000CC;
 }
 
 span.choice span.seg:not(:first-child)::before {
     content: '/<';
+    color: #0000CC;
 }
 
 span.choice span.seg::after {
     content: '>';
+    color: #0000CC;
 }
 
 span.surplus {
