@@ -487,7 +487,7 @@ EOT;
             $outertag = $el->nodeName;
             $ret = $this->loadText("<$outertag>$outstr</$outertag>",'',true);
             $out = $ret[0];
-            $return .= $this->transform($out->saveXML(),$xsl);
+            $return .= $this->transform($out->saveXML(),$xsl) . ' ';
         } //end foreach $elements
         $return .= "\n\n\\endnumbering\n\\endgroup\n\\end{document}";
     
