@@ -6,7 +6,6 @@ return array(
             "avagrahas ⌜'⌟" => '\'',
             "brackets" => array('\)','\(','\[','\]'),
             "commas" => ',',
-            "semi-colons" => ';',
             "daṇḍas" => '\|',
             //"dandas with numbers" => '\s*\|+\s*[\d-]+\s*\|+\s*',
             //"dandas ⌜|⌟" => '\s+\|+|\|+\s*',
@@ -20,7 +19,9 @@ return array(
             //"numbers" => '\s+[\d-]+|[\d-]+\s*',
             "puṣpikās ⌜꣸❈⌟" => array('꣸','❈'),
             "periods/ellipses" => ".",
+            "question mark" => '?',
             "quotation marks" => array('"','“','”','‘','’','«','»'),
+            "semi-colon" => ';',
             "slashes" => array('\\','/'),
             );
 ?>

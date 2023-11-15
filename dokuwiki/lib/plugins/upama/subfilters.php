@@ -78,6 +78,11 @@ return array(
 //       "nasal variants" => array('ṅ(?=\s*[kg])|ñ(?=\s*[cj])|ṇ(?=\s*[ṭḍ])|m(?=\s*[pbd])|n(?=\s*[tdnj])', "replace_with" => 'ṃ'),
        // n(?=\s*j) takes care of (jhātkārān jaitrajanye|jhātkārāñ jaitrajanye)
     
+    ["name" => "Vedic visarga variants",
+     "find" => '[ẖḫ]',
+     "replace" => 'ḥ',
+     "first" => true
+    ],
     ["name" => "final au/āv",
      "find" => 'āv(?!\S)',
      "replace" => 'au'],

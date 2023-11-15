@@ -363,9 +363,7 @@
     <td><xsl:apply-templates select="//x:textLang"/>
         <xsl:if test="x:scriptDesc/x:scriptNote">
             <ul>
-                <xsl:for-each select="x:scriptDesc/x:scriptNote">
-                  <li><xsl:apply-templates/></li>
-                </xsl:for-each>
+                <xsl:apply-templates select="x:scriptDesc/x:scriptNote"/>
             </ul>
         </xsl:if>
     </td>
@@ -477,7 +475,13 @@
   </table>
 
 </xsl:template>
-
+<xsl:template match="x:scriptNote">
+    <xsl:element name="li">
+        <xsl:attribute name="class">scriptNote</xsl:attribute>
+        <xsl:attribute name="data-scriptnote"><xsl:value-of select="@xml:id"/></xsl:attribute>
+        <xsl:apply-templates/>
+    </xsl:element>
+</xsl:template>
 <xsl:template match="x:history">
     <table id="__upama_history">
         <th colspan="2">History</th>
