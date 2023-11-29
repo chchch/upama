@@ -30,6 +30,10 @@
 
         <s:entry key="broken-danda">&#x964;</s:entry>
         <s:entry key="danda-with-slash">&#x964;</s:entry>
+
+        <s:entry key="#pcs">&#x0BF3;</s:entry>
+        <s:entry key="#pcl">&#x0BF3;</s:entry>
+        <s:entry key="#tēti">&#x0BF3;</s:entry>
     </s:entities>
     <s:entitynames>
         <s:entry key="newa-siddhi">newa siddhi</s:entry>
@@ -46,11 +50,16 @@
         
         <s:entry key="broken-danda">broken daṇḍa</s:entry>
         <s:entry key="danda-with-slash">daṇḍa with slash</s:entry>
+
+        <s:entry key="#pcs">piḷḷaiyār cuḻi (short)</s:entry>
+        <s:entry key="#pcl">piḷḷaiyār cuḻi (long)</s:entry>
+        <s:entry key="#tēti">tēti</s:entry>
     </s:entitynames>
     <s:entityclasses>
         <s:entry key="newa-old-gap-filler">cv01</s:entry>
         <s:entry key="broken-danda">cv01</s:entry>
         <s:entry key="danda-with-slash">cv02</s:entry>
+        <s:entry key="#pcl">aalt</s:entry>
     </s:entityclasses>
 </xsl:variable>
 
