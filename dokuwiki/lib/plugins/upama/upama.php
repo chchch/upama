@@ -275,7 +275,13 @@ class Upama
 }
 
     public function latex(string $text, string $xsl = 'latex.xsl'): string {
-        list($xml,$xpath) = $this->loadText($text);
+        $res = $this->loadText($text);
+        if(is_array($res)) list($xml,$xpath) = $res;
+        else {
+            print($res);
+            return null;
+        }
+        //list($xml,$xpath) = $this->loadText($text);
         $this->mergeAdds($xml,$xpath);
         $elements = $xpath->query("/x:TEI/x:text//*[@xml:id]");
         $listwit = $xpath->query("/x:TEI/x:teiHeader/x:fileDesc/x:sourceDesc/x:listWit[@resp='upama']/x:witness");
@@ -598,7 +604,9 @@ EOT;
         }
     }
 
-    private function latexCleanLemma(string $lemma) : string {
+    private function latexCleanLemma(?string $lemma) : string {
+        if($lemma === null)
+            return '□';
         $lemma = trim($lemma);
         $lemma = preg_replace('/\s+/',' ',$lemma);
         $lemma = preg_replace('/<\/?l\/*>/','',$lemma);
