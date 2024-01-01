@@ -384,8 +384,9 @@ EOT;
                 
                 if($loc[1] - $loc[0] == 1) { // one-word lemma
                     $openbrackets[$loc[0]] = '\edtext{';
-                    if($closebrackets[$loc[1]] != '')
+                    if($closebrackets[$loc[1]] != '') {
                         $closebrackets[$loc[1]] .= '\lemma{' . $this->latexCleanLemma($mains[$loc[0]]) . '}';
+                    }
                     $closebrackets[$loc[1]] .= '  \Afootnote{'.$note."}\n";
                 }
                 else { // multi-word lemma
@@ -605,7 +606,7 @@ EOT;
     }
 
     private function latexCleanLemma(?string $lemma) : string {
-        if($lemma === null)
+        if(!$lemma)
             return '□';
         $lemma = trim($lemma);
         $lemma = preg_replace('/\s+/',' ',$lemma);
