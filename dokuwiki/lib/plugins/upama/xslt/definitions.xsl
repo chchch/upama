@@ -18,6 +18,7 @@
         <s:entry key="newa-old-gap-filler">&#x1144E;</s:entry>
         <s:entry key="newa-comma">&#x1144D;</s:entry>
         <s:entry key="newa-double-comma">&#x1145A;</s:entry>
+        <s:entry key="newa-sign-final-anusvara" script="newa">&#x11448;</s:entry>
 
         <s:entry key="sarada-ekam">&#x11DA;</s:entry><!-- deprecated -->
         <s:entry key="sarada-siddhi">&#x11DB;</s:entry><!-- deprecated -->
@@ -39,6 +40,9 @@
         <s:entry key="newa-siddhi">newa siddhi</s:entry>
         <s:entry key="newa-gap-filler">gap filler</s:entry>
         <s:entry key="newa-old-gap-filler">old-style gap filler</s:entry>
+        <s:entry key="newa-comma">newa comma</s:entry>
+        <s:entry key="newa-double-comma">newa double comma</s:entry>
+        <s:entry key="new-sign-final-anusvara">newa final anusvāra</s:entry>
 
         <s:entry key="sarada-ekam">śāradā ekam</s:entry><!-- deprecated -->
         <s:entry key="sarada-siddhi">śāradā siddhi</s:entry><!-- deprecated -->

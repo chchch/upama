@@ -399,7 +399,7 @@
     <xsl:element name="span">
         <xsl:variable name="ref" select="translate(@ref,'#','')"/>
         <xsl:variable name="gdesc" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:desc"/>
-        <xsl:variable name="devanagari" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:mapping[@type='devanagari']"/>
+        <xsl:variable name="devanagari" select="/x:TEI/x:teiHeader/x:encodingDesc/x:charDecl/x:glyph[@xml:id=$ref]/x:mapping[@type='devanagari']"/> <!-- deprecated -->
         <xsl:variable name="cname" select="exsl:node-set($defRoot)//s:entityclasses/s:entry[@key=$ref]"/>
         <xsl:variable name="ename" select="exsl:node-set($defRoot)//s:entitynames/s:entry[@key=$ref]"/>
         <xsl:variable name="innertext" select="exsl:node-set($defRoot)//s:entities/s:entry[@key=$ref]"/>
@@ -425,13 +425,16 @@
         </xsl:choose>
         <xsl:if test="$devanagari">
             <xsl:variable name="font" select="$devanagari/@rend"/>
-            <xsl:attribute name="data-devanagari-glyph"><xsl:value-of select="$devanagari"/></xsl:attribute>
+            <xsl:attribute name="data-devanagari-glyph"><xsl:value-of select="$devanagari"/></xsl:attribute> <!-- deprecated -->
             <xsl:if test="$font">
                 <xsl:attribute name="data-devanagari-font"><xsl:value-of select="$font"/></xsl:attribute>
-            </xsl:if>
+            </xsl:if> <!-- deprecated -->
         </xsl:if>
         <xsl:if test="$innertext">
-            <xsl:attribute name="data-before"><xsl:value-of select="$innertext"/></xsl:attribute>
+            <xsl:attribute name="data-glyph"><xsl:value-of select="$innertext"/></xsl:attribute>
+            <xsl:if test="$innertext/@script">
+                <xsl:attribute name="data-script"><xsl:value-of select="$innertext/@script"/></xsl:attribute>
+            </xsl:if>
         </xsl:if>
         <xsl:apply-templates />
     </xsl:element>

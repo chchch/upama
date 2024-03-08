@@ -8,27 +8,27 @@
     font-family: 'PedanticDevanagari';
     src: local('PedanticDevanagariLight'),
          url('fonts/PedanticDevanagariLight.woff');
-    unicode-range: ~"U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24";
+    unicode-range: ~"U+200D, U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24";
 }
 
 @font-face {
     font-family: 'PedanticDevanagari';
     src: local('PedanticDevanagariBold'),
          url('fonts/PedanticDevanagariBold.woff');
-    unicode-range: ~"U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24";
+    unicode-range: ~"U+200D, U+0900-097F, U+A8E0-A8FB, U+1CD0-1CF6, U+2E24";
     font-weight: bold;
 }
 
 @font-face {
     font-family: 'PedanticMalayalam';
     src: url('fonts/PedanticMalayalam.woff');
-    unicode-range: ~"U+0D00-0D7F, U+25CC";
+    unicode-range: ~"U+200D, U+0D00-0D7F, U+25CC";
 }
 
 @font-face {
     font-family: 'PedanticMalayalam';
     src: url('fonts/PedanticMalayalamBold.woff');
-    unicode-range: ~"U+0D00-0D7F, U+25CC";
+    unicode-range: ~"U+200D, U+0D00-0D7F, U+25CC";
     font-weight: bold;
 }
 /*
@@ -43,38 +43,38 @@
 @font-face {
     font-family: 'PedanticTelugu';
     src: url('fonts/PedanticTelugu.woff');
-    unicode-range: ~"U+0C00-0C7F";
+    unicode-range: ~"U+200D, U+0C00-0C7F";
 }
 
 @font-face {
     font-family: 'PedanticTelugu';
     src: url('fonts/PedanticTeluguBold.woff');
-    unicode-range: ~"U+0C00-0C7F";
+    unicode-range: ~"U+200D, U+0C00-0C7F";
     font-weight: bold;
 }
 
 @font-face {
     font-family: 'Tantular Bali';
     src: url('fonts/TantularBali.ttf');
-    unicode-range: ~"U+1B00-1B7F";
+    unicode-range: ~"U+200D, U+1B00-1B7F";
 }
 
 @font-face {
     font-family: 'Noto Sans Newa';
     src: url('fonts/NotoSansNewa-Regular-custom.otf');
-    unicode-range: ~"U+11400-1147F";
+    unicode-range: ~"U+200D, U+11400-1147F";
 }
 
 @font-face {
     font-family: 'Satisar Sharada';
     src: url('fonts/Sharada.ttf');
-    unicode-range: ~"U+11180-111DF";
+    unicode-range: ~"U+200D, U+11180-111DF";
 }
 
 @font-face {
     font-family: 'Bangla';
     src: url('fonts/Bangla-custom.woff');
-    unicode-range: ~"U+0980-09FF";
+    unicode-range: ~"U+200D, U+0980-09FF";
 }
 
 .aalt {

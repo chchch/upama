@@ -1185,8 +1185,14 @@ changeScript: function(node,script,level = 0,placeholder = false,cur_script="sa"
                         ) {
                             kid.data = node.getAttribute('data-devanagari-glyph');
                         } 
-                        else 
-                            kid.data = func(kid.data,placeholder);
+                        else { 
+                            const gscript = node.getAttribute('data-script');
+                            if(gscript && gscript === script) {
+                                kid.data = node.getAttribute('data-glyph');
+                            }
+                            else
+                                kid.data = func(kid.data,placeholder);
+                        }
                     }
                 }
                 else if(kid.hasChildNodes()) {
