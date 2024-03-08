@@ -609,8 +609,10 @@ const upama = (function() {
                 tipBox.id = '__upama_tooltip';
                 tipBox.style.top = (e.clientY + 10) + 'px';
                 tipBox.style.left = (e.clientX) + 'px';
+                /*
                 tipBox.style.opacity = 0;
                 tipBox.style.transition = 'opacity 0.2s ease-in';
+                */
                 state.contentbox.parentNode.insertBefore(tipBox,state.contentbox);
 
                 tiptext = document.createElement('div');
@@ -622,8 +624,14 @@ const upama = (function() {
             tipBox.appendChild(tiptext);
             target.addEventListener('mouseleave',listener.toolTipRemove,{once: true});
 
-            window.getComputedStyle(tipBox).opacity;
+            /*
+            const temp = window.getComputedStyle(tipBox).opacity;
             tipBox.style.opacity = 1;
+            */
+            tBox.animate([
+                {opacity: 0},
+                {opacity: 1, easing: 'ease-in'}
+                ], 200);
         },
 
         toolTipRemove: function(e) {
@@ -707,8 +715,8 @@ const upama = (function() {
             if(!myData) return;
             
             const posApp = makePosApp(myData.app,myData.msids);
-            myData.app = posApp.appKeys,
-            myData.posText = posApp.text,
+            myData.app = posApp.appKeys;
+            myData.posText = posApp.text;
             showPosApp(myData);
         },
 
@@ -857,7 +865,7 @@ const upama = (function() {
                     const txt = textWalk.currentNode.data
                         .replace(/\s+\|/g,consts.nbsp+'|') // don't break before daṇḍa
                         .replace(/\|\s+(?=[\d꣸])/g,'|'+consts.nbsp); // don't break between daṇḍa and numeral/puṣpikā
-                    textWalk.currentNode.data = window['Hypher']['languages']['sa'].hyphenateText(txt);
+                    textWalk.currentNode.data = window.Hypher.languages.sa.hyphenateText(txt);
                 }
                 //            jQuery(_this).hyphenate('sa');
                 //            jQuery(_this).find('*').hyphenate('sa');
@@ -1967,10 +1975,12 @@ outerTags: function(node) {
                     return seltext.replace(consts.hyphenRegex,'').trim().split(/\s+/);
             })();
             const lemmaText = lemmaArr.join(' ');
+            /*
             const app = state.mainClass === '.sectiontext' ? 
                 sel.target.parentNode.parentNode.querySelector('.variorum') :
                 sel.target.parentNode.querySelector('.variorum') ;
-
+            */
+            const app = sel.target.closest('.upama-block').querySelector('.variorum');
             const variants = app.getElementsByClassName('varcontainer');
             const matched_variants = [];
             for(const v of variants) {
@@ -2101,18 +2111,21 @@ outerTags: function(node) {
 
         startEnd: function(sel,seltext) {
 
-            if(state.script !== 'iast') {
-                var textFromIAST = changeScript(sel.target.myIAST,state.script,consts.placeholder);
-                textFromIAST = document.createRange().createContextualFragment(textFromIAST);
-                textFromIAST = cleanString(textFromIAST);
-            }
+            var textFromIAST;
+            var start_with_spaces;
             var preinfo = {};
             var selinfo;
-
             var start = document.createRange();
+
             start.setStart(sel.target.firstChild,0);
             start.setEnd(sel.range.startContainer,sel.range.startOffset);
             if(!start) return;
+
+            if(state.script !== 'iast') {
+                textFromIAST = changeScript(sel.target.myIAST,state.script,consts.placeholder);
+                textFromIAST = document.createRange().createContextualFragment(textFromIAST);
+                textFromIAST = cleanString(textFromIAST);
+            }
             if(start.collapsed === true)
                 preinfo = {spaces: 0, startspace: 0, endspace: 0, stublen: 0};
             else {
@@ -2126,7 +2139,7 @@ outerTags: function(node) {
                 }
 
                 if(state.script !== 'iast') {
-                    var start_with_spaces = replaceSpaces(textFromIAST,start_txt,consts.placeholder);
+                    start_with_spaces = replaceSpaces(textFromIAST,start_txt,consts.placeholder);
                     preinfo = spaceCount(
                         to.iast(start_with_spaces,state.script),
                         consts.placeholder,nostub
@@ -2583,11 +2596,11 @@ outerTags: function(node) {
         const features = 'menubar=no,location=no,status=no,height=550,width=550,scrollbars=yes,centerscreen=yes';
         const stemmaWindow = window.open(path,`stemma ${new Date().toLocaleString()}`,features);
         if(!arrays) {
-            var xmlDoc = document.getElementById('__upama_stemma').firstChild;
-            var dataObject = {nexml: xmlDoc, fileSource: true };
+            let xmlDoc = document.getElementById('__upama_stemma').firstChild;
+            let dataObject = {nexml: xmlDoc, fileSource: true };
             stemmaWindow.dataObject = dataObject;
     
-            var varTexts_linear = {};
+            let varTexts_linear = {};
             if(state.script === 'iast')
                 for(const vT in varTexts)
                     varTexts_linear[vT] = varTexts[vT].join(' ');
@@ -2603,14 +2616,15 @@ outerTags: function(node) {
         }
         else {
         //var stemmaWindow = window.open(path,"stemma",features);
+            let varTexts_script = {};
             if(state.script !== 'iast') {
-                var varTexts_script = {};
+                const cloneandchange = s => {
+                    const tempel = document.createElement('span');
+                    tempel.appendChild(document.createRange().createContextualFragment(s));
+                    return changeScript(tempel,state.script);
+                };
                 for(const vT in varTexts) {
-                    varTexts_script[vT] = varTexts[vT].map(function(s) {
-                        let tempel = document.createElement('span');
-                        tempel.appendChild(document.createRange().createContextualFragment(s));
-                        return changeScript(tempel,state.script);
-                    });
+                    varTexts_script[vT] = varTexts[vT].map(s => cloneandchange(s));
                 }
             }
             stemmaWindow.varTexts = state.script === 'iast' ? varTexts : varTexts_script;
@@ -2620,7 +2634,7 @@ outerTags: function(node) {
         stemmaWindow.listWit = listWit;
         stemmaWindow.otherWit = otherWit;
         stemmaWindow.unshift = unshift;
-        stemmaWindow.onload = function() {stemmaWindow.init();};
+        stemmaWindow.onload = () => stemmaWindow.init();
     };
 
     const fragClip = function(node,varstr,locs,lemmacounts,clips) {
