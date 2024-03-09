@@ -15,6 +15,7 @@ const upama = (function() {
         scripts: ['devanagari','balinese','bengali','malayalam','newa','sarada','telugu'],
         placeholder: String.fromCodePoint('0xFFFD'),
         vowelChars: 'aāiīuūṛṝḷḹeoêô',
+        all_long_vowels: document.querySelector('.scriptNote[data-scriptnote="script-all-long-vowels"]')
     };
 
     Object.freeze(consts);
@@ -999,7 +1000,7 @@ const upama = (function() {
 
             text = to.smush(text,(placeholder || ''));
             
-            if(!document.querySelector('.scriptNote[data-scriptnote="script-all-long-vowels"]')) {
+            if(!consts.all_long_vowels) {
                 text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
                     .replace(/[oô]/g,'õ') // same with o
                     .replace(/ē/,'e')
@@ -1034,7 +1035,7 @@ const upama = (function() {
             // FIXME: should be moved to the right of the following consonant
 
             text = to.smush(text,(placeholder || ''));        
-            if(!document.querySelector('.scriptNote[data-scriptnote="script-all-long-vowels"]')) {
+            if(consts.all_long_vowels) {
                 text = text.replace(/[eê]/g,'ẽ') // hack to make long e's short
                     .replace(/[oô]/g,'õ') // same with o
                     .replace(/ē/,'e')
@@ -1174,7 +1175,6 @@ changeScript: function(node,script,level = 0,placeholder = false,cur_script="sa"
         const func = to[script];
         const node = orignode.cloneNode(true);
         //var cur_lang;
-
     
         const scriptLoop = function(node,cur_lang) { 
             const kids = node.childNodes;
