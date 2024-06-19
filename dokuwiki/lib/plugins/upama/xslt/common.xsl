@@ -431,10 +431,15 @@
             </xsl:if> <!-- deprecated -->
         </xsl:if>
         <xsl:if test="$innertext">
-            <xsl:attribute name="data-glyph"><xsl:value-of select="$innertext"/></xsl:attribute>
-            <xsl:if test="$innertext/@script">
-                <xsl:attribute name="data-script"><xsl:value-of select="$innertext/@script"/></xsl:attribute>
-            </xsl:if>
+            <xsl:choose>
+                <xsl:when test="$innertext/@script">
+                    <xsl:attribute name="data-glyph"><xsl:value-of select="$innertext"/></xsl:attribute>
+                    <xsl:attribute name="data-script"><xsl:value-of select="$innertext/@script"/></xsl:attribute>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$innertext"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:if>
         <xsl:apply-templates />
     </xsl:element>
