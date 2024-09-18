@@ -87,8 +87,8 @@ return array(
      "find" => 'āv(?!\S)',
      "replace" => 'au'],
 
-    ["name" => "final anusvāra variants", // A 8.4.59
-     "exclude" => "//textLang[@mainLang='sa-Mlym']",
+    ["name" => "selected final anusvāra variants", // A 8.4.59
+     "exclude" => "//textLang[@mainLang='sa-Mlym']|//scriptNote[@xml:id='savarna-nasals']",
      "find" => ['ṃ?[mm̐ṅ](?!\S)', '(?<=k[ai])n(?=\st)', 'ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
 //        "final anusvāra" => array('ṃ?[mṅ](?!\S)', 'n(?=\s+t[uūv])', "replace_with" => 'ṃ'),
@@ -96,7 +96,7 @@ return array(
         // kin tu/ kiṃ tu/ kim tu
 //        "final ṃl" => array('ṃl(?!\Sl)', "replace_with" => 'n'),
 //        "kcch/kś" => 'k(?:[ c]ch| ?ś)',
-    ["name" => "final anusvāra variants (Malayālam, etc.)",
+    ["name" => "all final anusvāra variants (Malayālam, etc.)",
      "include" => "//textLang[@mainLang='sa-Mlym']|//scriptNote[@xml:id='savarna-nasals']",
      "find" => ['n(?=\s[tdn])','ṃ?[mm̐ṅ](?!\S)','ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
