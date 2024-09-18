@@ -477,7 +477,7 @@ a.pb:hover {
         cursor: default;
 }
 
-span.gap {background-color: rgba(132,132,10,0.3);
+span.gap, span.damage {background-color: rgba(132,132,10,0.3);
           font-size: 85%;
           color: rgb(84,84,84);
          /*color: #CCCCB2; */
