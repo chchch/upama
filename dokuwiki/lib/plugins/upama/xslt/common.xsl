@@ -552,34 +552,34 @@
     </xsl:if>
 </xsl:template>
 
-<xsl:template match="x:gap">
+<xsl:template match="x:gap | x:damage">
     <xsl:element name="span">
         <xsl:attribute name="lang">en</xsl:attribute>
-        <xsl:attribute name="class">gap<xsl:call-template name="ignore" /></xsl:attribute>
+        <xsl:attribute name="class"><xsl:value-of select="local-name()"/><xsl:call-template name="ignore" /></xsl:attribute>
         <xsl:attribute name="data-balloon">
-            <xsl:text>gap</xsl:text>
-                <xsl:choose>
-                    <xsl:when test="@quantity">
-                        <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
-                        <xsl:choose>
-                        <xsl:when test="@unit">
-                        <xsl:text> </xsl:text><xsl:value-of select="@unit"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                        <xsl:text> akṣara</xsl:text>
-                        </xsl:otherwise>
-                        </xsl:choose>
-                            <xsl:if test="@quantity &gt; '1'">
-                                <xsl:text>s</xsl:text>
-                            </xsl:if>
+            <xsl:value-of select="local-name()"/>
+            <xsl:choose>
+                <xsl:when test="@quantity">
+                    <xsl:text> of </xsl:text><xsl:value-of select="@quantity"/>
+                    <xsl:choose>
+                    <xsl:when test="@unit">
+                    <xsl:text> </xsl:text><xsl:value-of select="@unit"/>
                     </xsl:when>
-                    <xsl:when test="@extent">
-                        <xsl:text> of </xsl:text><xsl:value-of select="@extent"/>
-                    </xsl:when>
-                </xsl:choose>
-                <xsl:if test="@reason">
-                    <xsl:text> (</xsl:text><xsl:value-of select="@reason"/><xsl:text>)</xsl:text>
-                </xsl:if>
+                    <xsl:otherwise>
+                    <xsl:text> akṣara</xsl:text>
+                    </xsl:otherwise>
+                    </xsl:choose>
+                        <xsl:if test="@quantity &gt; '1'">
+                            <xsl:text>s</xsl:text>
+                        </xsl:if>
+                </xsl:when>
+                <xsl:when test="@extent">
+                    <xsl:text> of </xsl:text><xsl:value-of select="@extent"/>
+                </xsl:when>
+            </xsl:choose>
+            <xsl:if test="@reason">
+                <xsl:text> (</xsl:text><xsl:value-of select="@reason"/><xsl:text>)</xsl:text>
+            </xsl:if>
         </xsl:attribute>
         <xsl:choose>
             <xsl:when test="count(./*) &gt; 0">

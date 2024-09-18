@@ -15,6 +15,7 @@ return array(
             "choice" => "-2",
             "corr" => "-1",
             "del" => "-1",
+            "damage" => "-1",
             "emph" => "-2",
             "ex" => "-1",
             "expan" => "-2",
