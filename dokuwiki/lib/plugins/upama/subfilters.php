@@ -96,8 +96,8 @@ return array(
         // kin tu/ kiṃ tu/ kim tu
 //        "final ṃl" => array('ṃl(?!\Sl)', "replace_with" => 'n'),
 //        "kcch/kś" => 'k(?:[ c]ch| ?ś)',
-    ["name" => "final anusvāra variants (Malayālam)",
-     "include" => "//textLang[@mainLang='sa-Mlym']",
+    ["name" => "final anusvāra variants (Malayālam, etc.)",
+     "include" => "//textLang[@mainLang='sa-Mlym']|//scriptNote[@xml:id='savarna-nasals']",
      "find" => ['n(?=\s[tdn])','ṃ?[mm̐ṅ](?!\S)','ñ(?=\s[jc])'],
      "replace" => 'ṃ'],
 
