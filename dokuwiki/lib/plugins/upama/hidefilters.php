@@ -21,6 +21,7 @@ return array(
             "periods/ellipses" => ".",
             "question mark" => '?',
             "quotation marks" => array('"','“','”','‘','’','«','»'),
+            "colon" => ':',
             "semi-colon" => ';',
             "slashes" => array('\\','/'),
             );
