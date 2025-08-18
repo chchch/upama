@@ -1326,6 +1326,7 @@ EOT;
         foreach($wits as $wit) {
             $xmlid = '#' . $wit[1]->query('//x:listWit[@resp="upama"]/x:witness')->item(0)->getAttribute('xml:id');
             $fils = $wit[1]->query('//x:listWit[@resp="upama-groups"]/x:witness');
+            
             foreach($fils as $fil) {
                 $c = $fil->getAttribute('xml:id');
                 if(isset($groups[$c]))
@@ -1336,6 +1337,11 @@ EOT;
                         'members' => array($xmlid)
                     ];
             }
+        }
+        // ignore groups that only have one member
+        foreach($groups as $key => $group) {
+            if(count($group['members']) == 1)
+                unset($groups[$key]);
         }
         uasort($groups, function($a, $b) {
             $alen = count($a['members']);
