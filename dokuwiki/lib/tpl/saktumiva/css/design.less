@@ -372,13 +372,16 @@ refer:http://stackoverflow.com/questions/3293771/how-to-get-rid-of-margins-in-jq
     div {
         padding: .1em .35em;
     }
-
+    a.sitemap {
+        border-bottom: 1px solid @ini_border;
+    }
     div:only-child {
         border-top: 1px solid @ini_background;
         border-bottom: 1px solid @ini_border;
     }
 
     div:first-child {
+        border-bottom: 1px solid @ini_border;
         border-top: 1px solid @ini_background;
     }
 
@@ -393,6 +396,10 @@ refer:http://stackoverflow.com/questions/3293771/how-to-get-rid-of-margins-in-jq
 
     .bcsep {
         font-size: 0.75em;
+    }
+
+    .trace {
+      display: inline-block;
     }
 }
 

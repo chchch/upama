@@ -92,7 +92,7 @@ const upama = (function() {
             apparatus.addEventListener('click',listener.appOnClick);
         } 
      
-        state.mains = document.querySelectorAll('*:not(.apparatus2) > .maintext > .sectiontext');
+        state.mains = document.querySelectorAll('*:not(.apparatus2) > .maintext .sectiontext');
         if(state.mains.length === 0) {
             state.mains = document.querySelectorAll('*:not(.apparatus2) > .maintext');
             state.mainClass = '.maintext';
@@ -614,6 +614,10 @@ const upama = (function() {
                 tipBox.style.opacity = 0;
                 tipBox.style.transition = 'opacity 0.2s ease-in';
                 */
+                tipBox.animate([
+                    {opacity: 0},
+                    {opacity: 1, easing: 'ease-in'}
+                    ], 300);
                 state.contentbox.parentNode.insertBefore(tipBox,state.contentbox);
 
                 tiptext = document.createElement('div');
@@ -629,10 +633,6 @@ const upama = (function() {
             const temp = window.getComputedStyle(tipBox).opacity;
             tipBox.style.opacity = 1;
             */
-            tBox.animate([
-                {opacity: 0},
-                {opacity: 1, easing: 'ease-in'}
-                ], 200);
         },
 
         toolTipRemove: function(e) {

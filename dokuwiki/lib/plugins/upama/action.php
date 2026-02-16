@@ -1,9 +1,80 @@
 <?php
- 
+
+use dokuwiki\Menu\Item\AbstractItem;
+
 if(!defined('DOKU_INC')) die();
 if(!defined('DOKU_PLUGIN')) define ('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'upama/upama.php');
 
+class ChangescriptItem extends AbstractItem {
+    protected $type = 'show';
+    public $html = true;
+    public function __construct() {
+      parent::__construct();
+    }
+    public function getHTML() {
+        global $INPUT;    
+        $selected = $INPUT->post->str('_upama_script');
+        $deva_select = '';
+        $mala_select = '';
+        $telu_select = '';
+        $newa_select = '';
+        $sarada_select = '';
+        $bali_select = '';
+        $beng_select = '';
+        switch($selected) {
+            case 'devanagari':
+                $deva_select = ' selected';
+                break;
+            case 'malayalam':
+                $mala_select = ' selected';
+                break;
+            case 'telugu':
+                $telu_select = ' selected';
+                break;
+            case 'newa':
+                $newa_select = ' selected';
+                break;
+            case 'sarada':
+                $sarada_select = ' selected';
+                break;
+            case 'balinese':
+                $bali_select = ' selected';
+                break;
+            case 'bengali':
+                $beng_select = ' selected';
+                break;
+        };
+      return '<li class="lazyhide"><a class="action changescript" title="Change display script"><span>'.
+        '<select id="__upama_script_selector">' .
+            '<option value="iast">IAST</option>' .
+            '<option value="devanagari"'.$deva_select.'>Devanāgarī</option>' .
+            '<option value="balinese"'.$bali_select.'>Akṣara Bālī</option>' .
+            '<option value="bengali"'.$beng_select.'>Bāṅglā</option>' .
+            '<option value="malayalam"'.$mala_select.'>Malayālam</option>' .
+            '<option value="newa"'.$newa_select.'>Newa</option>' .
+            '<option value="sarada"'.$sarada_select.'>Śāradā</option>' .
+            '<option value="telugu"'.$telu_select.'>Telugu</option>' .
+        '</select></span></a></li>';
+    }
+}
+class ExportItem extends AbstractItem {
+    protected $type = 'show';
+    public $html = true;
+    public function __construct() {
+      parent::__construct();
+    }
+    public function getHTML() {
+      return '<li class="lazyhide"><a class="action upama_export" title="Export file"><span>'.
+             '<select id="__upama_export">'.
+             '<option value="default" selected>Export as...</option>'.
+             '<option value="tei">TEI XML</option>'.
+             '<option value="latex">LaTeX</option>'.
+             '<option value="fasta">FASTA</option>'.
+             '<option value="fastt">FASTT</option>'.
+             '</select></span></a></li>';
+    }
+}
 class action_plugin_upama extends DokuWiki_Action_Plugin { 
 
     public function register(Doku_Event_Handler $controller) {
@@ -15,7 +86,8 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
         $controller->register_hook('EDIT_FORM_ADDTEXTAREA', 'BEFORE', $this, 'upama_section_edit');
         
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'upama_export');
-        $controller->register_hook('TEMPLATE_PAGETOOLS_DISPLAY', 'BEFORE', $this, 'upama_addbutton');
+        //$controller->register_hook('TEMPLATE_PAGETOOLS_DISPLAY', 'BEFORE', $this, 'upama_addbutton');
+        $controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'upama_addbutton',array());
     }
 
 /**
@@ -78,75 +150,14 @@ class action_plugin_upama extends DokuWiki_Action_Plugin {
             return;
         }
     }
-    
+
     public function upama_addbutton(Doku_Event $event) {
         global $ID;
-        global $INPUT;
         global $ACT;
         if($ACT != 'show') return;
         if(!p_get_metadata($ID,'plugin_upama',false)) return;
-            
-        $selected = $INPUT->post->str('_upama_script');
-        $deva_select = '';
-        $mala_select = '';
-        $telu_select = '';
-        $newa_select = '';
-        $sarada_select = '';
-        $bali_select = '';
-        $beng_select = '';
-        switch($selected) {
-            case 'devanagari':
-                $deva_select = ' selected';
-                break;
-            case 'malayalam':
-                $mala_select = ' selected';
-                break;
-            case 'telugu':
-                $telu_select = ' selected';
-                break;
-            case 'newa':
-                $newa_select = ' selected';
-                break;
-            case 'sarada':
-                $sarada_select = ' selected';
-                break;
-            case 'balinese':
-                $bali_select = ' selected';
-                break;
-            case 'bengali':
-                $beng_select = ' selected';
-                break;
-        };
-        $event->data['items'] = array_slice($event->data['items'], 0, 1, true) +
-        array('changescript' =>
-            '<li class="lazyhide"><a class="action changescript" title="Change display script"><span>'.
-            '<select id="__upama_script_selector">' .
-                '<option value="iast">IAST</option>' .
-                '<option value="devanagari"'.$deva_select.'>Devanāgarī</option>' .
-                '<option value="balinese"'.$bali_select.'>Akṣara Bālī</option>' .
-                '<option value="bengali"'.$beng_select.'>Bāṅglā</option>' .
-                '<option value="malayalam"'.$mala_select.'>Malayālam</option>' .
-                '<option value="newa"'.$newa_select.'>Newa</option>' .
-                '<option value="sarada"'.$sarada_select.'>Śāradā</option>' .
-                '<option value="telugu"'.$telu_select.'>Telugu</option>' .
-            '</select></span></a></li>'
-            ) +
-        array_slice($event->data['items'],1,null,true);
-        
-        $event->data['items'] = array_slice($event->data['items'], 0, 4, true) + 
-        array('upama_export' =>
-            '<li class="lazyhide"><a class="action upama_export" title="Export file"><span>'.
-            '<select id="__upama_export">'.
-                '<option value="default" selected>Export as...</option>'.
-                '<option value="tei">TEI XML</option>'.
-                '<option value="latex">LaTeX</option>'.
-                '<option value="fasta">FASTA</option>'.
-                '<option value="fastt">FASTT</option>'.
-                '</select></span></a></li>'
-                ) +
-        array_slice($event->data['items'],4,null,true);
+        array_splice($event->data['items'], -1, 0, [new ChangescriptItem(), new ExportItem()]);
     }
-
     public function upama_export(Doku_Event $event) {
     
         global $ACT;

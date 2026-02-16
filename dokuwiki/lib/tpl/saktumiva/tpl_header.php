@@ -19,15 +19,19 @@ if (!defined('DOKU_INC')) die();
                 <h3 class="a11y"><?php echo $lang['user_tools']; ?></h3>
                 <ul>
                     <?php
-                        if (!empty($_SERVER['REMOTE_USER'])) {
-                            echo '<li class="user">';
-                            tpl_userinfo(); /* 'Logged in as ...' */
-                            echo '</li>';
-                        }
-                        tpl_action('admin', 1, 'li');
-                        tpl_action('profile', 1, 'li');
-                        tpl_action('register', 1, 'li');
-                        tpl_action('login', 1, 'li');
+                    if (!empty($_SERVER['REMOTE_USER'])) {
+                        echo '<li class="user">';
+                        tpl_userinfo(); /* 'Logged in as ...' */
+                        echo '</li>';
+                    }
+                    $items = (new \dokuwiki\Menu\UserMenu())->getItems('action');
+                    foreach($items as $item) {
+                      if($item->getTitle() === 'Show page') continue;
+                      echo '<li class="action">'.
+                      '<a href="'.$item->getLink().'" title="'.$item->getTitle().'">'.
+                      '<span>'.$item->getLabel().'</span>'.
+                      '</a></li>';
+                    }   
                     ?>
                 </ul>
             </div>
@@ -38,27 +42,24 @@ if (!defined('DOKU_INC')) die();
             <h3 class="a11y"><?php echo $lang['site_tools']; ?></h3>
             <?php tpl_searchform(); ?>
             <div class="mobileTools">
-                <?php tpl_actiondropdown($lang['tools']); ?>
+                <?php echo (new \dokuwiki\Menu\MobileMenu())->getDropdown($lang['tools']); ?>
             </div>
             <ul>
-                <?php
-                    tpl_action('recent', 1, 'li');
-                    tpl_action('media', 1, 'li');
-                    tpl_action('index', 1, 'li');
-                ?>
+                <?php echo (new \dokuwiki\Menu\SiteMenu())->getListItems('action ', false); ?>
             </ul>
         </div>
 -->
     </div>
 
     <!-- BREADCRUMBS -->
-    <?php if($conf['breadcrumbs'] || $conf['youarehere']): ?>
+    <?php if ($conf['breadcrumbs'] || $conf['youarehere']) : ?>
         <div class="breadcrumbs">
-            <?php if($conf['youarehere']): ?>
-                <div class="youarehere"><?php tpl_action('index',1,'span');?> • <?php tpl_youarehere() ?></div>
+            <a href="?do=index" class="sitemap">Sitemap</a>
+            <?php if ($conf['youarehere']) : ?>
+                <div class="youarehere"><?php tpl_youarehere() ?></div>
             <?php endif ?>
-            <?php if($conf['breadcrumbs']): ?>
-                <div class="trace"><?php tpl_action('index',1,'span');?> • <?php tpl_breadcrumbs() ?></div>
+            <?php if ($conf['breadcrumbs']) : ?>
+                <div class="trace"><?php tpl_breadcrumbs() ?></div>
             <?php endif ?>
         </div>
     <?php endif ?>
