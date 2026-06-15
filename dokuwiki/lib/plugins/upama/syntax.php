@@ -241,7 +241,6 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
                             if(is_array($comparison)) { // returns array when there are inline <app>s
                                 
                                 list($basecomp,$others) = $comparison;
-
                                 $newcachefilename = $this->writeCacheFile($basecomp,$cachedir);
                                 $compared[] = $basecomp;
 
@@ -303,6 +302,7 @@ $final = '';
                else if(!$witnesses) { // if there are no witnesses to compare
                     if($xpath->query('//x:div2[@type="apparatus"]')->length > 0 ||
                        $xpath->query('//x:ab[@type="apparatus"]')->length > 0 ||
+                       $xpath->query('//x:standOff')->length > 0 ||
                        $xpath->query('//x:app')->length > 0)
                        $data .= $this->renderXML($xml,DOKU_PLUGIN. 'upama/xslt/with_apparatus2.xsl');
                    else
@@ -448,11 +448,34 @@ $final = '';
     var $xml_id;
     var $xml_start = FALSE;
     var $xml_posarray;
- 
+
     function xml_parser($data) {
+      $xml_tag_open = function($parser, $tag, $attr) {
+              $this->xml_depth++;
+              if($tag == 'TEXT' && $this->xml_depth == 2) $this->xml_start = TRUE;
+              if(!$this->xml_start) return;
+              if(array_key_exists('XML:ID', $attr)) {
+                  $this->xml_target_depth = $this->xml_depth;
+                  $this->xml_id = $attr['XML:ID'];
+                  $this->xml_startpos = xml_get_current_byte_index($parser);
+              }
+      };
+      $xml_tag_close = function($parser, $tag) {
+          if($this->xml_id && ($this->xml_depth == $this->xml_target_depth)) {
+              $pos = xml_get_current_byte_index($parser);
+              // walk back until start of closing tag is found
+              $pos = $pos - 3;
+              while(substr($this->xml_text,$pos+1,1) != '<') {
+                  $pos--;
+              }
+              $this->xml_posarray[$this->xml_id] = array($this->xml_startpos + 2,$pos + 2);
+              $this->xml_id = FALSE;        
+          }
+          $this->xml_depth--;
+      };
+
         $this->xml_parser = xml_parser_create();
-        xml_set_object($this->xml_parser, $this);
-        xml_set_element_handler($this->xml_parser, "xml_tag_open", "xml_tag_close");
+        xml_set_element_handler($this->xml_parser, $xml_tag_open, $xml_tag_close);
         $this->xml_text = $data;
         $this->xml_posarray = array();
         $this->xml_depth = 0;
@@ -461,33 +484,8 @@ $final = '';
         $this->xml_start = FALSE;
                 
         xml_parse($this->xml_parser, $data);
-        xml_parser_free($this->xml_parser);
     }
-   
-    function xml_tag_open($parser, $tag, $attr) {
-            $this->xml_depth++;
-            if($tag == 'TEXT' && $this->xml_depth == 2) $this->xml_start = TRUE;
-            if(!$this->xml_start) return;
-            if(array_key_exists('XML:ID', $attr)) {
-                $this->xml_target_depth = $this->xml_depth;
-                $this->xml_id = $attr['XML:ID'];
-                $this->xml_startpos = xml_get_current_byte_index($parser);
-            }
-    }
-    function xml_tag_close($parser, $tag) {
-        if($this->xml_id && ($this->xml_depth == $this->xml_target_depth)) {
-            $pos = xml_get_current_byte_index($parser);
-            // walk back until start of closing tag is found
-            $pos = $pos - 3;
-            while(substr($this->xml_text,$pos+1,1) != '<') {
-                $pos--;
-            }
-            $this->xml_posarray[$this->xml_id] = array($this->xml_startpos + 2,$pos + 2);
-            $this->xml_id = FALSE;        
-        }
-        $this->xml_depth--;
-    }
-
+ 
     function display_xml_error($error, $xml) {
         $return  = $xml[$error->line - 1] . "\n";
         $return .= str_repeat('-', $error->column) . "^\n";

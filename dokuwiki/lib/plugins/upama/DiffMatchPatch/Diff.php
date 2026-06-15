@@ -965,7 +965,8 @@ class Diff
         }
 
         $prevInternalEncoding = mb_internal_encoding();
-        $newInternalEncoding = 'UCS-2LE';
+        //$newInternalEncoding = 'UCS-2LE';
+        $newInternalEncoding = 'UTF-8';
         if ($prevInternalEncoding != $newInternalEncoding) {
             mb_internal_encoding($newInternalEncoding);
 

@@ -142,6 +142,29 @@ class Upama
                
                $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."'] | //x:ab[@type='apparatus' and @corresp='#".$elname."']")->item(0);
                if($app2) $appel->appendChild($app2);
+                
+               $app3 = $xpath1->query("//x:standOff[@corresp='#".$elname."' and @type!='apparatus']");
+               if($app3->length > 0) {
+                  $newel = $text1->createElementNS($rootNS,'ab');
+                  $newel->setAttribute('corresp','#'.$elname);
+                  $newel->setAttribute('type','apparatus');
+                  foreach($app3 as $app) {
+                    $list = $text1->createElementNs($rootNS,'list');
+                    $list->setAttribute('type',$app->getAttribute('type'));
+                    foreach($app->childNodes as $child) {
+                        if($child->nodeName === 'note') {
+                            $item = $text1->createElementNs($rootNS,'item');
+                            $item->setAttribute('corresp',$child->getAttribute('target'));
+                            while($child->hasChildNodes())
+                                $item->appendChild($child->childNodes->item(0));
+                            $list->appendChild($item);
+                        }
+                    }
+                    $newel->appendChild($list);
+                  }
+
+                  $appel->appendChild($newel);
+               }
                $el1->appendChild($appel);
             }
             else {
@@ -167,6 +190,28 @@ class Upama
                 $app2 = $xpath1->query("//x:div2[@type='apparatus' and @target='#".$elname."'] | //x:ab[@type='apparatus' and @corresp='#".$elname."']")->item(0);
                 if($app2) $appel->appendChild($app2);
                 
+               $app3 = $xpath1->query("//x:standOff[@corresp='#".$elname."' and @type!='apparatus']");
+               if($app3->length > 0) {
+                  $newel = $text1->createElementNS($rootNS,'ab');
+                  $newel->setAttribute('corresp','#'.$elname);
+                  $newel->setAttribute('type','apparatus');
+                  foreach($app3 as $app) {
+                    $list = $text1->createElementNs($rootNS,'list');
+                    $list->setAttribute('type',$app->getAttribute('type'));
+                    foreach($app->childNodes as $child) {
+                        if($child->nodeName === 'note') {
+                            $item = $text1->createElementNs($rootNS,'item');
+                            $item->setAttribute('corresp',$child->getAttribute('target'));
+                            while($child->hasChildNodes())
+                                $item->appendChild($child->childNodes->item(0));
+                            $list->appendChild($item);
+                        }
+                    }
+                    $newel->appendChild($list);
+                  }
+
+                  $appel->appendChild($newel);
+               }
                 $el1->appendChild($appel);
         
             }
