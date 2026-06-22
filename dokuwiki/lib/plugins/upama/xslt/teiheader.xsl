@@ -539,5 +539,7 @@
 
 <xsl:template match="x:facsimile"/>
 
+<xsl:template match="x:standOff"/>
+
 <xsl:template match="x:text"/>
 </xsl:stylesheet>
