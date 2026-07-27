@@ -734,6 +734,15 @@ span.abbr {
     background-repeat: repeat-x;
 }
 
+.trailer {
+    font-size: inherit;
+    width: 60%;
+    display: inline-block;
+    text-align: right;
+    line-height: 2rem; 
+    font-size: 1.2rem; 
+}
+
 div.dokuwiki div.editbutton_plugin_upama {
     padding: 1.5em 0 1.5em 0;
     height: 1.5em;
