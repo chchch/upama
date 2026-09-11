@@ -33,6 +33,7 @@ return array(
             "pb" => "-1",
             "ptr" => "-1",
             "seg" => "-2",
+            "trailer" => "-1",
             "unclear" => "-2",
             // gaiji
             "g" => "-2",
