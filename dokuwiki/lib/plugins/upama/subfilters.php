@@ -36,7 +36,26 @@ return array(
     "replace" => 'n'],
 
     ["name" => "internal nasal variants",
+    // before stops (5 vargas): homorganic nasal is an optional alternative
+    // spelling to anusvāra (A 8.4.58), so either may appear in a witness
     "find" => '[mm̐nñṇṅ](?=[pbmdtnṭḍcjkg])', 
+    "replace" => 'ṃ'],
+
+    ["name" => "internal nasal variants before semivowels, sibilants, h",
+    // before y/v/r/l/ś/ṣ/s/h there is no homorganic nasal counterpart, so
+    // anusvāra is the only grammatically valid spelling (A 8.3.23); any
+    // other nasal letter appearing here (mv, my, mr, ml, mś, mṣ, ms, mh,
+    // and the same before n/ñ/ṇ/ṅ) is simply an orthographic variant of ṃ
+    "find" => '[mm̐nñṇṅ](?=[yvrlśṣsh])', 
+    "replace" => 'ṃ'],
+
+    ["name" => "final nasal before homorganic word-initial stop",
+    // A 8.4.58 parasavarṇa applied across a pada boundary: a word-final
+    // nasal and the initial stop of the next word may be written either
+    // as the homorganic nasal (alasan duḥkhaśīlam, jhātkārān jaghne) or
+    // as anusvāra (alasaṃ duḥkhaśīlam); restricted to matched pairs only,
+    // since e.g. final m before a following d is not a valid alternation
+    "find" => ['ṅ(?=\s+[kg])','ñ(?=\s+[cj])','ṇ(?=\s+[ṭḍ])','n(?=\s+[td])','m(?=\s+[pb])'],
     "replace" => 'ṃ'],
 
 //        "visarga aḥ + vowel" => array('aḥ(?=\s+[āiīeuūo])', "replace_with" => 'a'), 
