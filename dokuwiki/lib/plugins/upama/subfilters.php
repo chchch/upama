@@ -41,12 +41,12 @@ return array(
     "find" => '[mm̐nñṇṅ](?=[pbmdtnṭḍcjkg])', 
     "replace" => 'ṃ'],
 
-    ["name" => "internal nasal variants before semivowels, sibilants, h",
-    // before y/v/r/l/ś/ṣ/s/h there is no homorganic nasal counterpart, so
+    ["name" => "internal nasal variants before semivowels",
+    // before y/v/r/l there is no homorganic nasal counterpart, so
     // anusvāra is the only grammatically valid spelling (A 8.3.23); any
-    // other nasal letter appearing here (mv, my, mr, ml, mś, mṣ, ms, mh,
-    // and the same before n/ñ/ṇ/ṅ) is simply an orthographic variant of ṃ
-    "find" => '[mm̐nñṇṅ](?=[yvrlśṣsh])', 
+    // other nasal letter appearing here (mv, my, mr, ml, and the same
+    // before n/ñ/ṇ/ṅ) is simply an orthographic variant of ṃ
+    "find" => '[mm̐nñṇṅ](?=[yvrl])', 
     "replace" => 'ṃ'],
 
     ["name" => "final nasal before homorganic word-initial stop",
