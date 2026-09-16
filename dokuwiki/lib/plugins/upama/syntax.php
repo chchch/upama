@@ -442,10 +442,8 @@ $final = '';
 
     var $xml_text;
     var $xml_parser;
-    var $xml_startpos;
     var $xml_depth;
-    var $xml_target_depth;
-    var $xml_id;
+    var $xml_idstack;
     var $xml_start = FALSE;
     var $xml_posarray;
 
@@ -455,21 +453,26 @@ $final = '';
               if($tag == 'TEXT' && $this->xml_depth == 2) $this->xml_start = TRUE;
               if(!$this->xml_start) return;
               if(array_key_exists('XML:ID', $attr)) {
-                  $this->xml_target_depth = $this->xml_depth;
-                  $this->xml_id = $attr['XML:ID'];
-                  $this->xml_startpos = xml_get_current_byte_index($parser);
+                  // push, so that a descendant with its own xml:id (e.g. an
+                  // <anchor/>) does not displace the id of its container
+                  $this->xml_idstack[] = array(
+                      'id'       => $attr['XML:ID'],
+                      'depth'    => $this->xml_depth,
+                      'startpos' => xml_get_current_byte_index($parser),
+                  );
               }
       };
       $xml_tag_close = function($parser, $tag) {
-          if($this->xml_id && ($this->xml_depth == $this->xml_target_depth)) {
+          $top = end($this->xml_idstack);
+          if($top !== FALSE && $top['depth'] == $this->xml_depth) {
+              array_pop($this->xml_idstack);
               $pos = xml_get_current_byte_index($parser);
               // walk back until start of closing tag is found
               $pos = $pos - 3;
               while(substr($this->xml_text,$pos+1,1) != '<') {
                   $pos--;
               }
-              $this->xml_posarray[$this->xml_id] = array($this->xml_startpos + 2,$pos + 2);
-              $this->xml_id = FALSE;        
+              $this->xml_posarray[$top['id']] = array($top['startpos'] + 2,$pos + 2);
           }
           $this->xml_depth--;
       };
@@ -479,8 +482,7 @@ $final = '';
         $this->xml_text = $data;
         $this->xml_posarray = array();
         $this->xml_depth = 0;
-        $this->xml_target_depth = 0;
-        $this->xml_id = FALSE;
+        $this->xml_idstack = array();
         $this->xml_start = FALSE;
                 
         xml_parse($this->xml_parser, $data);
