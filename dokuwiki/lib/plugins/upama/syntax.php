@@ -29,7 +29,7 @@ class syntax_plugin_upama extends DokuWiki_Syntax_Plugin {
     function getType() { return 'substition'; }
     function getPType() { return 'block'; }
     function getSort() { return 1242; }
-    function connectTo($mode) { $this->Lexer->addSpecialPattern('<TEI\b.*?>.*</TEI>',$mode,'plugin_upama'); }
+    function connectTo($mode) { $this->Lexer->addSpecialPattern('<\?xml .+<TEI\b.*?>.*</TEI>|<TEI\b.*?>.*</TEI>',$mode,'plugin_upama'); }
 
     function handle($match, $state, $pos, Doku_Handler $handler)
     { 
